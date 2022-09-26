@@ -34,6 +34,17 @@ function egoreduct(g, vtx, code, codename)
     return nf
 end
 
+"""
+        egoreducts(els, codes, codename)
+
+Calculate individual network characteristics, and return a DataFrame.
+
+ARGS
+====
+- els : edgelist
+- codes : village codes to include
+- codename : name of village code variable
+"""
 function egoreducts(els, codes, codename)
     nf = DataFrame();
 

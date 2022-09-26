@@ -58,7 +58,7 @@ function process_edgelist!(
     return edgelist
 end
 
-function process_connections(
+function process_edgelist(
     edgelist_input;
     relations = nothing,
     symmetric = true,
@@ -70,7 +70,7 @@ function process_connections(
 
     edgelist = deepcopy(edgelist_input)
 
-    process_connections!(
+    process_edgelist!(
         edgelist;
         relations = relations,
         symmetric = symmetric,
