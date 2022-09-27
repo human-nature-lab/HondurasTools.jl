@@ -3,7 +3,7 @@
 """
         clean_respondent(respondent_paths, hh_pth)
 
-Clean the respondent level data. Currently only processes the W3 data.
+Clean the respondent level data. Currently only processes the W3 data (uses prior waves to fill in selected missing values).
 """
 function clean_respondent(respondent_paths, hh_pth)
 
