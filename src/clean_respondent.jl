@@ -1,5 +1,10 @@
 # clean_respondent_data.jl
 
+"""
+        clean_respondent(respondent_paths, hh_pth)
+
+Clean the respondent level data. Currently only processes the W3 data.
+"""
 function clean_respondent(respondent_paths, hh_pth)
 
     # load data
@@ -73,9 +78,9 @@ function clean_respondent(respondent_paths, hh_pth)
     ];
 
     r3.village_code = categorical(r3.village_code);
-    r3.b0600 = categorical(r3.b0600);
     rename!(r3, :b0600 => :religion)
-
+    
+    r3.religion = categorical(r3.religion);
     r3.gender = categorical(r3.gender);
 
     r3_desc = describe(r3)
@@ -266,8 +271,8 @@ function clean_respondent(respondent_paths, hh_pth)
     );
     rename!(h3, :household_wealth_index_w3 => :hh_wealth);
 
-    h3.l0400 = categorical(h3.l0400);
     rename!(h3, :l0400 => :watersource);
+    h3.watersource = categorical(h3.watersource);
 
     rename!(h3, :l0900a => :elec);
     h3.elec = categorical(h3.elec);

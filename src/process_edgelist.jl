@@ -58,6 +58,19 @@ function process_edgelist!(
     return edgelist
 end
 
+"""
+    process_edgelist(
+        edgelist_input;
+        relations = nothing,
+        symmetric = true,
+        alter_source = false,
+        alter₁ = :ego,
+        alter₂ = :alter,
+        restrict = true
+    )
+
+cf. process_edgelist!
+"""
 function process_edgelist(
     edgelist_input;
     relations = nothing,

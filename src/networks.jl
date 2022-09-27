@@ -1,6 +1,11 @@
 # networks.jl
 # functions for processing the Honduras network data
 
+"""
+        mk_graph(el; ego = :ego, alter = :alter)
+
+Make a directed graph object from an edgelist.
+"""
 function mk_graph(el; ego = :ego, alter = :alter)
     egos = el[!, ego]
     alters = el[!, alter]
@@ -10,6 +15,11 @@ function mk_graph(el; ego = :ego, alter = :alter)
     return g, vtx
 end
 
+"""
+        mk_graph(egos, alters)
+
+Make a directed graph object from vectors of egos and alters.
+"""
 function mk_graph(egos, alters)
     vtx = unique(vcat(egos, alters));
     g = DiGraph(length(vtx));

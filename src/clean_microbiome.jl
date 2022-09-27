@@ -1,5 +1,9 @@
 # clean_mb_data.jl
 
+"""
+        clean_microbiome(cohort1pth, cohort2pth)
+        
+"""
 function clean_microbiome(cohort1pth, cohort2pth)
 
     mb = begin
