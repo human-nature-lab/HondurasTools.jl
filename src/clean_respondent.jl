@@ -6,7 +6,6 @@ function regularizecols!(resp)
     dr3 = describe(resp[3])[!, [:variable, :eltype]]
 
     drs = unique(vcat(dr1, dr2, dr3))
-    nrow(drs) == length(unique(drs.variable))
 
     drs = combine(groupby(drs, :variable), :eltype => Ref∘unique => :eltypes);
 
