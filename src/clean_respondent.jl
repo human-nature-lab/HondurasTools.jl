@@ -102,13 +102,21 @@ function clean_respondent(
     ];
 
     # convert "Dont_Know" and "Refused" to missing
-    missingize!(rf, :b0100);
-    rf.b0100 = categorical(rf.b0100; ordered = true)
-    recode!(rf.b0100, "Have not completed any type of school" => "None")
+    # missingize!(rf, :b0100);
+
+    rf.b0100 = categorical(rf.b0100; ordered = true);
+
+    recode!(
+        rf.b0100,
+        "Dont_Know" => "Don't know",
+        "Have not completed any type of school" => "None"
+    )
 
     levels!(
         rf.b0100,
         [
+            "Refused",
+            "Don't know",
             "None",
             "1st grade",
             "2nd grade",
@@ -121,6 +129,7 @@ function clean_respondent(
             "More than secondary"
         ]
     );
+    
     rename!(rf, :b0100 => :school);
 
     rf[!, :educated] = copy(rf[!, :school]);
@@ -138,9 +147,6 @@ function clean_respondent(
         "More than secondary" => "Yes"
     );
 
-    # don't convert refused, dont know -> these are meaningful here
-    # unique(r3.religion)
-    # missingize!(r3, :religion)
     rf.religion = categorical(rf.religion);
 
     # "Dont_Know" is important here
@@ -157,12 +163,16 @@ function clean_respondent(
     );
 
     rename!(rf, :b0800 => :invillage);
-    missingize!(rf.invillage)
+    
+    
     rf.invillage = categorical(rf.invillage; ordered = true);
+    recode!(rf.invillage, "Dont_Know" => "Don't know");
 
     levels!(
         rf.invillage,
         [
+            "Refused",
+            "Don't know",
             "Less than a year",
             "More than a year",
             "Since birth"
@@ -170,12 +180,15 @@ function clean_respondent(
     );
 
     rename!(rf, :c0100 => :health);
-    missingize!(rf, :health)
+    
+    recode!(rf.health, "Dont_Know" => "Don't know");
     rf[!, :health] = categorical(rf[!, :health]; ordered = true);
 
     levels!(
         rf[!, :health],
         [
+            "Refused",
+            "Don't know",
             "poor",
             "fair",
             "good",
@@ -196,11 +209,12 @@ function clean_respondent(
 
     rename!(rf, :c0200 => :mentalhealth);
     rf[!, :mentalhealth] = categorical(rf[!, :mentalhealth]; ordered = true);
-    rf[!, :mentalhealth] = recode(rf[!, :mentalhealth], "Dont_Know" => missing);
+    rf[!, :mentalhealth] = recode(rf[!, :mentalhealth], "Dont_Know" => "Don't know");
 
     levels!(
         rf[!, :mentalhealth],
         [
+            "Don't know",
             "Refused",
             "poor",
             "fair",
@@ -216,20 +230,28 @@ function clean_respondent(
 
     levels!(
         rf.safety,
-        ["Refused", "Unsafe", "A little unsafe", "Don't know", "Safe"]
+        ["Refused", "Don't know", "Unsafe", "A little unsafe", "Safe"]
     );
 
     rename!(rf, :d0100 => :foodworry);
-    rf.foodworry = categorical(rf.foodworry);
+    rf.foodworry = categorical(rf.foodworry; ordered = true);
+    recode!(rf.foodworry, "Dont_Know" => "Don't know");
+    levels!(rf.foodworry, ["Refused", "Don't know", "No", "Yes"]);
 
     rename!(rf, :d0200 => :foodlack);
-    rf.foodlack = categorical(rf.foodlack);
+    rf.foodlack = categorical(rf.foodlack; ordered = true);
+    recode!(rf.foodlack, "Dont_Know" => "Don't know");
+    levels!(rf.foodlack, ["Refused", "Don't know", "No", "Yes"]);
 
     rename!(rf, :d0300 => :foodskipadult);
-    rf.foodskipadult = categorical(rf.foodskipadult);
+    rf.foodskipadult = categorical(rf.foodskipadult; ordered = true);
+    recode!(rf.foodskipadult, "Dont_Know" => "Don't know");
+    levels!(rf.foodskipadult, ["Refused", "Don't know", "No", "Yes"]);
 
     rename!(rf, :d0400 => :foodskipchild);
-    rf.foodskipchild = categorical(rf.foodskipchild);
+    rf.foodskipchild = categorical(rf.foodskipchild; ordered = true);
+    recode!(rf.foodskipchild, "Dont_Know" => "Don't know");
+    levels!(rf.foodskipchild, ["Refused", "Don't know", "No", "Yes"]);
 
     rename!(rf, :d0700 => :incomesuff);
     rf.incomesuff = categorical(rf.incomesuff; ordered = true);
@@ -237,18 +259,22 @@ function clean_respondent(
     recode!(
         rf.incomesuff,
         "Refused" => "Refused",
+        "Dont_Know" => "Don't know",
         "It is not sufficient and there are major difficulties" => "major hardship",
         "It is not sufficient and there are difficulties" => "hardship",
-        "Dont_Know" => "Don't know",
         "It is sufficient, without major difficulties" => "sufficient",
         "There is enough to live on and save" => "live and save"
     );
 
     rename!(rf, :e0200 => :partnered);
-    rf.partnered = categorical(rf.partnered);
+    rf.partnered = categorical(rf.partnered; ordered = true);
+    recode!(rf.partnered, "Dont_Know" => "Don't know");
+    levels!(rf.partnered, ["Refused", "Don't know", "No", "Yes"]);
 
     rename!(rf, :e0700 => :pregnant);
-    rf.pregnant = categorical(rf.pregnant);
+    rf.pregnant = categorical(rf.pregnant; ordered = true);
+    recode!(rf.pregnant, "Dont_Know" => "Don't know");
+    levels!(rf.pregnant, ["Refused", "Don't know", "No", "Yes"]);
 
     # ignore ivars for now
     # select!(rf, Not([:i0200, :i0300, :i0400, :i0500, :i0600, :i0700]));
