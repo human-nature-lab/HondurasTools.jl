@@ -55,3 +55,11 @@ function tuplevec(alters1, alters2; sort = false)
     end
     return tups
 end
+
+function misstring(x)
+    return if ismissing(x)
+        missing
+    else
+        string(x)
+    end
+end
