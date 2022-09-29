@@ -8,6 +8,7 @@ using Graphs, MetaGraphs
 import CSV
 
 include("utilities.jl")
+include("cleaning_utilities.jl")
 include("cleaning.jl")
 include("clean_respondent.jl")
 include("clean_household.jl")
