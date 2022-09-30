@@ -1,10 +1,10 @@
 # clean_mb_data.jl
 
 """
-        clean_microbiome(cohort1pth, cohort2pth)
+        clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
         
 """
-function clean_microbiome(cohort1pth, cohort2pth)
+function clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
 
     mb = begin
         mb1, mb2 = [CSV.read(x, DataFrame; missingstring = "NA") for x in [cohort1pth, cohort2pth]]
@@ -32,7 +32,29 @@ function clean_microbiome(cohort1pth, cohort2pth)
 
     # mb data
 
-    select!(
+    mb = leftjoin(mb, risk, on = :name)
+
+    mb.village_code = categorical(mb.village_code)
+    mb.name = categorical(mb.name)
+
+    # try to find missing village codes in w3 data
+    # begin
+    #     codemap = Dict(r3.name .=> r3.village_code)
+    #     for (i, e) in enumerate(mb.name)
+    #         if ismissing(mb.village_code[i])
+    #             mb.village_code[i] = get(codemap, e, missing)
+    #         end
+    #     end
+    # end
+
+    mb.cognitive_status = categorical(mb.cognitive_status; ordered = true);
+    levels!(mb.cognitive_status, ["none", "impairment", "dementia"]);
+
+    mb.mb_a0100 = categorical(mb.mb_a0100)
+    rename!(mb, :mb_a0100 => :whereborn)
+
+    if selected == :standard
+        select!(
         mb,
         [
             :name,
@@ -68,27 +90,9 @@ function clean_microbiome(cohort1pth, cohort2pth)
             :mb_c0000
         ]
     )
-
-    mb = leftjoin(mb, risk, on = :name)
-
-    mb.village_code = categorical(mb.village_code)
-    mb.name = categorical(mb.name)
-
-    # try to find missing village codes in w3 data
-    # begin
-    #     codemap = Dict(r3.name .=> r3.village_code)
-    #     for (i, e) in enumerate(mb.name)
-    #         if ismissing(mb.village_code[i])
-    #             mb.village_code[i] = get(codemap, e, missing)
-    #         end
-    #     end
-    # end
-
-    mb.cognitive_status = categorical(mb.cognitive_status; ordered = true);
-    levels!(mb.cognitive_status, ["none", "impairment", "dementia"]);
-
-    mb.mb_a0100 = categorical(mb.mb_a0100)
-    rename!(mb, :mb_a0100 => :whereborn)
+    elseif !isnothing(selected)
+        select!(mb, selected)
+    end
 
     return mb
 end

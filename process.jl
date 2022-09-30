@@ -38,11 +38,38 @@ cohort2pth = "COHORT_2/v1/hmb_respondents_cohort2_v1_E_FELTHAM_2022-09-08.csv";
 
 @time mb = clean_microbiome(cohort1pth, cohort2pth);
 
+dropmissing!(resp, :village_code);
+dropmissing!(hh, :village_code);
 dropmissing!(mb, :village_code);
-mbr = leftjoin(mb, r3, on = [:name, :village_code]);
 
-nrow(mb)
-sum(.!ismissing.(mb.risk_score))
+select!(resp, Not([:household_id, :skip_glitch]))
+select!(hh, Not([:household_id, :skip_glitch]))
+
+rename!(hh, :survey_start => :hh_survey_start)
+rename!(hh, :new_building => :hh_new_building)
+
+dropmissing!(hh, :building_id)
+
+sum(ismissing(hh.building_id))
+sum(ismissing(resp.building_id))
+
+sum(ismissing(hh.village_code))
+sum(ismissing(resp.village_code))
+
+sum(ismissing(hh.wave))
+sum(ismissing(resp.wave))
+
+dat = leftjoin(
+    resp, hh,
+    on = [
+        :building_id, :village_code, :wave,
+        :office, :municipality, :village_name
+    ]
+);
+
+# for mb join, we need to handle the waves somehow
+rename!(mb, :lives_in_village => :mb_lives_in_village, :works_in_village => :mb_works_in_village)
+mdat = leftjoin(mb, @subset(dat, :wave .== 3), on = [:name, :village_code]);
 
 # network data
 
@@ -62,17 +89,17 @@ health = ["health_advice_get", "health_advice_give"];
 
 nf = begin
     mbcodes = sort(unique(mb.village_code)); # relevant villages
-    rels = sort(unique(conns.relationship));
+    rels = sort(unique(con.relationship));
     
     # union network
     nf = DataFrame();
 
     for w in 1:3
     
-        unionels = @subset(conns, :wave .== w); # all ties
+        # unionels = @subset(conns, :wave .== w); # all ties
         
         unionels = @subset(
-            conns, :wave .== w, :relationship .∈ Ref(core)
+            con, :wave .== w, :relationship .∈ Ref(core)
         ); # all ties
 
         # network calculations
@@ -84,8 +111,18 @@ nf = begin
     nf
 end
 
-mb = leftjoin(mbr, @subset(nf, :wave .== 3), on = [:name, :village_code]);
-r3 = leftjoin(r3, @subset(nf, :wave .== 3), on = [:name, :village_code]);
+mdat = @chain nf begin
+    select([:name, :village_code, :degree, :wave])
+    unstack([:name, :village_code], :wave, :degree)
+    rename(Symbol(1) => :degree_w1, Symbol(2) => :degree_w2, Symbol(3) => :degree_w3)
+    dropmissing([:degree_w1, :degree_w3])
+    @transform(:Δdegree = :degree_w3 - :degree_w1)
+    leftjoin(mdat, _, on = [:village_code, :name])
+end
+
+# mdat = leftjoin(
+#     mdat, select(@subset(nf, :wave .== 3), Not(:wave)), on = [:name, :village_code]
+# );
 
 mb = begin
     X = select(@subset(nf, :wave .== 1), [:name, :village_code, :degree])

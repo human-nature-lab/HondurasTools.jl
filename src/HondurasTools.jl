@@ -4,6 +4,7 @@ using DataFrames, DataFramesMeta
 using CategoricalArrays
 using Dates
 using Graphs, MetaGraphs
+using StatsBase, Statistics
 
 import CSV
 

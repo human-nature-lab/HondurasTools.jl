@@ -37,10 +37,10 @@ end
 
 function egoreduct(g, vtx, code, codename)
     nf = DataFrame(:name => vtx, codename => code)
-    nf[!, :degree] = zscore(degree(g));
-    nf[!, :between] = zscore(betweenness_centrality(g));
-    nf[!, :eigen] = zscore(eigenvector_centrality(g));
-    nf[!, :close] = zscore(closeness_centrality(g));
+    nf[!, :degree] = degree(g);
+    nf[!, :between] = betweenness_centrality(g);
+    nf[!, :eigen] = eigenvector_centrality(g);
+    nf[!, :close] = closeness_centrality(g);
     return nf
 end
 
