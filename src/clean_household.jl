@@ -2,7 +2,7 @@
 
 ### process household level
     
-function clean_household(hh_paths, selected = :standard)
+function clean_household(hh_paths; selected = :standard)
 
     hh = [CSV.read(x, DataFrame; missingstring = "NA") for x in hh_paths];
 

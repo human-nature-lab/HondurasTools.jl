@@ -12,23 +12,31 @@ using HondurasTools
 # respondent data
 
 outcomes_w3_pth = "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE3/v3_2021-03/honduras_outcomes_WAVE3_v3.csv";
-hh_pth =  "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE3/v3_2021-03/honduras_households_WAVE3_v3.csv";
 
-resp_pths = [
+hh_paths =  [
+    "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE1/v8_2021-03/honduras_households_WAVE1_v8.csv",
+    "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE2/v5_2021-03/honduras_households_WAVE2_v5.csv",
+    "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE3/v3_2021-03/honduras_households_WAVE3_v3.csv"
+];
+
+respondent_paths = [
     "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE1/v8_2021-03/honduras_respondents_WAVE1_v8.csv",
     "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE2/v5_2021-03/honduras_respondents_WAVE2_v5.csv",
     "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE3/v3_2021-03/honduras_respondents_WAVE3_v3.csv",
 ];
 
-# check missing handling -> should probably keep "Dont_Know"
-r3 = clean_resp_data(resp_pths, hh_pth);
+@time resp = clean_respondent(
+    respondent_paths; nokeymiss = true, selected = nothing
+);
+
+@time hh = clean_household(hh_paths; selected = nothing)
 
 # microbiome data
 
 cohort1pth = "COHORT_1/v1/hmb_respondents_cohort1_baseline_v1_E_FELTHAM_2022-09-08.csv";
 cohort2pth = "COHORT_2/v1/hmb_respondents_cohort2_v1_E_FELTHAM_2022-09-08.csv";
 
-mb = clean_microbiome(cohort1pth, cohort2pth);
+@time mb = clean_microbiome(cohort1pth, cohort2pth);
 
 dropmissing!(mb, :village_code);
 mbr = leftjoin(mb, r3, on = [:name, :village_code]);
@@ -44,7 +52,10 @@ con_paths = [
     "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE3/v3_2021-03/honduras_connections_WAVE3_v3.csv"
 ];
 
-conns = process_conn(con_paths);
+@time con = clean_connections(
+    con_paths; alter_source = true, same_village = true
+);
+
 # unique(conns.relationship)
 core = ["personal_private", "closest_friend", "free_time"];
 health = ["health_advice_get", "health_advice_give"];
