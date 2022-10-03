@@ -18,6 +18,7 @@ include("clean_connections.jl")
 include("process_edgelist.jl")
 include("cleaning.jl")
 include("risk_process.jl")
+include("graph.jl")
 include("networks.jl")
 
 export 
@@ -26,7 +27,7 @@ export
     # networks
     clean_connections,
     process_edgelist, process_edgelist!,
-    mk_graph, egoreducts,
+    graph, egoreducts,
     # utilities
     unilen, interlen, tuplevec
 end
