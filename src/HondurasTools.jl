@@ -29,6 +29,7 @@ export
     process_edgelist, process_edgelist!,
     graph, egoreduction, egoreductions,
     # utilities
+    sortedges!,symmetrize!,
     unilen, interlen, tupleize, symmetrize!
 end
 
