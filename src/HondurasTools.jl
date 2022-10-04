@@ -3,8 +3,10 @@ module HondurasTools
 using DataFrames, DataFramesMeta
 using CategoricalArrays
 using Dates
-using Graphs, MetaGraphs
+# using Graphs, MetaGraphs
 using StatsBase, Statistics
+using CSSTools:sortedges!,symmetrize!,tupleize
+using CSSTools:graph,egoreduction,egoreductions
 
 import CSV
 
@@ -18,8 +20,6 @@ include("clean_connections.jl")
 include("process_edgelist.jl")
 include("cleaning.jl")
 include("risk_process.jl")
-include("graph.jl")
-include("networks.jl")
 
 export 
     # cleaning
@@ -27,8 +27,8 @@ export
     # networks
     clean_connections,
     process_edgelist, process_edgelist!,
-    graph, egoreducts,
+    graph, egoreduction, egoreductions,
     # utilities
-    unilen, interlen, tuplevec
+    unilen, interlen, tupleize, symmetrize!
 end
 

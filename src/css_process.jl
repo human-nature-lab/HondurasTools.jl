@@ -66,7 +66,7 @@ function process_key(key)
     select!(key, :edge_id, :ego_id, :alter_id);
     key = unique(key);
 
-    HonCog.sort_edge_data!(key; alter₁ = :ego_id, alter₂ = :alter_id)
+    sortedges!(key.ego_id, key.alter_id)
     return key
 end
 
@@ -74,7 +74,7 @@ function process_edges!(edges, css_relationships)
     @subset!(edges, :alter_source .== 1, :same_village .== "1");
     select!(edges, Not([:same_village, :alter_source]))
     @subset!(edges, :relationship .∈ Ref(css_relationships));
-    HonCog.sort_edge_data!(edges; alter₁ = :ego, alter₂ = :alter)
+    sortedges!(edges.ego, edges.alter)
 end
 
 # """
