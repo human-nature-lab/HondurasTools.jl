@@ -88,7 +88,7 @@ function clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
             :works_in_village,
             :whereborn,
             :dept,
-            :municipality,
+            :mb_municipality,
             :country,
             # :eth_Chorti_Maya_Chorti,
             # :eth_Tolupan_Jicaque_Xicaque,
