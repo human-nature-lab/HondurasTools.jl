@@ -55,20 +55,21 @@ function clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
     mb.mb_a0200 = categorical(mb.mb_a0200)
 
     rename!(mb, :mb_a0200 => :dept)
-    rename!(mb, :mb_a0300 => :municipality)
+    rename!(mb, :mb_a0300 => :mb_municipality)
     rename!(mb, :mb_a0400 => :country)
 
     rename!(
+        mb, 
         :mb_a0500a => :eth_Lenca
         # :mb_a0500b => :eth_Miskito,
-        :mb_a0500c => :eth_Chorti_Maya_Chorti,
-        :mb_a0500d => :eth_Tolupan_Jicaque_Xicaque,
-        :mb_a0500e => :eth_Pech_Paya,
-        :mb_a0500f => :eth_Sumo_Tawahka,
-        :mb_a0500g => :eth_Garifuna,
-        :mb_a0500h => :eth_Other,
-        :mb_a0500i => :eth_None_of_the_above,
-        :mb_a0700 => :eu_citizen
+        # :mb_a0500c => :eth_Chorti_Maya_Chorti,
+        # :mb_a0500d => :eth_Tolupan_Jicaque_Xicaque,
+        # :mb_a0500e => :eth_Pech_Paya,
+        # :mb_a0500f => :eth_Sumo_Tawahka,
+        # :mb_a0500g => :eth_Garifuna,
+        # :mb_a0500h => :eth_Other,
+        # :mb_a0500i => :eth_None_of_the_above,
+        # :mb_a0700 => :eu_citizen
     )
 
     rename!(mb, :mb_ab0100 => :spend)
@@ -89,14 +90,14 @@ function clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
             :dept,
             :municipality,
             :country,
-            :eth_Chorti_Maya_Chorti,
-            :eth_Tolupan_Jicaque_Xicaque,
-            :eth_Pech_Paya,
-            :eth_Sumo_Tawahka,
-            :eth_Garifuna,
-            :eth_Other,
-            :eth_None_of_the_above,
-            :eu_citizen,
+            # :eth_Chorti_Maya_Chorti,
+            # :eth_Tolupan_Jicaque_Xicaque,
+            # :eth_Pech_Paya,
+            # :eth_Sumo_Tawahka,
+            # :eth_Garifuna,
+            # :eth_Other,
+            # :eth_None_of_the_above,
+            # :eu_citizen,
             :spend,
             :leavevillage, # how often leave the village
             :mb_health,
