@@ -32,4 +32,3 @@ export
     sortedges!,symmetrize!,
     unilen, interlen, tupleize, symmetrize!
 end
-
