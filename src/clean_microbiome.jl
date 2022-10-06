@@ -52,6 +52,30 @@ function clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
 
     mb.mb_a0100 = categorical(mb.mb_a0100)
     rename!(mb, :mb_a0100 => :whereborn)
+    mb.mb_a0200 = categorical(mb.mb_a0200)
+
+    rename!(mb, :mb_a0200 => :dept)
+    rename!(mb, :mb_a0300 => :municipality)
+    rename!(mb, :mb_a0400 => :country)
+
+    rename!(
+        :mb_a0500a => :eth_Lenca
+        # :mb_a0500b => :eth_Miskito,
+        :mb_a0500c => :eth_Chorti_Maya_Chorti,
+        :mb_a0500d => :eth_Tolupan_Jicaque_Xicaque,
+        :mb_a0500e => :eth_Pech_Paya,
+        :mb_a0500f => :eth_Sumo_Tawahka,
+        :mb_a0500g => :eth_Garifuna,
+        :mb_a0500h => :eth_Other,
+        :mb_a0500i => :eth_None_of_the_above,
+        :mb_a0700 => :eu_citizen
+    )
+
+    rename!(mb, :mb_ab0100 => :spend)
+    rename!(mb, :mb_ab0200 => :leavevillage)
+    rename!(mb, :mb_b0100 => :mb_health)
+    rename!(mb, :mb_b1700 => :mb_chronic)
+    rename!(mb, :mb_c0000 => :getmoney)
 
     if selected == :standard
         select!(
@@ -59,24 +83,24 @@ function clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
         [
             :name,
             :village_code,
-            :lives_in_village, :works_in_village,
-            :mb_a0100,
-            :mb_a0200,
-            :mb_a0300,
-            :mb_a0400,
-            :mb_a0500a, # ethnic group
-            #:mb_a0500b,
-            :mb_a0500c,
-            #:mb_a0500d,
-            #:mb_a0500e,
-            #:mb_a0500f,
-            #:mb_a0500g,
-            #:mb_a0500h,
-            :mb_a0500i,
-            :mb_a0700, # eu citizen
-            :mb_ab0200, # how often leave the village
-            :mb_b0100, # health
-            :mb_b1700, # chronic health condition
+            :lives_in_village,
+            :works_in_village,
+            :whereborn,
+            :dept,
+            :municipality,
+            :country,
+            :eth_Chorti_Maya_Chorti,
+            :eth_Tolupan_Jicaque_Xicaque,
+            :eth_Pech_Paya,
+            :eth_Sumo_Tawahka,
+            :eth_Garifuna,
+            :eth_Other,
+            :eth_None_of_the_above,
+            :eu_citizen,
+            :spend,
+            :leavevillage, # how often leave the village
+            :mb_health,
+            :mb_chronic, # chronic health condition
             :photo_naming_score, # dementia
             :photo_verbal_fluidity_score,
             :photo_recall_score,
@@ -87,7 +111,10 @@ function clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
             :bfi10_conscientiousness,
             :bfi10_neuroticism,
             :bfi10_openness_to_experience,
-            :mb_c0000
+            :getmoney,
+            :risk_score,
+            :green_score,
+            :purple_score
         ]
     )
     elseif !isnothing(selected)
