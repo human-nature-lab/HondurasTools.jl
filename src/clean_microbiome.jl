@@ -73,6 +73,9 @@ function clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
     )
 
     rename!(mb, :mb_ab0100 => :spend)
+
+    mb.spend = convertspend.(mb.spend)
+
     rename!(mb, :mb_ab0200 => :leavevillage)
     rename!(mb, :mb_b0100 => :mb_health)
     rename!(mb, :mb_b1700 => :mb_chronic)

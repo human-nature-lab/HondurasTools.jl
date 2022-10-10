@@ -21,3 +21,11 @@ function addtypes!(drs)
         end
     end
 end
+
+function convertspend(x)
+    return if x == "Dont_Know"
+        missing
+    else
+        parse(Int, x)
+    end
+end
