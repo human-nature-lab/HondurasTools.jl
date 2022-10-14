@@ -25,8 +25,13 @@ respondent_paths = [
     "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE3/v3_2021-03/honduras_respondents_WAVE3_v3.csv",
 ];
 
+# load data
+resp = [
+    CSV.read(df, DataFrame; missingstring = "NA") for df in respondent_paths
+];
+
 @time resp = clean_respondent(
-    respondent_paths; nokeymiss = true, selected = nothing
+   resp; nokeymiss = true, selected = nothing
 );
 
 @time hh = clean_household(hh_paths; selected = nothing)
