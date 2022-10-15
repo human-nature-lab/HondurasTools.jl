@@ -2,7 +2,10 @@
 
 """
         clean_respondent(
-            resp::Vector{DataFrame}; nokeymiss = false, selected = :standard
+            resp::Vector{DataFrame}; 
+            nokeymiss = false,
+            selected = :standard
+            onlycomplete = true
         )
 
 Clean the respondent level data. `resp` must be a vector of dataframes.
@@ -16,7 +19,10 @@ ARGS
 
 """
 function clean_respondent(
-    resp::Vector{DataFrame}, waves; nokeymiss = false, selected = :standard
+    resp::Vector{DataFrame}, waves;
+    nokeymiss = false,
+    selected = :standard,
+    onlycomplete = true
 )
 
     if 1 ∈ waves
@@ -56,7 +62,8 @@ function clean_respondent(
     end
 
     if 4 ∈ waves
-        nm4 = names(resp)
+        widx = findfirst(waves .== 4)
+        nm4 = names(resp[widx])
 
         wnme41 = nm4[occursin.("_w1", nm4)];
         select!(resp[widx], Not(wnme41));
@@ -79,11 +86,20 @@ function clean_respondent(
 
     regularizecols!(resp)
 
-    rf = vcat(resp[1], resp[2], resp[3]);
+    rf = reduce(vcat, resp)
     resp = nothing
 
     rename!(rf, :respondent_master_id => :name);
-    @subset!(rf, :complete .== 1);
+
+    if onlycomplete
+        @subset!(rf, :complete .== 1);
+    end
+
+
+    rf[!, :age] = age.(rf.survey_start, rf.date_of_birth)
+    # [
+    #     ismissing(x) ? missing : Int(round(Dates.value(x)*inv(365); digits=0)) for x in (rf.survey_start - rf.date_of_birth)
+    # ];
 
     rf.survey_start = [
         Dates.Date(split(rf.survey_start[i], " ")[1]) for i in 1:nrow(rf)
@@ -102,9 +118,6 @@ function clean_respondent(
     end
 
     # calculate age in yrs from survey date and date of birth
-    rf[!, :age] = [
-        ismissing(x) ? missing : Int(round(Dates.value(x)*inv(365); digits=0)) for x in (rf.survey_start - rf.date_of_birth)
-    ];
 
     # convert "Dont_Know" and "Refused" to missing
     # missingize!(rf, :b0100);
@@ -369,7 +382,7 @@ function clean_respondent(
             # :i0700,
         ];
         select!(rf, demos);
-    elseif !isnothing(selected)
+    elseif !isnothing(selected) & (typeof(selected) == Vector{Symbol})
         select!(rf, selected)
     elseif selected == :all
         rf

@@ -23,7 +23,7 @@ function regularizecols!(resp)
     elseif length(resp) > 1
         unique(vcat(dr1, dr2))
     else
-        unique(vcat(dr1, dr2))
+        unique(vcat(dr1))
     end
 
     drs = combine(groupby(drs, :variable), :eltype => Ref∘unique => :eltypes);
@@ -71,5 +71,13 @@ function convertspend(x)
         end
     else
         missing
+    end
+end
+
+function age(x, y)
+    return if ismissing(x) | ismissing(y)
+        missing
+    else
+        year(Date(split(x)[1])) - year(Date(y))
     end
 end
