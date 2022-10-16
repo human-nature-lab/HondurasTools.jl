@@ -3,14 +3,8 @@
 
 import Pkg; Pkg.activate(".")
 
-using CSSTools, DataFrames, DataFramesMeta
-using CategoricalArrays
 using HondurasTools
-
 import CSV
-
-# using CairoMakie, AlgebraOfGraphics
-# import AlgebraOfGraphics.data
 
 pth = "CSS/main_data/2022-10-05/";
 files = sort(readdir(pth)); # this is not super general
