@@ -25,7 +25,7 @@ export
     # cleaning
     clean_respondent, clean_microbiome, clean_household,
     # networks
-    clean_connections,
+    clean_connections, clean_css!,
     process_edgelist, process_edgelist!,
     graph, egoreduction, egoreductions,
     # utilities
