@@ -25,7 +25,7 @@ function clean_connections(
 
     for (i, w) in enumerate(waves)
         nme = names(conns[i])
-        handle_villagevars!(connsi, nme, village_vars)
+        handle_villagevars!(conns[i], w, nme, village_vars)
         conns[i][!, :wave] .= w
     end
 
@@ -57,7 +57,7 @@ function clean_connections(
     return conns
 end
 
-function handle_villagevars!(connsi, nme, village_vars)
+function handle_villagevars!(connsi, w, nme, village_vars)
     for (k, v) in village_vars
         kw = k * string(w)
         if any(occursin.(kw, nme))
