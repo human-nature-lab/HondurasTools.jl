@@ -4,6 +4,7 @@
 import Pkg; Pkg.activate(".")
 
 using HondurasTools
+using HondurasTools:DataFrame
 import CSV
 
 pth = "CSS/main_data/2022-10-05/";
