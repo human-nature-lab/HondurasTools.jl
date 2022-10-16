@@ -15,13 +15,17 @@ function clean_connections(
     removemissing = true
 )
 
+    # remove wave from village name variables, since they are going to be
+    # combined into a single DataFrame with consistent naming
+    village_vars = Dict(
+        "village_code_w" => :village_code,
+        "village_name_w" => :village_name,
+        "municipality_w" => :municipality
+    );
+
     for (i, w) in enumerate(waves)
-        rename!(
-            conns[i],
-            Symbol("village_code_w" * string(w)) => :village_code,
-            Symbol("village_name_w" * string(w)) => :village_name,
-            Symbol("municipality_w" * string(w)) => :municipality,
-        )
+        nme = names(conns[i])
+        handle_villagevars!(connsi, nme, village_vars)
         conns[i][!, :wave] .= w
     end
 
@@ -51,4 +55,13 @@ function clean_connections(
     end
 
     return conns
+end
+
+function handle_villagevars!(connsi, nme, village_vars)
+    for (k, v) in village_vars
+        kw = k * string(w)
+        if any(occursin.(kw, nme))
+            rename!(connsi, Symbol(kw) => v,)
+        end
+    end
 end
