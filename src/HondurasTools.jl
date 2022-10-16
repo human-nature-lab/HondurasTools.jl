@@ -18,6 +18,7 @@ include("clean_household.jl")
 include("clean_microbiome.jl")
 include("clean_connections.jl")
 include("clean_css.jl")
+include("prepare_css.jl")
 include("process_edgelist.jl")
 include("cleaning.jl")
 include("risk_process.jl")
@@ -28,6 +29,7 @@ export
     # networks
     clean_connections, clean_css!,
     process_edgelist, process_edgelist!,
+    prepare_css,
     graph, egoreduction, egoreductions,
     # utilities
     sortedges!,symmetrize!,
