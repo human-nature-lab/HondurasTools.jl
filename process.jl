@@ -84,8 +84,12 @@ con_paths = [
     "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/WAVE3/v3_2021-03/honduras_connections_WAVE3_v3.csv"
 ];
 
+conns = [CSV.read(
+        con_path, DataFrame; missingstring = "NA"
+    ) for con_path in con_paths];
+
 @time con = clean_connections(
-    con_paths; alter_source = true, same_village = true
+    conns; alter_source = true, same_village = true
 );
 
 # unique(conns.relationship)
