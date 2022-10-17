@@ -1,6 +1,8 @@
 # css_socio.jl
 # merge in the ground truth into the css data
 
+TieDict = Dict{Tuple{String, String}, Vector{String}}
+
 function test_relations(con2)
     for e in con2.relationships
         if ("parent_child" ∈ e) & ("sibling" ∈ e)
