@@ -9,6 +9,7 @@ using CSSTools:sortedges!,symmetrize!,tupleize
 using CSSTools:graph,egoreduction,egoreductions
 
 import CSV
+import Base.get # method added in css_socio
 
 include("utilities.jl")
 include("cleaning_utilities.jl")
@@ -19,6 +20,7 @@ include("clean_microbiome.jl")
 include("clean_connections.jl")
 include("clean_css.jl")
 include("prepare_css.jl")
+include("css_socio.jl")
 include("process_edgelist.jl")
 include("cleaning.jl")
 include("risk_process.jl")
