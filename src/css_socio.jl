@@ -12,7 +12,7 @@ function test_relations(con2)
     return true
 end
 
-function recode!(
+function recode_vars!(
     con;
     parent_child = ["father", "mother", "child_over12_other_house"]
 )
@@ -115,7 +115,7 @@ function handle_socio(css, con)
 
     sortedges!(cona.ego, cona.alter)
 
-    recode!(cona)
+    recode_vars!(cona)
 
     con2 = @chain cona begin
         select(Not([:relationship, :question]))
