@@ -33,6 +33,7 @@ export
     process_edgelist, process_edgelist!,
     prepare_css,
     graph, egoreduction, egoreductions,
+    handle_socio,
     # utilities
     sortedges!,symmetrize!,
     unilen, interlen, tupleize, symmetrize!
