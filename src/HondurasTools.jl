@@ -18,6 +18,7 @@ include("clean_respondent.jl")
 include("clean_household.jl")
 include("clean_microbiome.jl")
 include("clean_connections.jl")
+include("updatevalues!.jl")
 include("clean_css.jl")
 include("prepare_css.jl")
 include("css_socio.jl")
@@ -35,6 +36,7 @@ export
     graph, egoreduction, egoreductions,
     handle_socio,
     # utilities
+    updatevalues!,
     sortedges!,symmetrize!,
     unilen, interlen, tupleize, symmetrize!
 end
