@@ -31,7 +31,7 @@ resp = [
 ];
 
 @time resp = clean_respondent(
-   resp; nokeymiss = true, selected = nothing
+   resp, [1,2,3]; nokeymiss = true, selected = nothing
 );
 
 @time hh = clean_household(hh_paths; selected = nothing)

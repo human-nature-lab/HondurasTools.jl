@@ -26,7 +26,7 @@ function clean_respondent(
 )
 
     if 1 ∈ waves
-        widx = findfirst(waves .== 2)
+        widx = findfirst(waves .== 1)
         nm1 = names(resp[widx])
 
         wnme11 = nm1[occursin.("_w1", nm1)]
@@ -43,7 +43,7 @@ function clean_respondent(
 
         wnme22 = nm2[occursin.("_w2", nm2)]
         strip_wave!(resp[widx], wnme22, "_w2")
-        resp[2][!, :wave] .= 2;
+        resp[widx][!, :wave] .= 2;
     end
 
     if 3 ∈ waves
