@@ -70,6 +70,12 @@ function get(tiedict::TieDict, tple)
     return get(tiedict, tple, Vector{String}())
 end
 
+"""
+        test_relations(con2)
+
+Check for reasonability in the family data. Make sure that categories do not
+overlap. If they do, we need to change some code.
+"""
 function test_relations(con2)
     for e in con2.relationships
         if ("Parent/child" ∈ e) & ("Siblings" ∈ e)
@@ -79,6 +85,14 @@ function test_relations(con2)
     return true
 end
 
+"""
+        recode_vars!(
+            con;
+            parent_child = ["father", "mother", "child_over12_other_house"]
+        )
+
+Use the CSS entries for the family relationships.
+"""
 function recode_vars!(
     con;
     parent_child = ["father", "mother", "child_over12_other_house"]
