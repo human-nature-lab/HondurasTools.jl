@@ -54,7 +54,6 @@ function handle_socio(css, con)
     assign_socioties!(
         css2[!, :socio],
         css2[!, :relationship],
-        css2[!, :response],
         css2[!, :alter1], css2[!, :alter2],
         tiedict
     )

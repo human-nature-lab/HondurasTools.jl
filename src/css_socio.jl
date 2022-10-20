@@ -3,9 +3,69 @@
 
 TieDict = Dict{Tuple{String, String}, Vector{String}}
 
+"""
+Iterate through the (appropriately stacked) css data and add the truth of each
+tie from the sociocentric network, via tiedict.
+
+While "know_each_other" does not have a direct match in the sociocentric
+network, since we did not ask about this tie directly in W3 (or any wave). However, this is handled by supposing that it is true in the sociocentric
+network if there is at least one tie (over all collected relationships) between
+two individuals.
+"""
+function assign_socioties!(
+    csssocio, cssrelationships, cssalter1s, cssalter2s, tiedict
+)
+    for (j, (r, a1, a2)) in enumerate(
+        zip(cssrelationships, cssresponses, cssalter1s, cssalter2s)
+    )
+
+        csssocio[j] = if length(get(tiedict, (a1, a2))) > 0
+            if r == "know_each_other"
+                "Yes"
+            else
+                checkrelations(r, get(tiedict, (a1, a2)))
+            end
+        else
+            "No"
+        end
+    end
+end
+
+function checkrelations(css_r, con_rels)
+    return if css_r ∈ con_rels
+        # if there is a direct match for the css2 relationship in 
+        # the con_rels set, "Yes" the tie is true
+        # this should happen for "personal_private" and "free_time"
+        # otherwise that perceived tie does not exist in the sociocentric
+        # network
+        "Yes"
+    elseif (css_r == "are_related")
+        # there is a switch for "are_related":
+        # we are not checking if the relationship is present
+        # but the particular response, which we propogate if there is
+        # a match
+        for kinrel in ["Siblings", "Parent/child", "Partners"]
+            if kinrel ∈ con_rels
+                kinrel
+            else
+                "No"
+            end
+        end
+    else
+        "No"
+    end
+end
+
+"""
+Wrapper for get with modified functionality to maintain type-stability.
+"""
+function get(tiedict::TieDict, tple)
+    return get(tiedict, tple, Vector{String}())
+end
+
 function test_relations(con2)
     for e in con2.relationships
-        if ("parent_child" ∈ e) & ("sibling" ∈ e)
+        if ("Parent/child" ∈ e) & ("Siblings" ∈ e)
             error("ground truth problem")
         end
     end
@@ -41,60 +101,4 @@ function mk_tiedict(con3)
         tiedict[(:ego, :alter)] = :relationships
     end
     return tiedict
-end
-
-"""
-Wrapper for get with modified functionality to maintain type-stability.
-"""
-function get(tiedict::TieDict, tple)
-    return get(tiedict, tple, Vector{String}())
-end
-
-function checkrelations(css_r, css_rsp, con_rels)
-    return if css_r ∈ con_rels
-        # if there is a direct match for the css2 relationship in 
-        # the con_rels set, "Yes" the tie is true
-        # this should happen for "personal_private" and "free_time"
-        "Yes"
-    elseif (css_r == "are_related")
-        # there is a switch for "are_related"
-        # we are not checking if the relationship is present
-        # but the particular response, which we propogate if there is
-        # a match
-        if css_rsp ∈ con_rels
-            css_rsp
-        else
-            "No"
-        end
-    else
-        "No"
-    end
-end
-
-"""
-Iterate through the (appropriately stacked) css data and add the truth of each
-tie from the sociocentric network, via tiedict.
-
-While "know_each_other" does not have a direct match in the sociocentric
-network, since we did not ask about this tie directly in W3 (or any wave). However, this is handled by supposing that it is true in the sociocentric
-network if there is at least one tie (over all collected relationships) between
-two individuals.
-"""
-function assign_socioties!(
-    csssocio, cssrelationships, cssresponses, cssalter1s, cssalter2s, tiedict
-)
-    for (j, (r, rsp, a1, a2)) in enumerate(
-        zip(cssrelationships, cssresponses, cssalter1s, cssalter2s)
-    )
-
-        csssocio[j] = if length(get(tiedict, (a1, a2))) > 0
-            if r == "know_each_other"
-                "Yes"
-            else
-                checkrelations(r, rsp, get(tiedict, (a1, a2)))
-            end
-        else
-            "No"
-        end
-    end
 end
