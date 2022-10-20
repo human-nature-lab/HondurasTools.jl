@@ -80,5 +80,12 @@ function prepare_css(css, edges; confilter = true)
         con = @subset(con, :relationship .∈ Ref(relationships))
     end
 
+    # rename to concord with con data
+    rename!(
+        css,
+        :spend_free_time => :free_time,
+        :personal_relationship => :personal_private
+    )
+
     return css, con
 end
