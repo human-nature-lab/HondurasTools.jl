@@ -21,6 +21,9 @@ function assign_socioties!(
 
         csssocio[j] = if length(get(tiedict, (a1, a2))) > 0
             if r == "know_each_other"
+                # there there is at least one tie between
+                # the alters in the edgelist, then say that
+                # they "know each other"
                 "Yes"
             else
                 checkrelations(r, get(tiedict, (a1, a2)))
