@@ -16,7 +16,7 @@ function assign_socioties!(
     csssocio, cssrelationships, cssalter1s, cssalter2s, tiedict
 )
     for (j, (r, a1, a2)) in enumerate(
-        zip(cssrelationships, cssresponses, cssalter1s, cssalter2s)
+        zip(cssrelationships, cssalter1s, cssalter2s)
     )
 
         csssocio[j] = if length(get(tiedict, (a1, a2))) > 0
