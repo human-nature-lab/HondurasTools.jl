@@ -44,12 +44,16 @@ function checkrelations(css_r, con_rels)
         # we are not checking if the relationship is present
         # but the particular response, which we propogate if there is
         # a match
-        for kinrel in ["Siblings", "Parent/child", "Partners"]
-            if kinrel ∈ con_rels
-                kinrel
-            else
-                "No"
-            end
+        # these should not overlap in the sociocentric network, so
+        # this logic flow is OK
+        if "Siblings" ∈ con_rels
+            "Siblings"
+        elseif "Parent/child" ∈ con_rels
+            "Parent/child"
+        elseif "Partners" ∈ con_rels
+            "Partners"
+        else
+            "No"
         end
     else
         "No"
