@@ -34,7 +34,8 @@ function prepare_css(css, edges, resp; confilter = true)
         relationships = [
             "free_time",
             "personal_private",
-            "father", "mother", "sibling", "child_over12_other_house"
+            "father", "mother", "sibling", "child_over12_other_house",
+            "partner"
         ];
 
         con = @subset(con, :relationship .∈ Ref(relationships))
@@ -72,7 +73,8 @@ function prepare_css(css, edges; confilter = true)
         relationships = [
             "free_time",
             "personal_private",
-            "father", "mother", "sibling", "child_over12_other_house"
+            "father", "mother", "sibling", "child_over12_other_house",
+            "partner"
         ];
 
         con = @subset(con, :relationship .∈ Ref(relationships))
