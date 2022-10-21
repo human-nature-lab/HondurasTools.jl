@@ -114,9 +114,11 @@ names(x)
 
 x.survey = together(x.survey);
 x.repeated_question = together(x.repeated_question);
-x.question_english_men = together(x.question_english_men);
+# x.question_english_men = together(x.question_english_men); # not needed
 x.question_english_women = together(x.question_english_women);
+
+x.option_code = together(x.option_code);
 x.option_english_men = together(x.option_english_men);
 x.option_english_women = together(x.option_english_women);
 
-CSV.write("reformatted_codebook.csv", x)
+CSV.write("reformatted_codebook.csv", x; sep = ";")
