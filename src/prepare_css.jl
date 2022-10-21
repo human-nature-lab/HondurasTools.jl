@@ -9,7 +9,6 @@ filtercon = true filters the connections data to the correct set of relationship
 function prepare_css(css, edges, resp; confilter = true)
 
     clean_css!(css)
-    # dropmissing!(css)
 
     resp = clean_respondent(
         [resp], [4];
@@ -53,7 +52,6 @@ filtercon = true filters the connections data to the correct set of relationship
 function prepare_css(css, edges; confilter = true)
 
     clean_css!(css)
-    dropmissing!(css)
 
     ###
 
