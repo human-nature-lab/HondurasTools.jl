@@ -41,7 +41,8 @@ function handle_socio(css, con)
         css,
         relationship_questions,
         [
-            :village_code_w4, :perceiver, :alter1, :alter2,
+            :village_code_w4,
+            :perceiver, :alter1, :alter2, :order,
             :knows_alter1, :knows_alter2
         ];
         variable_name = :relationship,
