@@ -45,6 +45,14 @@ end
 
 ####
 
+#=
+note that these are the csv files generated from the "_vx" version of the 
+usual codebooks.
+
+additionally, on 2022-10-21, I made a few corrections to the data directly
+in these .csv files.
+=#
+
 x1 = let
     x1 = CSV.read("w1_v8.csv", DataFrame; missingstring = "NA")
     x1 = x1[!, 1:13]
