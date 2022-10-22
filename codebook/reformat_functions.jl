@@ -12,6 +12,7 @@ function nestdf(x)
         combine(
             :repeated_question => Ref∘unique => :repeated_question,
             :question_type => Ref∘unique => :question_type,
+            :wave => Ref∘unique => :wave,
             :survey => Ref∘unique => :survey,
             :question_english_women => Ref∘unique => :question_english_women,
             :question_english_men => Ref∘unique => :question_english_men,

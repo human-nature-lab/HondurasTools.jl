@@ -18,6 +18,8 @@ N.B.
 the order of the english options column.
 =#
 
+import Pkg; Pkg.activate(".")
+
 using DataFrames, DataFramesMeta, CSV
 import JLD2.save_object
 
@@ -32,21 +34,29 @@ in these .csv files.
 =#
 
 x1 = let
-    x1 = CSV.read("w1_v8.csv", DataFrame; missingstring = "NA")
-    x1 = x1[!, 1:13]
-end
+    x = CSV.read("w1_v8.csv", DataFrame; missingstring = "NA")
+    x = x[!, 1:13]
+    x[!, :wave] .= 1
+    x
+end;
 
 x2 = let
     x = CSV.read("w2_v5.csv", DataFrame; missingstring = "NA")
-    names(x)
     x = x[!, 1:13]
-end
+    x[!, :wave] .= 2
+    x[!, :repeated_question] = parse.(Int, x[!, :repeated_question])
+    x
+end;
 
 x3 = let
     x = CSV.read("w3_v3.csv", DataFrame; missingstring = "NA")
-    names(x)
     x = x[!, 1:13]
-end
+    x[!, :wave] .= 3
+    x[!, :repeated_question] = parse.(Int, x[!, :repeated_question])
+    x
+end;
+
+# [wave 4 when ready]
 
 names(x1) == names(x2) == names(x3)
 
@@ -54,14 +64,15 @@ for xi in [x1, x2, x3]
     select!(
         xi,
         [
-            "variable_name"
-            "repeated_question"
-            "question_type"
-            "survey"
-            "question_english_women"
-            "question_english_men"
-            "option_code"
-            "option_english_women"
+            "variable_name",
+            "repeated_question",
+            "question_type",
+            "wave",
+            "survey",
+            "question_english_women",
+            "question_english_men",
+            "option_code",
+            "option_english_women",
             "option_english_men"
             # "question_spanish_women"
             # "question_spanish_men"
@@ -98,6 +109,8 @@ x.question_english_women = together(x.question_english_women);
 x.option_code = together(x.option_code);
 x.option_english_men = together(x.option_english_men);
 x.option_english_women = together(x.option_english_women);
+
+x.wave = together(x.wave)
 
 ## WRITE
 CSV.write("reformatted_codebook.csv", x; sep = ";")
