@@ -97,7 +97,7 @@ x = vcat(x1, x2, x3)
 ## WRITE
 save_object("honduras_codebook.jld2", x) # before re-nesting
 
-x = nestdf(x)
+x = nestdf2(x)
 
 # for columns with multiple values per cell, make into a comma separated
 # string that can be read easily by a human.
