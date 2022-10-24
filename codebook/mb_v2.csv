@@ -1,4 +1,10 @@
 ﻿header,question_type,question_english,question_spanish,option_code,option_english,option_spanish,question_order
+respondent_master_id,,,,,,,
+other_resp,,,,,,,
+data_source,,,,,,,
+gender,,,,,,,
+date_of_birth,,,,,,,
+age_at_survey,,,,,,,
 mb_z0001,multiple_choice,PLEASE REVIEW CONSENT SCRIPT WITH THE PARTICIPANT. Do you have any questions? Would you like to participate in this study?,"LEER GUION DE CONSENTIMIENTO INFORMADO CON EL PARTICIPANTE
 
 ¿Tiene usted alguna pregunta? ¿Desea usted participar en este estudio?",1,Yes,Si,1
