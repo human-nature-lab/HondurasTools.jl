@@ -38,8 +38,7 @@ function clean_connections(
         (this could also be done with regularize cols; but, it doesn'take
         seem necessary)
         =#
-        nminter = intersect([names(e) for e in conns])
-        nminter = unique(reduce(vcat, nminter))
+        nminter = intersect([names(e) for e in conns]...)
         reduce(vcat, [e[!, nminter] for e in conns]...);
     end
     
