@@ -5,25 +5,30 @@ Tools for cleaning, analyzing the Honduras data.
 
 (more explanations to be written)
 
-1. How do we extract the appropriate set of isolates? (given that the edgelist doesn't have them?)
-2. Which are the microbiome villages?
+1. How many datasets and files are there?
+   1. There are 3 (eventually 4) waves of data, for the respondent-level, household-level, and connections data.
+   2. Plus there is the microbiome data at W3', and the CSS data at W4'.
+   3. Each type and wave has a separate file.
+   4. One major purpose of this repository is to clean the data such that there is one data table for each type of data, including each wave. (the microbiome is currently separate). The general strategy is to take all possible variables, and leave missing where they are not collected. So, check whether some variable really ought to exist at that wave (in the reformatted codebook, which also combines across waves.)
+2. How do we extract the appropriate set of isolates? (given that the edgelist doesn't have them?)
+3. Which are the microbiome villages?
    1. cf. `codebook/microbiome_villages.csv`
    2. Other villages appear in the data, because the team surveyed those from other villages who happened to be present a village while it was being surveyed.
-3. Are the codebooks comprehensive?
+4. Are the codebooks comprehensive?
    1. At least in the microbiome dataset, there are some variables not yet referenced.
-4. How do I interpret the `survey` variable in the codebooks?
+5. How do I interpret the `survey` variable in the codebooks?
    1. For each row of the reformatted codebook, there should be an entry corresponding to each wave of the data (in which the data is present; compare to `wave`.)
    2. "baseline" => the survey was only done if a prior measurement did not exist
    3. "wx" (where x is a wave number) => implies that it was the standard survey given to everyone in that wave
    4. "all" => both "baseline" and "wx" were carried out -- [THIS DOESN'T MAKE SENSE? Why would the surveys overlap?]
    5. The set of questions in "baseline" varies across the waves; hence, it is denoted "baseline wx"
    6. [EXPLAIN: how connected to respondent variable indicating a new subject at wave x?]
-5. Are the variables coded consistently?
+6. Are the variables coded consistently?
    1. Not necessarily: gender is coded as "male" vs. "female" or sometimes "man" vs. "woman"?
    2. It is worth checking for consistency, the processing code here *should* resolve for gender
-6. What do we do about variables that were only collected say, at W1?
+7. What do we do about variables that were only collected say, at W1?
    1. Case-by-case; but N.B., whether some variable is plausibly static.
-7. What about people who are in a different village from W3 to W3'?
+8. What about people who are in a different village from W3 to W3'?
    1. (where W3' is when the microbiome data was collected)
    2. There are around 13 cases. It is currently not clear whether these were permanent moves, or not. (lives in village, works in village are both `missing` in each case)
 
