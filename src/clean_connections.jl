@@ -39,6 +39,7 @@ function clean_connections(
         seem necessary)
         =#
         nminter = intersect([names(e) for e in conns])
+        nminter = unique(reduce(vcat, nminter))
         reduce(vcat, [e[!, nminter] for e in conns]...);
     end
     

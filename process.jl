@@ -1,11 +1,10 @@
 # processing
 
-using DataFrames, DataFramesMeta, GLM, Statistics, StatsBase
-using MixedModels, CategoricalArrays, Dates
+using DataFrames, DataFramesMeta
+using CategoricalArrays, Dates
 import CSV
 
 using Graphs, MetaGraphs
-# using CairoMakie, AlgebraOfGraphics
 
 using HondurasTools
 
