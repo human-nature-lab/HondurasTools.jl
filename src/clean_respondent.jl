@@ -13,7 +13,7 @@ Clean the respondent level data. `resp` must be a vector of dataframes.
 ARGS
 ≡≡≡≡≡≡≡≡≡≡
 
-- resp
+- resp: a vector of DataFrames, with entries for each wave of the data.
 - waves: indicate the wave of each DataFrame in the same order as resp.
 - selected: variables to select. The default is :standard, a pre-defined set, otherwise, select :all, or specify a vector of variables.
 

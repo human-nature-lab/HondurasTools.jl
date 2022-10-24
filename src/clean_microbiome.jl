@@ -4,15 +4,16 @@
         clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
         
 """
-function clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
+function clean_microbiome(mb1, mb2; selected = :standard)
 
-    mb = begin
-        mb1, mb2 = [CSV.read(x, DataFrame; missingstring = "NA") for x in [cohort1pth, cohort2pth]]
+    mb = let
         mb1[!, :cohort] .= 1; mb2[!, :cohort] .= 2;
         commonnames = intersect(names(mb1), names(mb2))
         # setdiff(names(mb2), names(mb1))
         mb = vcat(mb1[!, commonnames], mb2[!, commonnames]);
         rename!(mb, :respondent_master_id => :name)
+        
+        mb
     end
 
     # process the risk data
@@ -86,6 +87,8 @@ function clean_microbiome(cohort1pth, cohort2pth; selected = :standard)
         mb,
         [
             :name,
+            :data_source,
+            :other_resp,
             :village_code,
             :lives_in_village,
             :works_in_village,
