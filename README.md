@@ -23,4 +23,28 @@ Tools for cleaning, analyzing the Honduras data.
    2. It is worth checking for consistency, the processing code here *should* resolve for gender
 6. What do we do about variables that were only collected say, at W1?
    1. Case-by-case; but N.B., whether some variable is plausibly static.
+7. What about people who are in a different village from W3 to W3'?
+   1. (where W3' is when the microbiome data was collected)
+   2. There are around 13 cases. It is currently not clear whether these were permanent moves, or not. (lives in village, works in village are both `missing` in each case)
 
+## Summary of processing steps (fill out further)
+
+### connections data
+
+1. take requested connections data (W3 data as the closest to W3' MB data)
+2. filter to `alter_source = 1`, `same_village = 1`
+3. drop any rows with missing entries
+
+### respondent data
+
+1. take the requested respondent data (W3 data)
+2. filter any rows with missing entries for [village_code, gender, date_of_birth, building_id]
+
+### household data
+
+### microbiome data
+1. take the requested MB data
+2. drop all rows with missing village codes
+3. drop all rows s.t. `data_source != 1`
+4. left-join the individual level data  to the MB data on resp. id *and* village code
+   1. Depending on how we want to handle people who have a different village code for W3 and W3', we may want to adjust this.
