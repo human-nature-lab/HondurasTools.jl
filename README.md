@@ -58,8 +58,11 @@ to the package. It may appear in `process.jl`.
 ### household data
 
 ### microbiome data
+
 1. take the requested MB data
 2. drop all rows with missing village codes
 3. drop all rows s.t. `data_source != 1` (manual)
 4. left-join the individual level data  to the MB data on resp. id *and* village code (manual)
    1. Depending on how we want to handle people who have a different village code for W3 and W3', we may want to adjust this.
+
+- Depending on the analysis (read: most of the time), we want to remove everyone that is not in one of the 19 microbiome villages (`codebook/microbiome_villages.csv`)
