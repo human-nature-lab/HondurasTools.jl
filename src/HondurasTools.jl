@@ -25,6 +25,7 @@ include("css_socio.jl")
 include("handle_socio.jl")
 include("process_edgelist.jl")
 include("risk_process.jl")
+include("loaddata.jl")
 
 export 
     # cleaning
@@ -38,5 +39,7 @@ export
     # utilities
     updatevalues!,
     sortedges!,symmetrize!,
-    unilen, interlen, tupleize, symmetrize!
+    unilen, interlen, tupleize, symmetrize!,
+    # codebook
+    load_mbvillages
 end
