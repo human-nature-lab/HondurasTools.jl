@@ -1,5 +1,5 @@
 # HondurasTools.jl
-Tools for cleaning, analyzing the Honduras data.
+Tools for cleaning, analyzing, and understanding the Honduras data.
 
 ## Explanations & FAQ
 
