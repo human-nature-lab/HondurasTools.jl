@@ -1,0 +1,756 @@
+﻿header,question_type,question_english,question_spanish,option_code,option_english,option_spanish,question_order
+mb_z0001,multiple_choice,PLEASE REVIEW CONSENT SCRIPT WITH THE PARTICIPANT. Do you have any questions? Would you like to participate in this study?,"LEER GUION DE CONSENTIMIENTO INFORMADO CON EL PARTICIPANTE
+
+¿Tiene usted alguna pregunta? ¿Desea usted participar en este estudio?",1,Yes,Si,1
+mb_z0001,multiple_choice,PLEASE REVIEW CONSENT SCRIPT WITH THE PARTICIPANT. Do you have any questions? Would you like to participate in this study?,"LEER GUION DE CONSENTIMIENTO INFORMADO CON EL PARTICIPANTE
+
+¿Tiene usted alguna pregunta? ¿Desea usted participar en este estudio?",2,No,No,1
+mb_z0001x,multiple_choice,Why was consent not obtained?,Porque no se obtuvo consentimiento?,1,Refused,No quiso participar,2
+mb_z0001x,multiple_choice,Why was consent not obtained?,Porque no se obtuvo consentimiento?,2,"Participant unable to provide consent (cognitively impaired, difficulty demonstrating comprehension)","No pudo dar consentimiento (falla de cognicion, demuestra poca capacidad de comprension)",2
+mb_z0001x,multiple_choice,Why was consent not obtained?,Porque no se obtuvo consentimiento?,3,Other,"Otro, especifique:",2
+mb_m00,text,PLACE BARCODE STICKER 00 ON THE PARTICIPANT INFORMATION SHEET AND SCAN IT.,POR FAVOR COLOQUE EL ESTICKER CON EL CÓDIGO DE BARRAS 00 EN LA HOJA DEL PARTICIPANTE Y ESCANÉELO.,NA,NA,NA,3
+mb_c005,relationship,What is the name of your partner?,¿Cómo se llama su pareja?,NA,NA,NA,4
+mb_m01_1,text,PLEASE SCAN THE BARCODE ON THE PARTICIPANT SHEET.,POR FAVOR ESCANEE EL CODIGO DE BARRA DE LA HOJA DEL PARTICIPANTE.,NA,NA,NA,5
+mb_m01,text,PLEASE SCAN THE TUBE WITH BARCODE ENDING IN 01 FROM THE PARTICIPANT TUBE BAG,POR FAVOR ESCANEE EL TUBO #01 DE LA BOLSA DEL PARTICIPANTE.,NA,NA,NA,6
+mb_d0100,decimal,We will now take your weight: ENTER WEIGHT (kg) AND WRITE IT DOWN ON THE PARTICIPANT'S SHEET IN LBS,Ahora le tomaremos su peso: INGRESE PESO (kg) ESCRIBA EL PESO DEL PARTICIPANTE EN LA HOJA DEL PARTICIPANTE,NA,NA,NA,7
+mb_d0200,decimal,We will now measure your height: ENTER HEIGHT (cm) AND WRITE IT DOWN ON THE PARTICIPANT'S SHEET IN MTS,"Ahora le tomaremos su altura: INGRESE ALTURA (cm), ESCRIBA LA ALTURA DEL PARTICIPANTE EN LA HOJA DEL PARTICIPANTE.",NA,NA,NA,8
+mb_d0300,integer,ENTER PARTICIPANT'S SYSTOLIC BLOOD PRESSURE AND WRITE IT ON THE PARTICIPANT'S INFO SHEET,INGRESE LA PRESIÓN SISTÓLICA DEL PARTICIPANTE Y ESCRÍBALA EN LA HOJA DEL PARTICIPANTE.,NA,NA,NA,9
+mb_d0400,integer,ENTER PARTICIPANT'S DIASTOLIC BLOOD PRESSURE AND WRITE IT ON THE PARTICIPANT'S INFO SHEET,INGRESE LA PRESIÓN DIASTÓLICA DEL PARTICIPANTE Y ESCRÍBALA EN LA HOJA DEL PARTICIPANTE.,NA,NA,NA,10
+mb_d0005,integer,ENTER THE HEART RATE REGISTERED BY THE BP MACHINE AND WRITE IT IN THE PARTICIPANT INFORMATION SHEET,INGRESE EL PULSO REGISTRADO POR LA MAQUINA DE PRESION ARTERIAL Y ESCRIBALA EN LA HOJA DEL PARTICIPANTE,NA,NA,NA,11
+mb_d0600,decimal,ENTER PARTICIPANT'S PERFUSION INDEX (PI) AND WRITE IT ON THE PARTICIPANT'S INFO SHEET,INGRESE EL ÍNDICE DE PERFUSIÓN (PI) DEL PARTICIPANTE Y ESCRÍBALO EN LA HOJA DEL PARTICIPANTE.,NA,NA,NA,12
+mb_d0700,integer,ENTER PARTICIPANT'S PULSE AND WRITE IT ON THE PARTICIPANT'S INFO SHEET,INGRESE EL PULSO (Pr) DEL PARTICIPANTE Y ESCRÍBALO EN LA HOJA DEL PARTICIPANTE.,NA,NA,NA,13
+mb_d0800,integer,ENTER PARTICIPANT'S OXYGEN SATURATION AND WRITE IT ON THE PARTICIPANT'S INFORMATION SHEET.,INGRESE LA SATURACIÓN ARTERIAL DE OXÍGENO DEL PARTICIPANTE (O2) Y ESCRÍBALA EN LA HOJA DEL PARTICIPANTE,NA,NA,NA,14
+mb_d0900,decimal,ENTER PARTICIPANT'S HEMOGLOBIN LEVEL AND WRITE IT ON THE PARTICIPANT'S INFO SHEET,INGRESE EL NIVEL DE HEMOGLOBINA (spHb) DEL PARTICIPANTE Y ESCRÍBALO EN LA HOJA DEL PARTICIPANTE.,NA,NA,NA,15
+mb_m02,text,PLEASE SCAN THE TUBE WITH BARCODE ENDING IN 02 FROM THE PARTICIPANT TUBE BAG,POR FAVOR ESCANEE EL TUBO #02 DE LA BOLSA DEL PARTICIPANTE.,NA,NA,NA,16
+mb_m02_n,text_area,"IF THERE WERE ANY PROBLEMS COLLECTING  SALIVA SAMPLE 2, PLEASE EXPLAIN HERE","SI SE PRESENTÓ ALGÚN PROBLEMA AL TOMAR LA MUESTRA DE SALIVA 2, POR FAVOR EXPLIQUE LA SITUACIÓN.",NA,NA,NA,17
+mb_d0010,decimal,PLEASE ENTER THE PARTICIPANT's HbA1c RESULT.,POR FAVOR INGRESE EL RESULTADO DE LA PRUEBA DE HbA1C (HEMOGLOBINA GLICOSILADA).,NA,NA,NA,18
+mb_a0100,multiple_choice,Where were you born?,¿Dónde nació usted?,1,This village,Esta aldea,19
+mb_a0100,multiple_choice,Where were you born?,¿Dónde nació usted?,2,Another place in Honduras,Otro lugar en Honduras,19
+mb_a0100,multiple_choice,Where were you born?,¿Dónde nació usted?,3,Outside of Honduras,Fuera de Honduras,19
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,1,Atlántida,Atlántida,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,2,Choluteca,Choluteca,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,3,Colón,Colón,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,4,Comayagua,Comayagua,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,5,Copán,Copán,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,6,Cortes,Cortes,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,7,El Paraíso,El Paraíso,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,8,Francisco Morazán,Francisco Morazán,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,9,Gracias a Dios,Gracias a Dios,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,10,Intibucá,Intibucá,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,11,Islas de la Bahía,Islas de la Bahía,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,12,La Paz,La Paz,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,13,Lempira,Lempira,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,14,Ocotepeque,Ocotepeque,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,15,Olancho,Olancho,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,16,Santa Bárbara,Santa Bárbara,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,17,Valle,Valle,20
+mb_a0200,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,18,Yoro,Yoro,20
+mb_a0300,multiple_choice,If Copan: What municipality?,¿Qué municipio?,1,Copán Ruinas,Copán Ruinas,21
+mb_a0300,multiple_choice,If Copan: What municipality?,¿Qué municipio?,2,Cabañas,Cabañas,21
+mb_a0300,multiple_choice,If Copan: What municipality?,¿Qué municipio?,3,Santa Rita,Santa Rita,21
+mb_a0300,multiple_choice,If Copan: What municipality?,¿Qué municipio?,4,San Jeronimo,San Jeronimo,21
+mb_a0300,multiple_choice,If Copan: What municipality?,¿Qué municipio?,5,Other,Otro,21
+mb_a0400,multiple_choice,Another country: specify,¿Qué país?,1,Guatemala,Guatemala,22
+mb_a0400,multiple_choice,Another country: specify,¿Qué país?,2,El Salvador,El Salvador,22
+mb_a0400,multiple_choice,Another country: specify,¿Qué país?,3,Nicaragua,Nicaragua,22
+mb_a0400,multiple_choice,Another country: specify,¿Qué país?,4,Other,Otro,22
+mb_a0500a,multiple_select,Do you consider yourself a part of any of the following ethnic groups?,Usted se considera ser cualquiera de los siguientes...,a,Lenca,Lenca,23
+mb_a0500b,multiple_select,Do you consider yourself a part of any of the following ethnic groups?,Usted se considera ser cualquiera de los siguientes...,b,Miskito,Miskito,23
+mb_a0500c,multiple_select,Do you consider yourself a part of any of the following ethnic groups?,Usted se considera ser cualquiera de los siguientes...,c,Ch'orti'/Maya Chorti,Ch'orti'/Maya Chorti,23
+mb_a0500d,multiple_select,Do you consider yourself a part of any of the following ethnic groups?,Usted se considera ser cualquiera de los siguientes...,d,Tolupan/Jicaque/Xicaque,Tolupan/Jicaque/Xicaque,23
+mb_a0500e,multiple_select,Do you consider yourself a part of any of the following ethnic groups?,Usted se considera ser cualquiera de los siguientes...,e,Pech/Paya,Pech/Paya,23
+mb_a0500f,multiple_select,Do you consider yourself a part of any of the following ethnic groups?,Usted se considera ser cualquiera de los siguientes...,f,Sumo/Tawahka,Sumo/Tawahka,23
+mb_a0500g,multiple_select,Do you consider yourself a part of any of the following ethnic groups?,Usted se considera ser cualquiera de los siguientes...,g,Garifuna,Garífuna,23
+mb_a0500h,multiple_select,Do you consider yourself a part of any of the following ethnic groups?,Usted se considera ser cualquiera de los siguientes...,h,Other,Otro,23
+mb_a0500i,multiple_select,Do you consider yourself a part of any of the following ethnic groups?,Usted se considera ser cualquiera de los siguientes...,i,None of the above,Ninguno,23
+mb_a0600a,multiple_select,What was the main language spoken in your home when you were a child? DO NOT READ RESPONSES,¿Cuál era la lengua o idioma principal que se hablaba en su hogar cuando usted era pequeño/a? NO LEA LAS RESPUESTAS,a,Spanish/Castillian,Español/Castellano,24
+mb_a0600b,multiple_select,What was the main language spoken in your home when you were a child? DO NOT READ RESPONSES,¿Cuál era la lengua o idioma principal que se hablaba en su hogar cuando usted era pequeño/a? NO LEA LAS RESPUESTAS,b,Ch'orti',Ch'orti',24
+mb_a0600c,multiple_select,What was the main language spoken in your home when you were a child? DO NOT READ RESPONSES,¿Cuál era la lengua o idioma principal que se hablaba en su hogar cuando usted era pequeño/a? NO LEA LAS RESPUESTAS,c,Garifuna,Garífuna,24
+mb_a0600d,multiple_select,What was the main language spoken in your home when you were a child? DO NOT READ RESPONSES,¿Cuál era la lengua o idioma principal que se hablaba en su hogar cuando usted era pequeño/a? NO LEA LAS RESPUESTAS,d,English,Inglés,24
+mb_a0600e,multiple_select,What was the main language spoken in your home when you were a child? DO NOT READ RESPONSES,¿Cuál era la lengua o idioma principal que se hablaba en su hogar cuando usted era pequeño/a? NO LEA LAS RESPUESTAS,e,Tol,Tol,24
+mb_a0600f,multiple_select,What was the main language spoken in your home when you were a child? DO NOT READ RESPONSES,¿Cuál era la lengua o idioma principal que se hablaba en su hogar cuando usted era pequeño/a? NO LEA LAS RESPUESTAS,f,Lenca,Lenca,24
+mb_a0600g,multiple_select,What was the main language spoken in your home when you were a child? DO NOT READ RESPONSES,¿Cuál era la lengua o idioma principal que se hablaba en su hogar cuando usted era pequeño/a? NO LEA LAS RESPUESTAS,g,Miskito,Miskito,24
+mb_a0600h,multiple_select,What was the main language spoken in your home when you were a child? DO NOT READ RESPONSES,¿Cuál era la lengua o idioma principal que se hablaba en su hogar cuando usted era pequeño/a? NO LEA LAS RESPUESTAS,h,Pech,Pech,24
+mb_a0600i,multiple_select,What was the main language spoken in your home when you were a child? DO NOT READ RESPONSES,¿Cuál era la lengua o idioma principal que se hablaba en su hogar cuando usted era pequeño/a? NO LEA LAS RESPUESTAS,i,Mayangna,Mayangna,24
+mb_a0600j,multiple_select,What was the main language spoken in your home when you were a child? DO NOT READ RESPONSES,¿Cuál era la lengua o idioma principal que se hablaba en su hogar cuando usted era pequeño/a? NO LEA LAS RESPUESTAS,j,Other,Otro,24
+mb_a0700,multiple_choice,Are you a citizen of the EU?,¿Es usted ciudadano/a de la Union Europea?,1,Yes,Sí,25
+mb_a0700,multiple_choice,Are you a citizen of the EU?,¿Es usted ciudadano/a de la Union Europea?,2,No,No,25
+mb_a0800a,multiple_select,"What language or languages does/did your Mother speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su madre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",a,Spanish/Castillian,Español/Castellano,26
+mb_a0800b,multiple_select,"What language or languages does/did your Mother speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su madre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",b,Ch'orti',Ch'orti',26
+mb_a0800c,multiple_select,"What language or languages does/did your Mother speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su madre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",c,Garifuna,Garífuna,26
+mb_a0800d,multiple_select,"What language or languages does/did your Mother speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su madre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",d,English,Inglés,26
+mb_a0800e,multiple_select,"What language or languages does/did your Mother speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su madre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",e,Tol,Tol,26
+mb_a0800f,multiple_select,"What language or languages does/did your Mother speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su madre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",f,Lenca,Lenca,26
+mb_a0800g,multiple_select,"What language or languages does/did your Mother speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su madre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",g,Miskito,Miskito,26
+mb_a0800h,multiple_select,"What language or languages does/did your Mother speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su madre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",h,Pech,Pech,26
+mb_a0800i,multiple_select,"What language or languages does/did your Mother speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su madre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",i,Mayangna,Mayangna,26
+mb_a0800j,multiple_select,"What language or languages does/did your Mother speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su madre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",j,Other,Otro,26
+mb_a0900a,multiple_select,"What language or languages does/did your Father speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su padre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",a,Spanish/Castillian,Español/Castellano,27
+mb_a0900b,multiple_select,"What language or languages does/did your Father speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su padre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",b,Ch'orti',Ch'orti',27
+mb_a0900c,multiple_select,"What language or languages does/did your Father speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su padre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",c,Garifuna,Garífuna,27
+mb_a0900d,multiple_select,"What language or languages does/did your Father speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su padre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",d,English,Inglés,27
+mb_a0900e,multiple_select,"What language or languages does/did your Father speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su padre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",e,Tol,Tol,27
+mb_a0900f,multiple_select,"What language or languages does/did your Father speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su padre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",f,Lenca,Lenca,27
+mb_a0900g,multiple_select,"What language or languages does/did your Father speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su padre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",g,Miskito,Miskito,27
+mb_a0900h,multiple_select,"What language or languages does/did your Father speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su padre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",h,Pech,Pech,27
+mb_a0900i,multiple_select,"What language or languages does/did your Father speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su padre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",i,Mayangna,Mayangna,27
+mb_a0900j,multiple_select,"What language or languages does/did your Father speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su padre? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",j,Other,Otro,27
+mb_a1000,multiple_choice,Where was your maternal on your mother's side born?,¿Dónde nació su abuela por parte de su mama?,1,This village,Esta aldea,28
+mb_a1000,multiple_choice,Where was your maternal on your mother's side born?,¿Dónde nació su abuela por parte de su mama?,2,Another place in Honduras,Otro lugar en Honduras,28
+mb_a1000,multiple_choice,Where was your maternal on your mother's side born?,¿Dónde nació su abuela por parte de su mama?,3,Outside of Honduras,Fuera de Honduras,28
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,1,Atlántida,Atlántida,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,2,Choluteca,Choluteca,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,3,Colón,Colón,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,4,Comayagua,Comayagua,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,5,Copán,Copán,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,6,Cortes,Cortes,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,7,El Paraíso,El Paraíso,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,8,Francisco Morazán,Francisco Morazán,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,9,Gracias a Dios,Gracias a Dios,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,10,Intibucá,Intibucá,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,11,Islas de la Bahía,Islas de la Bahía,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,12,La Paz,La Paz,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,13,Lempira,Lempira,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,14,Ocotepeque,Ocotepeque,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,15,Olancho,Olancho,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,16,Santa Bárbara,Santa Bárbara,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,17,Valle,Valle,29
+mb_a1100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,18,Yoro,Yoro,29
+mb_a1200,multiple_choice,If Copan: What municipality?,¿Qué municipio?,1,Copán Ruinas,Copán Ruinas,30
+mb_a1200,multiple_choice,If Copan: What municipality?,¿Qué municipio?,2,Cabañas,Cabañas,30
+mb_a1200,multiple_choice,If Copan: What municipality?,¿Qué municipio?,3,Santa Rita,Santa Rita,30
+mb_a1200,multiple_choice,If Copan: What municipality?,¿Qué municipio?,4,San Jeronimo,San Jeronimo,30
+mb_a1200,multiple_choice,If Copan: What municipality?,¿Qué municipio?,5,Other,Otro,30
+mb_a1300,multiple_choice,Another country: specify,¿Qué país?,1,Guatemala,Guatemala,31
+mb_a1300,multiple_choice,Another country: specify,¿Qué país?,2,El Salvador,El Salvador,31
+mb_a1300,multiple_choice,Another country: specify,¿Qué país?,3,Nicaragua,Nicaragua,31
+mb_a1300,multiple_choice,Another country: specify,¿Qué país?,4,Other,Otro,31
+mb_a1400a,multiple_select,"What language or languages does/did your  grandmother on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",a,Spanish/Castillian,Español/Castellano,32
+mb_a1400b,multiple_select,"What language or languages does/did your  grandmother on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",b,Ch'orti',Ch'orti',32
+mb_a1400c,multiple_select,"What language or languages does/did your  grandmother on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",c,Garifuna,Garífuna,32
+mb_a1400d,multiple_select,"What language or languages does/did your  grandmother on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",d,English,Inglés,32
+mb_a1400e,multiple_select,"What language or languages does/did your  grandmother on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",e,Tol,Tol,32
+mb_a1400f,multiple_select,"What language or languages does/did your  grandmother on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",f,Lenca,Lenca,32
+mb_a1400g,multiple_select,"What language or languages does/did your  grandmother on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",g,Miskito,Miskito,32
+mb_a1400h,multiple_select,"What language or languages does/did your  grandmother on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",h,Pech,Pech,32
+mb_a1400i,multiple_select,"What language or languages does/did your  grandmother on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",i,Mayangna,Mayangna,32
+mb_a1400j,multiple_select,"What language or languages does/did your  grandmother on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",j,Other,Otro,32
+mb_a1500,multiple_choice,Where was your maternal grandfather born?,¿Dónde nació su abuelo por parte de su mama?,1,This village,Esta aldea,33
+mb_a1500,multiple_choice,Where was your maternal grandfather born?,¿Dónde nació su abuelo por parte de su mama?,2,Another place in Honduras,Otro lugar en Honduras,33
+mb_a1500,multiple_choice,Where was your maternal grandfather born?,¿Dónde nació su abuelo por parte de su mama?,3,Outside of Honduras,Fuera de Honduras,33
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,1,Atlántida,Atlántida,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,2,Choluteca,Choluteca,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,3,Colón,Colón,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,4,Comayagua,Comayagua,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,5,Copán,Copán,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,6,Cortes,Cortes,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,7,El Paraíso,El Paraíso,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,8,Francisco Morazán,Francisco Morazán,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,9,Gracias a Dios,Gracias a Dios,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,10,Intibucá,Intibucá,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,11,Islas de la Bahía,Islas de la Bahía,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,12,La Paz,La Paz,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,13,Lempira,Lempira,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,14,Ocotepeque,Ocotepeque,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,15,Olancho,Olancho,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,16,Santa Bárbara,Santa Bárbara,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,17,Valle,Valle,34
+mb_a1600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,18,Yoro,Yoro,34
+mb_a1700,multiple_choice,If Copan: What municipality?,¿Qué municipio?,1,Copán Ruinas,Copán Ruinas,35
+mb_a1700,multiple_choice,If Copan: What municipality?,¿Qué municipio?,2,Cabañas,Cabañas,35
+mb_a1700,multiple_choice,If Copan: What municipality?,¿Qué municipio?,3,Santa Rita,Santa Rita,35
+mb_a1700,multiple_choice,If Copan: What municipality?,¿Qué municipio?,4,San Jeronimo,San Jeronimo,35
+mb_a1700,multiple_choice,If Copan: What municipality?,¿Qué municipio?,5,Other,Otro,35
+mb_a1800,multiple_choice,Another country: specify,¿Qué país?,1,Guatemala,Guatemala,36
+mb_a1800,multiple_choice,Another country: specify,¿Qué país?,2,El Salvador,El Salvador,36
+mb_a1800,multiple_choice,Another country: specify,¿Qué país?,3,Nicaragua,Nicaragua,36
+mb_a1800,multiple_choice,Another country: specify,¿Qué país?,4,Other,Otro,36
+mb_a1900a,multiple_select,"What language or languages does/did your grandfather  on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",a,Spanish/Castillian,Español/Castellano,37
+mb_a1900b,multiple_select,"What language or languages does/did your grandfather  on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",b,Ch'orti',Ch'orti',37
+mb_a1900c,multiple_select,"What language or languages does/did your grandfather  on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",c,Garifuna,Garífuna,37
+mb_a1900d,multiple_select,"What language or languages does/did your grandfather  on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",d,English,Inglés,37
+mb_a1900e,multiple_select,"What language or languages does/did your grandfather  on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",e,Tol,Tol,37
+mb_a1900f,multiple_select,"What language or languages does/did your grandfather  on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",f,Lenca,Lenca,37
+mb_a1900g,multiple_select,"What language or languages does/did your grandfather  on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",g,Miskito,Miskito,37
+mb_a1900h,multiple_select,"What language or languages does/did your grandfather  on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",h,Pech,Pech,37
+mb_a1900i,multiple_select,"What language or languages does/did your grandfather  on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",i,Mayangna,Mayangna,37
+mb_a1900j,multiple_select,"What language or languages does/did your grandfather  on your mother's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su mama? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿El habla/hablaba alguna otra lengua o idioma?",j,Other,Otro,37
+mb_a2000,multiple_choice,Where was your paternal grandmother born?,¿Dónde nació su abuela por parte de su papa?,1,This village,Esta aldea,38
+mb_a2000,multiple_choice,Where was your paternal grandmother born?,¿Dónde nació su abuela por parte de su papa?,2,Another place in Honduras,Otro lugar en Honduras,38
+mb_a2000,multiple_choice,Where was your paternal grandmother born?,¿Dónde nació su abuela por parte de su papa?,3,Outside of Honduras,Fuera de Honduras,38
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,1,Atlántida,Atlántida,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,2,Choluteca,Choluteca,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,3,Colón,Colón,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,4,Comayagua,Comayagua,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,5,Copán,Copán,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,6,Cortes,Cortes,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,7,El Paraíso,El Paraíso,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,8,Francisco Morazán,Francisco Morazán,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,9,Gracias a Dios,Gracias a Dios,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,10,Intibucá,Intibucá,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,11,Islas de la Bahía,Islas de la Bahía,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,12,La Paz,La Paz,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,13,Lempira,Lempira,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,14,Ocotepeque,Ocotepeque,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,15,Olancho,Olancho,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,16,Santa Bárbara,Santa Bárbara,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,17,Valle,Valle,39
+mb_a2100,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,18,Yoro,Yoro,39
+mb_a2200,multiple_choice,If Copan: What municipality?,¿Qué municipio?,1,Copán Ruinas,Copán Ruinas,40
+mb_a2200,multiple_choice,If Copan: What municipality?,¿Qué municipio?,2,Cabañas,Cabañas,40
+mb_a2200,multiple_choice,If Copan: What municipality?,¿Qué municipio?,3,Santa Rita,Santa Rita,40
+mb_a2200,multiple_choice,If Copan: What municipality?,¿Qué municipio?,4,San Jeronimo,San Jeronimo,40
+mb_a2200,multiple_choice,If Copan: What municipality?,¿Qué municipio?,5,Other,Otro,40
+mb_a2300,multiple_choice,Another country: specify,¿Qué país?,1,Guatemala,Guatemala,41
+mb_a2300,multiple_choice,Another country: specify,¿Qué país?,2,El Salvador,El Salvador,41
+mb_a2300,multiple_choice,Another country: specify,¿Qué país?,3,Nicaragua,Nicaragua,41
+mb_a2300,multiple_choice,Another country: specify,¿Qué país?,4,Other,Otro,41
+mb_a2400a,multiple_select,"What language or languages does/did your grandmother on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",a,Spanish/Castillian,Español/Castellano,42
+mb_a2400b,multiple_select,"What language or languages does/did your grandmother on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",b,Ch'orti',Ch'orti',42
+mb_a2400c,multiple_select,"What language or languages does/did your grandmother on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",c,Garifuna,Garífuna,42
+mb_a2400d,multiple_select,"What language or languages does/did your grandmother on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",d,English,Inglés,42
+mb_a2400e,multiple_select,"What language or languages does/did your grandmother on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",e,Tol,Tol,42
+mb_a2400f,multiple_select,"What language or languages does/did your grandmother on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",f,Lenca,Lenca,42
+mb_a2400g,multiple_select,"What language or languages does/did your grandmother on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",g,Miskito,Miskito,42
+mb_a2400h,multiple_select,"What language or languages does/did your grandmother on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",h,Pech,Pech,42
+mb_a2400i,multiple_select,"What language or languages does/did your grandmother on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",i,Mayangna,Mayangna,42
+mb_a2400j,multiple_select,"What language or languages does/did your grandmother on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did she speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuela por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO/A SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE: ¿Ella habla/hablaba alguna otra lengua o idioma?",j,Other,Otro,42
+mb_a2500,multiple_choice,Where was your grandfather on your father's side born?,¿Dónde nació su abuelo por parte de su papa?,1,This village,Esta aldea,43
+mb_a2500,multiple_choice,Where was your grandfather on your father's side born?,¿Dónde nació su abuelo por parte de su papa?,2,Another place in Honduras,Otro lugar en Honduras,43
+mb_a2500,multiple_choice,Where was your grandfather on your father's side born?,¿Dónde nació su abuelo por parte de su papa?,3,Outside of Honduras,Fuera de Honduras,43
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,1,Atlántida,Atlántida,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,2,Choluteca,Choluteca,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,3,Colón,Colón,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,4,Comayagua,Comayagua,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,5,Copán,Copán,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,6,Cortes,Cortes,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,7,El Paraíso,El Paraíso,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,8,Francisco Morazán,Francisco Morazán,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,9,Gracias a Dios,Gracias a Dios,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,10,Intibucá,Intibucá,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,11,Islas de la Bahía,Islas de la Bahía,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,12,La Paz,La Paz,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,13,Lempira,Lempira,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,14,Ocotepeque,Ocotepeque,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,15,Olancho,Olancho,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,16,Santa Bárbara,Santa Bárbara,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,17,Valle,Valle,44
+mb_a2600,multiple_choice,What department in Honduras?,¿Qué departamento en Honduras?,18,Yoro,Yoro,44
+mb_a2700,multiple_choice,If Copan: What municipality?,¿Qué municipio?,1,Copán Ruinas,Copán Ruinas,45
+mb_a2700,multiple_choice,If Copan: What municipality?,¿Qué municipio?,2,Cabañas,Cabañas,45
+mb_a2700,multiple_choice,If Copan: What municipality?,¿Qué municipio?,3,Santa Rita,Santa Rita,45
+mb_a2700,multiple_choice,If Copan: What municipality?,¿Qué municipio?,4,San Jeronimo,San Jeronimo,45
+mb_a2700,multiple_choice,If Copan: What municipality?,¿Qué municipio?,5,Other,Otro,45
+mb_a2800,multiple_choice,Another country: specify,¿Qué país?,1,Guatemala,Guatemala,46
+mb_a2800,multiple_choice,Another country: specify,¿Qué país?,2,El Salvador,El Salvador,46
+mb_a2800,multiple_choice,Another country: specify,¿Qué país?,3,Nicaragua,Nicaragua,46
+mb_a2800,multiple_choice,Another country: specify,¿Qué país?,4,Other,Otro,46
+mb_a2900a,multiple_select,"What language or languages does/did your grandfather on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE : ¿El habla/hablaba alguna otra lengua o idioma?",a,Spanish/Castillian,Español/Castellano,47
+mb_a2900b,multiple_select,"What language or languages does/did your grandfather on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE : ¿El habla/hablaba alguna otra lengua o idioma?",b,Ch'orti',Ch'orti',47
+mb_a2900c,multiple_select,"What language or languages does/did your grandfather on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE : ¿El habla/hablaba alguna otra lengua o idioma?",c,Garifuna,Garífuna,47
+mb_a2900d,multiple_select,"What language or languages does/did your grandfather on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE : ¿El habla/hablaba alguna otra lengua o idioma?",d,English,Inglés,47
+mb_a2900e,multiple_select,"What language or languages does/did your grandfather on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE : ¿El habla/hablaba alguna otra lengua o idioma?",e,Tol,Tol,47
+mb_a2900f,multiple_select,"What language or languages does/did your grandfather on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE : ¿El habla/hablaba alguna otra lengua o idioma?",f,Lenca,Lenca,47
+mb_a2900g,multiple_select,"What language or languages does/did your grandfather on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE : ¿El habla/hablaba alguna otra lengua o idioma?",g,Miskito,Miskito,47
+mb_a2900h,multiple_select,"What language or languages does/did your grandfather on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE : ¿El habla/hablaba alguna otra lengua o idioma?",h,Pech,Pech,47
+mb_a2900i,multiple_select,"What language or languages does/did your grandfather on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE : ¿El habla/hablaba alguna otra lengua o idioma?",i,Mayangna,Mayangna,47
+mb_a2900j,multiple_select,"What language or languages does/did your grandfather on your father's side speak? DO NOT READ RESPONSES. IF PARTICIPANT CHOOSES SPANISH ONLY, ADD: Does/did he speak any other language?","¿Qué lengua o lenguas habla/hablaba su abuelo por parte de su papa? NO LEA LAS RESPUESTAS. SI EL/LA ENCUESTADO SELECCIONA ESPAÑOL SOLAMENTE, PREGUNTE : ¿El habla/hablaba alguna otra lengua o idioma?",j,Other,Otro,47
+mb_ab0100,integer,"How often do you go to any other place outside of this village, whether it be for work, errands or to visit other people, travel, etc.?","¿Cómo cuánto diría usted que se gastó en su hogar para cubrir todos los gastos durante el mes pasado? Piense en todo lo que se tuvo que comprar, como ser comida, ropa, transporte, alquiler, luz/agua, insumos para sus cultivos o animales, o cualquier otra cosa que se consuma en su hogar.",NA,NA,NA,48
+mb_ab0200,multiple_choice,"How often do you go to any other place outside of this village, whether it be for work, errands or to visit other people, travel, etc.?","¿Qué tan seguido va a otro lugar fuera de esta comunidad, ya sea por trabajo, para hacer mandados, visitar a otras personas, de paseo etc?",1,Every day,Todos los días,49
+mb_ab0200,multiple_choice,"How often do you go to any other place outside of this village, whether it be for work, errands or to visit other people, travel, etc.?","¿Qué tan seguido va a otro lugar fuera de esta comunidad, ya sea por trabajo, para hacer mandados, visitar a otras personas, de paseo etc?",2,At least once a week,Por lo menos una vez a la semana,49
+mb_ab0200,multiple_choice,"How often do you go to any other place outside of this village, whether it be for work, errands or to visit other people, travel, etc.?","¿Qué tan seguido va a otro lugar fuera de esta comunidad, ya sea por trabajo, para hacer mandados, visitar a otras personas, de paseo etc?",3,At least once a month,Por lo menos una vez al mes,49
+mb_ab0200,multiple_choice,"How often do you go to any other place outside of this village, whether it be for work, errands or to visit other people, travel, etc.?","¿Qué tan seguido va a otro lugar fuera de esta comunidad, ya sea por trabajo, para hacer mandados, visitar a otras personas, de paseo etc?",4,Rarely/Never,Raramente/Nunca,49
+mb_ac0100a,multiple_select,"Do you spend time near these types of domestic animals, be it in your own home or in any place you visit frequently, at least a few days a month?","¿Usted pasa tiempo cerca de los siguientes animales domésticos, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",a,Cats,Gatos,50
+mb_ac0100b,multiple_select,"Do you spend time near these types of domestic animals, be it in your own home or in any place you visit frequently, at least a few days a month?","¿Usted pasa tiempo cerca de los siguientes animales domésticos, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",b,Dogs,Perros,50
+mb_ac0100c,multiple_select,"Do you spend time near these types of domestic animals, be it in your own home or in any place you visit frequently, at least a few days a month?","¿Usted pasa tiempo cerca de los siguientes animales domésticos, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",c,Parakeets,Loros,50
+mb_ac0100d,multiple_select,"Do you spend time near these types of domestic animals, be it in your own home or in any place you visit frequently, at least a few days a month?","¿Usted pasa tiempo cerca de los siguientes animales domésticos, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",d,Rabbits,Conejos,50
+mb_ac0100e,multiple_select,"Do you spend time near these types of domestic animals, be it in your own home or in any place you visit frequently, at least a few days a month?","¿Usted pasa tiempo cerca de los siguientes animales domésticos, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",e,Horses,Caballos,50
+mb_ac0100f,multiple_select,"Do you spend time near these types of domestic animals, be it in your own home or in any place you visit frequently, at least a few days a month?","¿Usted pasa tiempo cerca de los siguientes animales domésticos, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",f,Mice,Ratones,50
+mb_ac0100g,multiple_select,"Do you spend time near these types of domestic animals, be it in your own home or in any place you visit frequently, at least a few days a month?","¿Usted pasa tiempo cerca de los siguientes animales domésticos, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",g,None,Ninguno,50
+mb_ac0100h,multiple_select,"Do you spend time near these types of domestic animals, be it in your own home or in any place you visit frequently, at least a few days a month?","¿Usted pasa tiempo cerca de los siguientes animales domésticos, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",h,Other,Otro,50
+mb_ac0200a,multiple_select,"Do you frequently spend time (a few times of month) near these types of domestic animals that are used for food, be it in your own home or in any place you visit frequently?","¿Usted pasa tiempo cerca de estos animales domésticos que sirven como alimento, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",a,Cows,Vacas,51
+mb_ac0200b,multiple_select,"Do you frequently spend time (a few times of month) near these types of domestic animals that are used for food, be it in your own home or in any place you visit frequently?","¿Usted pasa tiempo cerca de estos animales domésticos que sirven como alimento, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",b,Goats,Cabros,51
+mb_ac0200c,multiple_select,"Do you frequently spend time (a few times of month) near these types of domestic animals that are used for food, be it in your own home or in any place you visit frequently?","¿Usted pasa tiempo cerca de estos animales domésticos que sirven como alimento, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",c,Pigs,Cerdos,51
+mb_ac0200d,multiple_select,"Do you frequently spend time (a few times of month) near these types of domestic animals that are used for food, be it in your own home or in any place you visit frequently?","¿Usted pasa tiempo cerca de estos animales domésticos que sirven como alimento, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",d,Chickens,Pollos o gallinas,51
+mb_ac0200e,multiple_select,"Do you frequently spend time (a few times of month) near these types of domestic animals that are used for food, be it in your own home or in any place you visit frequently?","¿Usted pasa tiempo cerca de estos animales domésticos que sirven como alimento, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",e,Ducks,Patos,51
+mb_ac0200f,multiple_select,"Do you frequently spend time (a few times of month) near these types of domestic animals that are used for food, be it in your own home or in any place you visit frequently?","¿Usted pasa tiempo cerca de estos animales domésticos que sirven como alimento, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",f,Turkeys,Guajolote o pavo,51
+mb_ac0200g,multiple_select,"Do you frequently spend time (a few times of month) near these types of domestic animals that are used for food, be it in your own home or in any place you visit frequently?","¿Usted pasa tiempo cerca de estos animales domésticos que sirven como alimento, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",g,Sheep,Ovejas,51
+mb_ac0200h,multiple_select,"Do you frequently spend time (a few times of month) near these types of domestic animals that are used for food, be it in your own home or in any place you visit frequently?","¿Usted pasa tiempo cerca de estos animales domésticos que sirven como alimento, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",h,Geese,Gansos,51
+mb_ac0200i,multiple_select,"Do you frequently spend time (a few times of month) near these types of domestic animals that are used for food, be it in your own home or in any place you visit frequently?","¿Usted pasa tiempo cerca de estos animales domésticos que sirven como alimento, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",i,Other farm animal,Otro animal de granja,51
+mb_ac0200j,multiple_select,"Do you frequently spend time (a few times of month) near these types of domestic animals that are used for food, be it in your own home or in any place you visit frequently?","¿Usted pasa tiempo cerca de estos animales domésticos que sirven como alimento, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",j,None,Ninguno,51
+mb_ac0300a,multiple_select,Do you frequently spend time (a few times of month) near these types of wild animals be it in your own home or in any place you visit frequently?,"¿Usted pasa tiempo cerca de animales salvajes, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",a,Bats,Murciélagos,52
+mb_ac0300b,multiple_select,Do you frequently spend time (a few times of month) near these types of wild animals be it in your own home or in any place you visit frequently?,"¿Usted pasa tiempo cerca de animales salvajes, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",b,Lizards,Lagartijas,52
+mb_ac0300c,multiple_select,Do you frequently spend time (a few times of month) near these types of wild animals be it in your own home or in any place you visit frequently?,"¿Usted pasa tiempo cerca de animales salvajes, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",c,Monkeys,Monos,52
+mb_ac0300d,multiple_select,Do you frequently spend time (a few times of month) near these types of wild animals be it in your own home or in any place you visit frequently?,"¿Usted pasa tiempo cerca de animales salvajes, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",d,Snakes,Culebras,52
+mb_ac0300e,multiple_select,Do you frequently spend time (a few times of month) near these types of wild animals be it in your own home or in any place you visit frequently?,"¿Usted pasa tiempo cerca de animales salvajes, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",e,Birds,Pajaros,52
+mb_ac0300f,multiple_select,Do you frequently spend time (a few times of month) near these types of wild animals be it in your own home or in any place you visit frequently?,"¿Usted pasa tiempo cerca de animales salvajes, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",f,Possums,Tacuacines o guazalos,52
+mb_ac0300g,multiple_select,Do you frequently spend time (a few times of month) near these types of wild animals be it in your own home or in any place you visit frequently?,"¿Usted pasa tiempo cerca de animales salvajes, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",g,Rats,Ratas,52
+mb_ac0300h,multiple_select,Do you frequently spend time (a few times of month) near these types of wild animals be it in your own home or in any place you visit frequently?,"¿Usted pasa tiempo cerca de animales salvajes, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",h,Squirrels,Ardillas,52
+mb_ac0300i,multiple_select,Do you frequently spend time (a few times of month) near these types of wild animals be it in your own home or in any place you visit frequently?,"¿Usted pasa tiempo cerca de animales salvajes, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",i,Other wild animal,Otro animal salvaje,52
+mb_ac0300j,multiple_select,Do you frequently spend time (a few times of month) near these types of wild animals be it in your own home or in any place you visit frequently?,"¿Usted pasa tiempo cerca de animales salvajes, por lo menos algunos días al mes, ya sea en el predio de su hogar u otros lugares que usted visita con frecuencia?",j,None,Ninguno,52
+mb_b0100,multiple_choice,"In general, would you say that your health is:","En general, diría que su salud es:",1,Excellent,Excelente,53
+mb_b0100,multiple_choice,"In general, would you say that your health is:","En general, diría que su salud es:",2,Very good,Muy buena,53
+mb_b0100,multiple_choice,"In general, would you say that your health is:","En general, diría que su salud es:",3,Good,Buena,53
+mb_b0100,multiple_choice,"In general, would you say that your health is:","En general, diría que su salud es:",4,Fair,Regular,53
+mb_b0100,multiple_choice,"In general, would you say that your health is:","En general, diría que su salud es:",5,Poor,Mala,53
+mb_b0200,multiple_choice,Have you had diarrhea in the last 4 weeks?,¿Ha tenido diarrea en las últimas 4 semanas?,1,Yes,Sí,54
+mb_b0200,multiple_choice,Have you had diarrhea in the last 4 weeks?,¿Ha tenido diarrea en las últimas 4 semanas?,2,No,No,54
+mb_b0300,multiple_choice,Did you have blood in your stool?,¿Había sangre en las heces?,1,Yes,Sí,55
+mb_b0300,multiple_choice,Did you have blood in your stool?,¿Había sangre en las heces?,2,No,No,55
+mb_b0400,multiple_choice,Do you have diarrea now?,¿Tiene diarrea ahora?,1,Yes,Sí,56
+mb_b0400,multiple_choice,Do you have diarrea now?,¿Tiene diarrea ahora?,2,No,No,56
+mb_b0500,multiple_choice,Have you had a cough in the last 4 weeks?,¿Ha tenido tos en las últimas 4 semanas?,1,Yes,Sí,57
+mb_b0500,multiple_choice,Have you had a cough in the last 4 weeks?,¿Ha tenido tos en las últimas 4 semanas?,2,No,No,57
+mb_b0600,multiple_choice,"If yes, do you have a cough now?",¿Tiene tos ahora?,1,Yes,Sí,58
+mb_b0600,multiple_choice,"If yes, do you have a cough now?",¿Tiene tos ahora?,2,No,No,58
+mb_b0700a,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,a,Painkillers,Pastillas para el dolor,59
+mb_b0700b,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,b,Antibiotics,Antibióticos,59
+mb_b0700c,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,c,Anti-Diarrheal medication,Anti-diarreico,59
+mb_b0700d,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,d,Anti-parasite medication,Anti-parásitos,59
+mb_b0700e,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,e,Vitamins or other supplements,Vitaminas u otros suplementos,59
+mb_b0700f,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,f,Zinc,Zinc,59
+mb_b0700g,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,g,Other,Otro,59
+mb_b0700g_medication_1,NA,medication 1 name - translated form Spanish text,NA,NA,NA,NA,NA
+mb_b0700g_medication_class_1,NA,medication 1 class,NA,NA,NA,NA,NA
+mb_b0700g_medication_type_1,NA,medication 1 type,NA,NA,NA,NA,NA
+mb_b0700g_medication_2,NA,medication 2 name - translated form Spanish text,NA,NA,NA,NA,NA
+mb_b0700g_medication_class_2,NA,medication 2 class,NA,NA,NA,NA,NA
+mb_b0700g_medication_type_2,NA,medication 2 type,NA,NA,NA,NA,NA
+mb_b0700g_medication_3,NA,medication 3 name - translated form Spanish text,NA,NA,NA,NA,NA
+mb_b0700g_medication_class_3,NA,medication 3 class,NA,NA,NA,NA,NA
+mb_b0700g_medication_type_3,NA,medication 3 type,NA,NA,NA,NA,NA
+mb_b0700g_medication_4,NA,medication 4 name - translated form Spanish text,NA,NA,NA,NA,NA
+mb_b0700g_medication_class_4,NA,medication 4 class,NA,NA,NA,NA,NA
+mb_b0700g_medication_type_4,NA,medication 4 type,NA,NA,NA,NA,NA
+mb_b0700h,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,h,None of the above,Ninguno,59
+mb_b0700i,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,i,Home remedy,Remedio casero,59
+mb_b0700j,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,j,Probiotics,Probióticos,59
+mb_b0700k,multiple_select,Please tell me if you have taken any of the following medications yesterday or today? Show picture of common medications given for the following medication types,¿Por favor dígame cual de estos medicamentos ha tomado el día de ayer o de hoy? MOSTRAR FOTOGRAFÍAS CON LOS MEDICAMENTOS MÁS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS:,k,Anti-fungal medication,Anti-micótico oral (anti-hongos),59
+mb_b0800a,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,a,Amoxicillin,Amoxicilina,60
+mb_b0800b,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,b,Tetracycline,Tetraciclina,60
+mb_b0800c,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,c,Terramycin,Terramicina,60
+mb_b0800d,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,d,Ampicillin,Ampicilina,60
+mb_b0800e,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,e,Erythromycin,Eritromicina,60
+mb_b0800f,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,f,Doxycycline,Dicloxacilina,60
+mb_b0800g,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,g,Other,Otro,60
+mb_b0900a,multiple_select,What type of vitamins or supplements?,¿Qué tipos de vitaminas u otros suplementos?,a,Folic Acid,Ácido Fólico,61
+mb_b0900b,multiple_select,What type of vitamins or supplements?,¿Qué tipos de vitaminas u otros suplementos?,b,Multivitamins,Multivitaminas,61
+mb_b0900c,multiple_select,What type of vitamins or supplements?,¿Qué tipos de vitaminas u otros suplementos?,c,Vitamin-B Complex,Complejo B,61
+mb_b0900d,multiple_select,What type of vitamins or supplements?,¿Qué tipos de vitaminas u otros suplementos?,d,Ferrous Sulfate,Sulfato Ferroso,61
+mb_b0900e,multiple_select,What type of vitamins or supplements?,¿Qué tipos de vitaminas u otros suplementos?,e,Other,Otro,61
+mmb_b0900e_medication_1,NA,medication 1 name - translated form Spanish text,NA,NA,NA,NA,NA
+mb_b0900e_medication_class_1,NA,medication 1 class,NA,NA,NA,NA,NA
+mb_b0900e_medication_type_1,NA,medication 1 type,NA,NA,NA,NA,NA
+mb_b1000,text_area,What type of home remedy?,¿Qué tipo de remedio casero?,NA,NA,NA,62
+mb_b1100a,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,a,Painkillers,Pastillas para el dolor,63
+mb_b1100b,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,b,Antibiotics,Antibióticos,63
+mb_b1100c,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,c,Anti-Diarrheal medication,Anti-diarreico,63
+mb_b1100d,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,d,Anti-parasite medication,Anti-parásitos,63
+mb_b1100e,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,e,Vitamins or other supplements,Vitaminas u otros suplementos,63
+mb_b1100f,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,f,Zinc,Zinc,63
+mb_b1100g,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,g,Other,Otro,63
+mb_b1100h,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,h,None of the above,Ninguno,63
+mb_b1100i,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,i,Home remedy,Remedio casero,63
+mb_b1100j,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,j,Probiotics,Probióticos,63
+mb_b1100k,multiple_select,Please tell me if you have taken any of the following medications in the last 4 weeks? SHOW PICTURES OF COMMON MEDICATIONS GIVEN FOR THE FOLLOWING TYPES.,¿Por favor dígame si ha tomado cualquiera de estos medicamentos en las últimas 4 semanas? MOSTRAR FOTOGRAFIAS CON LOS MEDICAMENTOS MAS COMUNES PARA LOS SIGUIENTES TIPOS DE MEDICAMENTOS.,k,Anti-fungal medication,Anti-micótico oral (anti-hongos),63
+mmb_b1100g_medication_1,NA,medication 1 name - translated form Spanish text,NA,NA,NA,NA,NA
+mb_b1100g_medication_class_1,NA,medication 1 class,NA,NA,NA,NA,NA
+mb_b1100g_medication_type_1,NA,medication 1 type,NA,NA,NA,NA,NA
+mmb_b1100g_medication_2,NA,medication 2 name - translated form Spanish text,NA,NA,NA,NA,NA
+mb_b1100g_medication_class_2,NA,medication 2 class,NA,NA,NA,NA,NA
+mb_b1100g_medication_type_2,NA,medication 2 type,NA,NA,NA,NA,NA
+mmb_b1100g_medication_3,NA,medication 3 name - translated form Spanish text,NA,NA,NA,NA,NA
+mb_b1100g_medication_class_3,NA,medication 3 class,NA,NA,NA,NA,NA
+mb_b1100g_medication_type_3,NA,medication 3 type,NA,NA,NA,NA,NA
+mb_b1200a,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,a,Amoxicillin,Amoxicilina,64
+mb_b1200b,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,b,Tetracycline,Tetraciclina,64
+mb_b1200c,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,c,Terramycin,Terramicina,64
+mb_b1200d,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,d,Ampicillin,Ampicilina,64
+mb_b1200e,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,e,Erythromycin,Eritromicina,64
+mb_b1200f,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,f,Doxycycline,Dicloxacilina,64
+mb_b1200g,multiple_select,Which type of antibiotics?,¿Qué tipo de antibióticos?,g,Other,Otro,64
+mb_b1300a,multiple_select,What type of vitamins or supplements?,¿Qué tipos de vitaminas u otros suplementos?,a,Folic Acid,Ácido Fólico,65
+mb_b1300b,multiple_select,What type of vitamins or supplements?,¿Qué tipos de vitaminas u otros suplementos?,b,Multivitamins,Multivitaminas,65
+mb_b1300c,multiple_select,What type of vitamins or supplements?,¿Qué tipos de vitaminas u otros suplementos?,c,Vitamin-B Complex,Complejo B,65
+mb_b1300d,multiple_select,What type of vitamins or supplements?,¿Qué tipos de vitaminas u otros suplementos?,d,Ferrous Sulfate,Sulfato Ferroso,65
+mb_b1300e,multiple_select,What type of vitamins or supplements?,¿Qué tipos de vitaminas u otros suplementos?,e,Other,Otro,65
+mmb_b1300e_medication_1,NA,medication 1 name - translated form Spanish text,NA,NA,NA,NA,NA
+mb_b1300e_medication_class_1,NA,medication 1 class,NA,NA,NA,NA,NA
+mb_b1300e_medication_type_1,NA,medication 1 type,NA,NA,NA,NA,NA
+mb_b1400,text_area,What type of home remedy?,¿Qué tipo de remedio casero?,NA,NA,NA,66
+mb_b1500a,multiple_select,Please tell me if you have taken any of the following antibiotics in the last 6 months?,¿Por favor dígame si ha tomado cualquiera de los seguientes antibióticos en los últimos 6 meses?,a,Amoxicillin,Amoxicilina,67
+mb_b1500b,multiple_select,Please tell me if you have taken any of the following antibiotics in the last 6 months?,¿Por favor dígame si ha tomado cualquiera de los seguientes antibióticos en los últimos 6 meses?,b,Tetracycline,Tetraciclina,67
+mb_b1500c,multiple_select,Please tell me if you have taken any of the following antibiotics in the last 6 months?,¿Por favor dígame si ha tomado cualquiera de los seguientes antibióticos en los últimos 6 meses?,c,Terramycin,Terramicina,67
+mb_b1500d,multiple_select,Please tell me if you have taken any of the following antibiotics in the last 6 months?,¿Por favor dígame si ha tomado cualquiera de los seguientes antibióticos en los últimos 6 meses?,d,Ampicillin,Ampicilina,67
+mb_b1500e,multiple_select,Please tell me if you have taken any of the following antibiotics in the last 6 months?,¿Por favor dígame si ha tomado cualquiera de los seguientes antibióticos en los últimos 6 meses?,e,Erythromycin,Eritromicina,67
+mb_b1500f,multiple_select,Please tell me if you have taken any of the following antibiotics in the last 6 months?,¿Por favor dígame si ha tomado cualquiera de los seguientes antibióticos en los últimos 6 meses?,f,Doxycycline,Dicloxacilina,67
+mb_b1500g,multiple_select,Please tell me if you have taken any of the following antibiotics in the last 6 months?,¿Por favor dígame si ha tomado cualquiera de los seguientes antibióticos en los últimos 6 meses?,g,Other,Otro,67
+mb_b1500h,multiple_select,Please tell me if you have taken any of the following antibiotics in the last 6 months?,¿Por favor dígame si ha tomado cualquiera de los seguientes antibióticos en los últimos 6 meses?,h,None,Ninguno,67
+mmb_b1500h_medication_1,NA,medication 1 name - translated form Spanish text,NA,NA,NA,NA,NA
+mb_b1500h_medication_class_1,NA,medication 1 class,NA,NA,NA,NA,NA
+mb_b1500h_medication_type_1,NA,medication 1 type,NA,NA,NA,NA,NA
+mb_b1600,multiple_choice,Have you taken any anti-fungal medication orally in the past 6 months?,¿Ha tomado medicamentos anti-hongos oralmente en los últimos 6 meses?,1,Yes,Sí,68
+mb_b1600,multiple_choice,Have you taken any anti-fungal medication orally in the past 6 months?,¿Ha tomado medicamentos anti-hongos oralmente en los últimos 6 meses?,2,No,No,68
+mb_b1700,multiple_choice,Do you have or have you had a health problem for which you need to take medicines or see the doctor regularly?,¿Padece o ha padecido usted de algún problema de salud por el que tenga que estar tomando medicinas o ir seguido al doctor?,1,Yes,Sí,69
+mb_b1700,multiple_choice,Do you have or have you had a health problem for which you need to take medicines or see the doctor regularly?,¿Padece o ha padecido usted de algún problema de salud por el que tenga que estar tomando medicinas o ir seguido al doctor?,2,No,No,69
+mb_b1800,text_area,What health problem have you had?,¿De que problema de salud padece o ha padecido?,NA,NA,NA,70
+mb_b1900a,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,a,Diabetes (sugar in the blood),Diabetes (azúcar en la sangre),71
+mb_b1900b,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,b,Allergies,Alergias,71
+mb_b1900c,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,c,Cancer,Cancer,71
+mb_b1900d,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,d,"Cystic fibrosis, which is a problem in the lungs","Fibrosis quística, que es un problema de los pulmones",71
+mb_b1900e,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,e,Heart disease,Enfermedad del corazón,71
+mb_b1900f,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,f,"Endocrine illness, like any problem with the thyroid or pituitary gland or pancreas, obesity or polycystic ovaries","Enfermedad endocrina, como ser problemas de la tiroides, glándula pituitaria o el páncreas, problemas de obesidad, o de ovarios poliquisticos",71
+mb_b1900g,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,g,Renal failure (kidney failure that requires dialysis or transplant),Insuficiencia renal (falla en los riñones que requiera dialisis o transplante),71
+mb_b1900h,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,h,Asthma,Asma,71
+mb_b1900i,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,i,"Stomach illness, such as gastritis or ulcers",Enfermedades del estómago como gastritis o úlceras estomacales,71
+mb_b1900j,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,j,Intestinal illness like colitis (inflammation in the colon) or frequent diarrhea,"Enfermedad en los intestinos como colitis (inflamación en el colon), diarrea frecuente",71
+mb_b1900k,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,k,Arthritis,Artritis,71
+mb_b1900l,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,l,Multiple Sclerosis (paralysis in the muscles),Esclerosis multiple (parálisis de los músculos),71
+mb_b1900m,multiple_select,"Do you currently have, or have you ever been diagnosed by a doctor to have any of the following medical problems?",¿Tiene usted actualmente o le ha dicho un médico alguna vez que usted tiene cualquiera de los siguientes problemas?,m,None of the above,Ninguno,71
+mb_b2000,multiple_choice,Are you currently pregnant?,¿Está usted embarazada actualmente?,1,Yes,Sí,72
+mb_b2000,multiple_choice,Are you currently pregnant?,¿Está usted embarazada actualmente?,2,No,No,72
+mb_b2100,integer,"How many months pregnant are you? IF THEY GIVE RESPONSE IN WEEKS, ROUND UP TO MONTHS (3 weeks --> 1 month)","¿Cuántos meses de embarazo tiene? SI DAN UNA RESPUESTA EN SEMANAS, APROXIME LA RESPUESTA A MESES (3 semanas será 1 mes)",NA,NA,NA,73
+mb_b2200,year_month_day,What was the date of your last menstrual period?,¿Cuál es la fecha de su última menstruación?,NA,NA,NA,74
+mb_ba0100,multiple_choice,"Feeling nervous, anxious, or on edge","Se ha sentido nervioso(a), ansioso(a) o con los nervios de punta",1,Not at all,Ningún día,75
+mb_ba0100,multiple_choice,"Feeling nervous, anxious, or on edge","Se ha sentido nervioso(a), ansioso(a) o con los nervios de punta",2,Several days,Varios días,75
+mb_ba0100,multiple_choice,"Feeling nervous, anxious, or on edge","Se ha sentido nervioso(a), ansioso(a) o con los nervios de punta",3,Over half the days,Más de la mitad de los días,75
+mb_ba0100,multiple_choice,"Feeling nervous, anxious, or on edge","Se ha sentido nervioso(a), ansioso(a) o con los nervios de punta",4,Nearly every day,Casi todos los días,75
+mb_ba0200,multiple_choice,Not being able to stop or control worrying,No ha sido capaz de parar o controlar su preocupación,1,Not at all,Ningún día,76
+mb_ba0200,multiple_choice,Not being able to stop or control worrying,No ha sido capaz de parar o controlar su preocupación,2,Several days,Varios días,76
+mb_ba0200,multiple_choice,Not being able to stop or control worrying,No ha sido capaz de parar o controlar su preocupación,3,Over half the days,Más de la mitad de los días,76
+mb_ba0200,multiple_choice,Not being able to stop or control worrying,No ha sido capaz de parar o controlar su preocupación,4,Nearly every day,Casi todos los días,76
+mb_ba0300,multiple_choice,Worrying too much about different things,Se ha preocupado demasiado por motivos diferentes,1,Not at all,Ningún día,77
+mb_ba0300,multiple_choice,Worrying too much about different things,Se ha preocupado demasiado por motivos diferentes,2,Several days,Varios días,77
+mb_ba0300,multiple_choice,Worrying too much about different things,Se ha preocupado demasiado por motivos diferentes,3,Over half the days,Más de la mitad de los días,77
+mb_ba0300,multiple_choice,Worrying too much about different things,Se ha preocupado demasiado por motivos diferentes,4,Nearly every day,Casi todos los días,77
+mb_ba0400,multiple_choice,Trouble relaxing,Ha tenido dificultad para relajarse,1,Not at all,Ningún día,78
+mb_ba0400,multiple_choice,Trouble relaxing,Ha tenido dificultad para relajarse,2,Several days,Varios días,78
+mb_ba0400,multiple_choice,Trouble relaxing,Ha tenido dificultad para relajarse,3,Over half the days,Más de la mitad de los días,78
+mb_ba0400,multiple_choice,Trouble relaxing,Ha tenido dificultad para relajarse,4,Nearly every day,Casi todos los días,78
+mb_ba0500,multiple_choice,Being so restless that it's hard to sit still,Se ha sentido tan inquieto(a) que no ha podido quedarse quieto(a),1,Not at all,Ningún día,79
+mb_ba0500,multiple_choice,Being so restless that it's hard to sit still,Se ha sentido tan inquieto(a) que no ha podido quedarse quieto(a),2,Several days,Varios días,79
+mb_ba0500,multiple_choice,Being so restless that it's hard to sit still,Se ha sentido tan inquieto(a) que no ha podido quedarse quieto(a),3,Over half the days,Más de la mitad de los días,79
+mb_ba0500,multiple_choice,Being so restless that it's hard to sit still,Se ha sentido tan inquieto(a) que no ha podido quedarse quieto(a),4,Nearly every day,Casi todos los días,79
+mb_ba0600,multiple_choice,Becoming easily annoyed or irritable,Se ha molestado o irritado fácilmente,1,Not at all,Ningún día,80
+mb_ba0600,multiple_choice,Becoming easily annoyed or irritable,Se ha molestado o irritado fácilmente,2,Several days,Varios días,80
+mb_ba0600,multiple_choice,Becoming easily annoyed or irritable,Se ha molestado o irritado fácilmente,3,Over half the days,Más de la mitad de los días,80
+mb_ba0600,multiple_choice,Becoming easily annoyed or irritable,Se ha molestado o irritado fácilmente,4,Nearly every day,Casi todos los días,80
+mb_ba0700,multiple_choice,Feeling afraid as if something awful might happen,Ha tenido miedo de que algo terrible fuera a pasar,1,Not at all,Ningún día,81
+mb_ba0700,multiple_choice,Feeling afraid as if something awful might happen,Ha tenido miedo de que algo terrible fuera a pasar,2,Several days,Varios días,81
+mb_ba0700,multiple_choice,Feeling afraid as if something awful might happen,Ha tenido miedo de que algo terrible fuera a pasar,3,Over half the days,Más de la mitad de los días,81
+mb_ba0700,multiple_choice,Feeling afraid as if something awful might happen,Ha tenido miedo de que algo terrible fuera a pasar,4,Nearly every day,Casi todos los días,81
+gad7_score,NA,"Generalized Anxiety Disorder screen (GAD-7) scoring - sum of recoded answers to mb_ba0100 to mb_ba0700 where ""Not at all""=0, ""Several days""=1, ""Over half the days""=2, ""Nearly every day”=3",NA,NA,NA,NA,NA
+gad7_cat,NA,"Generalized Anxiety Disorder screen (GAD-7) category - coded from gad7_score where <=5 = ""minimal or none"", 6-10 = ""mild"", 11-15 = ""moderate"", >=16 = “severe""",NA,NA,NA,NA,NA
+mb_ba0800,multiple_choice,Little interest or pleasure in doing things,Poco interés o placer en hacer cosas,1,Not at all,Ningún día,82
+mb_ba0800,multiple_choice,Little interest or pleasure in doing things,Poco interés o placer en hacer cosas,2,Several days,Varios días,82
+mb_ba0800,multiple_choice,Little interest or pleasure in doing things,Poco interés o placer en hacer cosas,3,Over half the days,Más de la mitad de los días,82
+mb_ba0800,multiple_choice,Little interest or pleasure in doing things,Poco interés o placer en hacer cosas,4,Nearly every day,Casi todos los días,82
+mb_ba0900,multiple_choice,"Feeling down, depressed, or hopeless","Se ha sentido decaído(a), deprimido(a) o sin esperanzas",1,Not at all,Ningún día,83
+mb_ba0900,multiple_choice,"Feeling down, depressed, or hopeless","Se ha sentido decaído(a), deprimido(a) o sin esperanzas",2,Several days,Varios días,83
+mb_ba0900,multiple_choice,"Feeling down, depressed, or hopeless","Se ha sentido decaído(a), deprimido(a) o sin esperanzas",3,Over half the days,Más de la mitad de los días,83
+mb_ba0900,multiple_choice,"Feeling down, depressed, or hopeless","Se ha sentido decaído(a), deprimido(a) o sin esperanzas",4,Nearly every day,Casi todos los días,83
+mb_ba1000,multiple_choice,"Trouble falling or staying asleep, or sleeping too much","Ha tenido dificultad para quedarse o permanecer dormido(a), o ha dormido demasiado",1,Not at all,Ningún día,84
+mb_ba1000,multiple_choice,"Trouble falling or staying asleep, or sleeping too much","Ha tenido dificultad para quedarse o permanecer dormido(a), o ha dormido demasiado",2,Several days,Varios días,84
+mb_ba1000,multiple_choice,"Trouble falling or staying asleep, or sleeping too much","Ha tenido dificultad para quedarse o permanecer dormido(a), o ha dormido demasiado",3,Over half the days,Más de la mitad de los días,84
+mb_ba1000,multiple_choice,"Trouble falling or staying asleep, or sleeping too much","Ha tenido dificultad para quedarse o permanecer dormido(a), o ha dormido demasiado",4,Nearly every day,Casi todos los días,84
+mb_ba1100,multiple_choice,Feeling tired or having little energy,Se ha sentido cansado(a) o con poca energía,1,Not at all,Ningún día,85
+mb_ba1100,multiple_choice,Feeling tired or having little energy,Se ha sentido cansado(a) o con poca energía,2,Several days,Varios días,85
+mb_ba1100,multiple_choice,Feeling tired or having little energy,Se ha sentido cansado(a) o con poca energía,3,Over half the days,Más de la mitad de los días,85
+mb_ba1100,multiple_choice,Feeling tired or having little energy,Se ha sentido cansado(a) o con poca energía,4,Nearly every day,Casi todos los días,85
+mb_ba1200,multiple_choice,Poor appetite or overeating,Sin apetito o ha comido en exceso,1,Not at all,Ningún día,86
+mb_ba1200,multiple_choice,Poor appetite or overeating,Sin apetito o ha comido en exceso,2,Several days,Varios días,86
+mb_ba1200,multiple_choice,Poor appetite or overeating,Sin apetito o ha comido en exceso,3,Over half the days,Más de la mitad de los días,86
+mb_ba1200,multiple_choice,Poor appetite or overeating,Sin apetito o ha comido en exceso,4,Nearly every day,Casi todos los días,86
+mb_ba1300,multiple_choice,Feeling bad about yourself or that you are a failure or have let yourself or your family down,Se ha sentido mal con usted mismo(a) – o que es un fracaso o que ha quedado mal con usted mismo(a) o con su familia,1,Not at all,Ningún día,87
+mb_ba1300,multiple_choice,Feeling bad about yourself or that you are a failure or have let yourself or your family down,Se ha sentido mal con usted mismo(a) – o que es un fracaso o que ha quedado mal con usted mismo(a) o con su familia,2,Several days,Varios días,87
+mb_ba1300,multiple_choice,Feeling bad about yourself or that you are a failure or have let yourself or your family down,Se ha sentido mal con usted mismo(a) – o que es un fracaso o que ha quedado mal con usted mismo(a) o con su familia,3,Over half the days,Más de la mitad de los días,87
+mb_ba1300,multiple_choice,Feeling bad about yourself or that you are a failure or have let yourself or your family down,Se ha sentido mal con usted mismo(a) – o que es un fracaso o que ha quedado mal con usted mismo(a) o con su familia,4,Nearly every day,Casi todos los días,87
+mb_ba1400,multiple_choice,"Trouble concentrating on things, such as reading the newspaper or watching television","Ha tenido dificultad para concentrarse en ciertas actividades, tales como leer el periódico o ver la televisión",1,Not at all,Ningún día,88
+mb_ba1400,multiple_choice,"Trouble concentrating on things, such as reading the newspaper or watching television","Ha tenido dificultad para concentrarse en ciertas actividades, tales como leer el periódico o ver la televisión",2,Several days,Varios días,88
+mb_ba1400,multiple_choice,"Trouble concentrating on things, such as reading the newspaper or watching television","Ha tenido dificultad para concentrarse en ciertas actividades, tales como leer el periódico o ver la televisión",3,Over half the days,Más de la mitad de los días,88
+mb_ba1400,multiple_choice,"Trouble concentrating on things, such as reading the newspaper or watching television","Ha tenido dificultad para concentrarse en ciertas actividades, tales como leer el periódico o ver la televisión",4,Nearly every day,Casi todos los días,88
+mb_ba1500,multiple_choice,Moving or speaking so slowly that other people could have noticed. Or the opposite being so fidgety or restless that you have been moving around a lot more than usual,¿Se ha movido o hablado tan lento que otras personas podrían haberlo notado? o lo contrario – muy inquieto(a) o agitado(a) que ha estado moviéndose mucho más de lo normal,1,Not at all,Ningún día,89
+mb_ba1500,multiple_choice,Moving or speaking so slowly that other people could have noticed. Or the opposite being so fidgety or restless that you have been moving around a lot more than usual,¿Se ha movido o hablado tan lento que otras personas podrían haberlo notado? o lo contrario – muy inquieto(a) o agitado(a) que ha estado moviéndose mucho más de lo normal,2,Several days,Varios días,89
+mb_ba1500,multiple_choice,Moving or speaking so slowly that other people could have noticed. Or the opposite being so fidgety or restless that you have been moving around a lot more than usual,¿Se ha movido o hablado tan lento que otras personas podrían haberlo notado? o lo contrario – muy inquieto(a) o agitado(a) que ha estado moviéndose mucho más de lo normal,3,Over half the days,Más de la mitad de los días,89
+mb_ba1500,multiple_choice,Moving or speaking so slowly that other people could have noticed. Or the opposite being so fidgety or restless that you have been moving around a lot more than usual,¿Se ha movido o hablado tan lento que otras personas podrían haberlo notado? o lo contrario – muy inquieto(a) o agitado(a) que ha estado moviéndose mucho más de lo normal,4,Nearly every day,Casi todos los días,89
+mb_ba1600,multiple_choice,"Thoughts that you would be better off dead, or of hurting yourself",Pensamientos de que estaría mejor muerto(a) o de lastimarse de alguna manera,1,Not at all,Ningún día,90
+mb_ba1600,multiple_choice,"Thoughts that you would be better off dead, or of hurting yourself",Pensamientos de que estaría mejor muerto(a) o de lastimarse de alguna manera,2,Several days,Varios días,90
+mb_ba1600,multiple_choice,"Thoughts that you would be better off dead, or of hurting yourself",Pensamientos de que estaría mejor muerto(a) o de lastimarse de alguna manera,3,Over half the days,Más de la mitad de los días,90
+mb_ba1600,multiple_choice,"Thoughts that you would be better off dead, or of hurting yourself",Pensamientos de que estaría mejor muerto(a) o de lastimarse de alguna manera,4,Nearly every day,Casi todos los días,90
+phq9_score,NA,"Patient Health Questionnaire - 9 (PHQ-9) scoring - sum of recoded answers to mb_ba0800 to mb_ba1600 where ""Not at all""=0, ""Several days""=1, ""Over half the days""=2, ""Nearly every day""=3",NA,NA,NA,NA,NA
+phq9_cat,NA,"Patient Health Questionnaire - 9 (PHQ-9) category - coded from phq9_score where <=5 = ""minimal or none"", 6-10 = ""mild"", 11-15 = ""moderate"", 15-19 = “moderately severe”, >=20 = “severe”",NA,NA,NA,NA,NA
+mb_bc0100,multiple_choice,GAME (DICE),JUEGOS (DADOS),1,Correct,Correcto,91
+mb_bc0100,multiple_choice,GAME (DICE),JUEGOS (DADOS),2,Incorrect,Incorrecto,91
+mb_bc0200,multiple_choice,VEHICLE (BUS),VEHICULO (BUS/AUTOBUS),1,Correct,Correcto,92
+mb_bc0200,multiple_choice,VEHICLE (BUS),VEHICULO (BUS/AUTOBUS),2,Incorrect,Incorrecto,92
+mb_bc0300,multiple_choice,FRUIT (APPLE),FRUTA (MANZANA),1,Correct,Correcto,93
+mb_bc0300,multiple_choice,FRUIT (APPLE),FRUTA (MANZANA),2,Incorrect,Incorrecto,93
+mb_bc0400,multiple_choice,MUSICAL INSTRUMENT (GUITAR),INSTRUMENTO MUSICAL (GUITARRA),1,Correct,Correcto,94
+mb_bc0400,multiple_choice,MUSICAL INSTRUMENT (GUITAR),INSTRUMENTO MUSICAL (GUITARRA),2,Incorrect,Incorrecto,94
+mb_bc0500,multiple_choice,WEARABLE ACCESSORY (HAT),ACCESORIO DE VESTIR (SOMBRERO),1,Correct,Correcto,95
+mb_bc0500,multiple_choice,WEARABLE ACCESSORY (HAT),ACCESORIO DE VESTIR (SOMBRERO),2,Incorrect,Incorrecto,95
+mb_bc0600,multiple_choice,UTENSIL (KNIFE),UTENSILIO PARA COMER (CUCHILLO),1,Correct,Correcto,96
+mb_bc0600,multiple_choice,UTENSIL (KNIFE),UTENSILIO PARA COMER (CUCHILLO),2,Incorrect,Incorrecto,96
+mb_bc0700,integer,"“I want you to tell me all the names of men/women* that you can remember (*if the subject is male, say “women”, if female, say “men”) (Do not give examples, allow 30 seconds and start recording the time from when he/she says the first name. Do not count similar names twice (e.g., Cathy-Catherine; Joe-Joseph; Jenny-Jennifer, etc.)","Quiero que me diga todos los nombres de hombres/mujeres que recuerde  COMIENCE POR EL SEXO CONTRARIO. NO DE EJEMPLOS, CONCEDA 30 SEGUNDOS Y COMIENCE A CONTAR EL TIEMPO CUANDO LA PERSONA DIGA EL PRIMER NOMBRE. NO CUENTE LOS NOMBRES REPETIDOS O SIMILARES (Mari-María; Pepe-José, Dolores- Lola, etc)",NA,NA,NA,97
+mb_bc0800,integer,"Now, I would like for you to tell me the names of all men/women you can recall. NOW ASK FIRST NAME FOR THE SAME GENDER AS THE PARTICIPANT. PROVIDE 30 SECONDS.","""Quiero que me diga todos los nombres de hombres/mujeres que recuerde  AHORA PREGUNTE DEL MISMO SEXO. NO DE EJEMPLOS, CONCEDA 30 SEGUNDOS Y COMIENCE A CONTAR EL TIEMPO CUANDO LA PERSONA DIGA EL PRIMER NOMBRE. NO CUENTE LOS NOMBRES REPETIDOS O SIMILARES (Mari-María; Pepe-José, Dolores- Lola, etc)""",NA,NA,NA,98
+mb_bc0900,multiple_choice,GAME (DICE),JUEGO (DADOS),1,Correct,Correcto,99
+mb_bc0900,multiple_choice,GAME (DICE),JUEGO (DADOS),2,Correct with hint,Correcto con ayuda,99
+mb_bc0900,multiple_choice,GAME (DICE),JUEGO (DADOS),3,Incorrect,Incorrecto,99
+mb_bc1000,multiple_choice,VEHICLE (BUS),VEHICULO (BUS/AUTOBUS),1,Correct,Correcto,100
+mb_bc1000,multiple_choice,VEHICLE (BUS),VEHICULO (BUS/AUTOBUS),2,Correct with hint,Correcto con ayuda,100
+mb_bc1000,multiple_choice,VEHICLE (BUS),VEHICULO (BUS/AUTOBUS),3,Incorrect,Incorrecto,100
+mb_bc1100,multiple_choice,FRUIT (APPLE),FRUTA (MANZANA),1,Correct,Correcto,101
+mb_bc1100,multiple_choice,FRUIT (APPLE),FRUTA (MANZANA),2,Correct with hint,Correcto con ayuda,101
+mb_bc1100,multiple_choice,FRUIT (APPLE),FRUTA (MANZANA),3,Incorrect,Incorrecto,101
+mb_bc1200,multiple_choice,MUSICAL INSTRUMENT (GUITAR),INSTRUMENTO MUSICAL (GUITARRA),1,Correct,Correcto,102
+mb_bc1200,multiple_choice,MUSICAL INSTRUMENT (GUITAR),INSTRUMENTO MUSICAL (GUITARRA),2,Correct with hint,Correcto con ayuda,102
+mb_bc1200,multiple_choice,MUSICAL INSTRUMENT (GUITAR),INSTRUMENTO MUSICAL (GUITARRA),3,Incorrect,Incorrecto,102
+mb_bc1300,multiple_choice,WEARABLE ACCESSORY (HAT),ACCESORIO DE VESTIR (SOMBRERO),1,Correct,Correcto,103
+mb_bc1300,multiple_choice,WEARABLE ACCESSORY (HAT),ACCESORIO DE VESTIR (SOMBRERO),2,Correct with hint,Correcto con ayuda,103
+mb_bc1300,multiple_choice,WEARABLE ACCESSORY (HAT),ACCESORIO DE VESTIR (SOMBRERO),3,Incorrect,Incorrecto,103
+mb_bc1400,multiple_choice,UTENSIL (KNIFE),UTENSILIO PARA COMER (CUCHILLO),1,Correct,Correcto,104
+mb_bc1400,multiple_choice,UTENSIL (KNIFE),UTENSILIO PARA COMER (CUCHILLO),2,Correct with help,Correcto con ayuda,104
+mb_bc1400,multiple_choice,UTENSIL (KNIFE),UTENSILIO PARA COMER (CUCHILLO),3,Incorrect,Incorrecto,104
+photo_naming_score,NA,Phototest (Naming) score - sum of mb_bc0100 to mb_bc0600,NA,NA,NA,NA,NA
+photo_verbal_fluidity_score,NA,Phototest (verbal fluidity) score - sum of mb_bc0700 and mb_bc0800,NA,NA,NA,NA,NA
+photo_recall_score,NA,Phototest (Recall) score - sum of mb_bc0900 to mb_bc1400,NA,NA,NA,NA,NA
+cognitive_score,NA,"Cognition score - sum of photo_naming_score, photo_verbal_fluidity_score and photo_recall_score",NA,NA,NA,NA,NA
+cognitive_status,NA,"Cognitive status - code from cognitive score where <=25 = ""dementia"", 26-28 = “impairment"" and >=29 = “none""",NA,NA,NA,NA,NA
+mb_bd0100,multiple_choice,... is reserved,... es reservado(a)?,1,Disagree strongly,Muy en desacuerdo,105
+mb_bd0100,multiple_choice,... is reserved,... es reservado(a)?,2,Disagree a little,Un poco en desacuerdo,105
+mb_bd0100,multiple_choice,... is reserved,... es reservado(a)?,3,Neither agree nor disagree,Ni de acuerdo ni en desacuerdo,105
+mb_bd0100,multiple_choice,... is reserved,... es reservado(a)?,4,Agree a little,Un poco de acuerdo,105
+mb_bd0100,multiple_choice,... is reserved,... es reservado(a)?,5,Agree strongly,Muy de acuerdo,105
+mb_bd0200,multiple_choice,...is generally trusting,... es generalmente confiado(a)?,1,Disagree strongly,Muy en desacuerdo,106
+mb_bd0200,multiple_choice,...is generally trusting,... es generalmente confiado(a)?,2,Disagree a little,Un poco en desacuerdo,106
+mb_bd0200,multiple_choice,...is generally trusting,... es generalmente confiado(a)?,3,Neither agree nor disagree,Ni de acuerdo ni en desacuerdo,106
+mb_bd0200,multiple_choice,...is generally trusting,... es generalmente confiado(a)?,4,Agree a little,Un poco de acuerdo,106
+mb_bd0200,multiple_choice,...is generally trusting,... es generalmente confiado(a)?,5,Agree strongly,Muy de acuerdo,106
+mb_bd0300,multiple_choice,...tends to be lazy,... tiende a ser haragán(a)?,1,Disagree strongly,Muy en desacuerdo,107
+mb_bd0300,multiple_choice,...tends to be lazy,... tiende a ser haragán(a)?,2,Disagree a little,Un poco en desacuerdo,107
+mb_bd0300,multiple_choice,...tends to be lazy,... tiende a ser haragán(a)?,3,Neither agree nor disagree,Ni de acuerdo ni en desacuerdo,107
+mb_bd0300,multiple_choice,...tends to be lazy,... tiende a ser haragán(a)?,4,Agree a little,Un poco de acuerdo,107
+mb_bd0300,multiple_choice,...tends to be lazy,... tiende a ser haragán(a)?,5,Agree strongly,Muy de acuerdo,107
+mb_bd0400,multiple_choice,"... is relaxed, handles stress well","... es calmado(a), controla bien el estrés?",1,Disagree strongly,Muy en desacuerdo,108
+mb_bd0400,multiple_choice,"... is relaxed, handles stress well","... es calmado(a), controla bien el estrés?",2,Disagree a little,Un poco en desacuerdo,108
+mb_bd0400,multiple_choice,"... is relaxed, handles stress well","... es calmado(a), controla bien el estrés?",3,Neither agree nor disagree,Ni de acuerdo ni en desacuerdo,108
+mb_bd0400,multiple_choice,"... is relaxed, handles stress well","... es calmado(a), controla bien el estrés?",4,Agree a little,Un poco de acuerdo,108
+mb_bd0400,multiple_choice,"... is relaxed, handles stress well","... es calmado(a), controla bien el estrés?",5,Agree strongly,Muy de acuerdo,108
+mb_bd0500,multiple_choice,...prefers the known and traditional; not very creative,... prefiere lo conocido y lo tradicional; poco creativo(a)?,1,Disagree strongly,Muy en desacuerdo,109
+mb_bd0500,multiple_choice,...prefers the known and traditional; not very creative,... prefiere lo conocido y lo tradicional; poco creativo(a)?,2,Disagree a little,Un poco en desacuerdo,109
+mb_bd0500,multiple_choice,...prefers the known and traditional; not very creative,... prefiere lo conocido y lo tradicional; poco creativo(a)?,3,Neither agree nor disagree,Ni de acuerdo ni en desacuerdo,109
+mb_bd0500,multiple_choice,...prefers the known and traditional; not very creative,... prefiere lo conocido y lo tradicional; poco creativo(a)?,4,Agree a little,Un poco de acuerdo,109
+mb_bd0500,multiple_choice,...prefers the known and traditional; not very creative,... prefiere lo conocido y lo tradicional; poco creativo(a)?,5,Agree strongly,Muy de acuerdo,109
+mb_bd0600,multiple_choice,"... is outgoing, sociable","... es extrovertido(a), sociable?",1,Disagree strongly,Muy en desacuerdo,110
+mb_bd0600,multiple_choice,"... is outgoing, sociable","... es extrovertido(a), sociable?",2,Disagree a little,Un poco en desacuerdo,110
+mb_bd0600,multiple_choice,"... is outgoing, sociable","... es extrovertido(a), sociable?",3,Neither agree nor disagree,Ni de acuerdo ni en desacuerdo,110
+mb_bd0600,multiple_choice,"... is outgoing, sociable","... es extrovertido(a), sociable?",4,Agree a little,Un poco de acuerdo,110
+mb_bd0600,multiple_choice,"... is outgoing, sociable","... es extrovertido(a), sociable?",5,Agree strongly,Muy de acuerdo,110
+mb_bd0700,multiple_choice,... tends to find fault with others,... tiende a ser criticón(a)?,1,Disagree strongly,Muy en desacuerdo,111
+mb_bd0700,multiple_choice,... tends to find fault with others,... tiende a ser criticón(a)?,2,Disagree a little,Un poco en desacuerdo,111
+mb_bd0700,multiple_choice,... tends to find fault with others,... tiende a ser criticón(a)?,3,Neither agree nor disagree,Ni de acuerdo ni en desacuerdo,111
+mb_bd0700,multiple_choice,... tends to find fault with others,... tiende a ser criticón(a)?,4,Agree a little,Un poco de acuerdo,111
+mb_bd0700,multiple_choice,... tends to find fault with others,... tiende a ser criticón(a)?,5,Agree strongly,Muy de acuerdo,111
+mb_bd0800,multiple_choice,... does a thorough job,... es detallado(a) (minucioso) en el trabajo?,1,Disagree strongly,Muy en desacuerdo,112
+mb_bd0800,multiple_choice,... does a thorough job,... es detallado(a) (minucioso) en el trabajo?,2,Disagree a little,Un poco en desacuerdo,112
+mb_bd0800,multiple_choice,... does a thorough job,... es detallado(a) (minucioso) en el trabajo?,3,Neither agree nor disagree,Ni de acuerdo ni en desacuerdo,112
+mb_bd0800,multiple_choice,... does a thorough job,... es detallado(a) (minucioso) en el trabajo?,4,Agree a little,Un poco de acuerdo,112
+mb_bd0800,multiple_choice,... does a thorough job,... es detallado(a) (minucioso) en el trabajo?,5,Agree strongly,Muy de acuerdo,112
+mb_bd0900,multiple_choice,... gets nervous easily,... se pone nervioso(a) con facilidad?,1,Disagree strongly,Muy en desacuerdo,113
+mb_bd0900,multiple_choice,... gets nervous easily,... se pone nervioso(a) con facilidad?,2,Disagree a little,Un poco en desacuerdo,113
+mb_bd0900,multiple_choice,... gets nervous easily,... se pone nervioso(a) con facilidad?,3,Neither agree nor disagree,Ni de acuerdo ni en desacuerdo,113
+mb_bd0900,multiple_choice,... gets nervous easily,... se pone nervioso(a) con facilidad?,4,Agree a little,Un poco de acuerdo,113
+mb_bd0900,multiple_choice,... gets nervous easily,... se pone nervioso(a) con facilidad?,5,Agree strongly,Muy de acuerdo,113
+mb_bd1000,multiple_choice,"…open to new experiences, complex.",... es abierto(a) a nuevas experiencias e ideas; complejo(a)?,1,Disagree strongly,Muy en desacuerdo,114
+mb_bd1000,multiple_choice,"…open to new experiences, complex.",... es abierto(a) a nuevas experiencias e ideas; complejo(a)?,2,Disagree a little,Un poco en desacuerdo,114
+mb_bd1000,multiple_choice,"…open to new experiences, complex.",... es abierto(a) a nuevas experiencias e ideas; complejo(a)?,3,Neither agree nor disagree,Ni de acuerdo ni en desacuerdo,114
+mb_bd1000,multiple_choice,"…open to new experiences, complex.",... es abierto(a) a nuevas experiencias e ideas; complejo(a)?,4,Agree a little,Un poco de acuerdo,114
+mb_bd1000,multiple_choice,"…open to new experiences, complex.",... es abierto(a) a nuevas experiencias e ideas; complejo(a)?,5,Agree strongly,Muy de acuerdo,114
+bfi10_extraversion,NA,"Personality: Big Five Inventory - 10 - Extraversion - (bd0100+mb_bd0600)/2 where bd0100 and mb_bd0600 recoded as ""Disagree strongly""=5, ""Disagree a little""=4, ""Neither agree nor disagree""=3, ""Agree a little""=2, ""Agree strongly""=1",NA,NA,NA,NA,NA
+bfi10_agreeableness,NA,"Personality: Big Five Inventory - 10 - Agreeableness - (bd0200+mb_bd0700)/2 where bd0200 and mb_bd0700 recoded as ""Disagree strongly""=5, ""Disagree a little""=4, ""Neither agree nor disagree""=3, ""Agree a little""=2, ""Agree strongly""=1",NA,NA,NA,NA,NA
+bfi10_conscientiousness,NA,"Personality: Big Five Inventory - 10 - Conscientiousness - (bd0300+mb_bd0800)/2 where bd0300 and mb_bd0800 recoded as ""Disagree strongly""=5, ""Disagree a little""=4, ""Neither agree nor disagree""=3, ""Agree a little""=2, ""Agree strongly""=1",NA,NA,NA,NA,NA
+bfi10_neuroticism,NA,"Personality: Big Five Inventory - 10 - Neuroticism - (bd0400+mb_bd0900)/2 where bd0400 and mb_bd0900 recoded as ""Disagree strongly""=5, ""Disagree a little""=4, ""Neither agree nor disagree""=3, ""Agree a little""=2, ""Agree strongly""=1",NA,NA,NA,NA,NA
+bfi10_openness_to_experience,NA,"Personality: Big Five Inventory - 10 - Openness to Experience - (bd0500+mb_bd1000)/2 where bd0500 and mb_bd1000 recoded as ""Disagree strongly""=5, ""Disagree a little""=4, ""Neither agree nor disagree""=3, ""Agree a little""=2, ""Agree strongly""=1",NA,NA,NA,NA,NA
+mb_c0000,integer,"Imagine the following situation: Today you unexpectedly received 1,000 Lempiras. How much of this amount would you donate to a good cause?","Imagínese la siguiente situación: Hoy, de forma inesperada, usted recibe 1000 LEMPIRAS. ¿Qué cantidad de este monto donaría usted a una buena causa?",NA,NA,NA,115
+mb_c0100,multiple_choice,"Now, imagine you can receive 300 Lempiras. To receive it, you have to choose between two options. You can choose between a sure payment of a certain amount of money or flip a coin. If you flip the coin, and it lands on heads, you would receive the 300 Lempiras. But if the coin lands on tails, you wouldn't receive anything. I will present 5 different situations of this kind and you need to tell me which option you choose. What would you prefer: to flip a coin and receive 300 lempiras if its heads or nothing if its tails OR receive a sure payment of 160 Lempiras?","Ahora, imaginese que puede recibir 300 Lempiras. Para recibirlo, usted tiene que escoger entre dos opciones. Ya sea puede elegir entre un pago seguro de una cierta cantidad de dinero o tirar una moneda. Si tira la moneda, y cae cara,  usted recibe los 300 Lempiras. Pero si cae escudo, usted no recibe nada. Le voy a presentar cinco situaciones diferentes de este tipo y usted me tiene que decir que opcion escoge. ¿Qué preferiría usted, tirar una moneda y recibir 300 lempiras si cae cara y nada si es escudo, O un pago seguro de 160 Lempiras?",1,Flip a coin,Lanzar una moneda,116
+mb_c0100,multiple_choice,"Now, imagine you can receive 300 Lempiras. To receive it, you have to choose between two options. You can choose between a sure payment of a certain amount of money or flip a coin. If you flip the coin, and it lands on heads, you would receive the 300 Lempiras. But if the coin lands on tails, you wouldn't receive anything. I will present 5 different situations of this kind and you need to tell me which option you choose. What would you prefer: to flip a coin and receive 300 lempiras if its heads or nothing if its tails OR receive a sure payment of 160 Lempiras?","Ahora, imaginese que puede recibir 300 Lempiras. Para recibirlo, usted tiene que escoger entre dos opciones. Ya sea puede elegir entre un pago seguro de una cierta cantidad de dinero o tirar una moneda. Si tira la moneda, y cae cara,  usted recibe los 300 Lempiras. Pero si cae escudo, usted no recibe nada. Le voy a presentar cinco situaciones diferentes de este tipo y usted me tiene que decir que opcion escoge. ¿Qué preferiría usted, tirar una moneda y recibir 300 lempiras si cae cara y nada si es escudo, O un pago seguro de 160 Lempiras?",2,Sure payment,Pago seguro,116
+mb_c0200,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 80 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 80 Lempiras?",1,Flip a coin,Lanzar una moneda,117
+mb_c0200,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 80 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 80 Lempiras?",2,Sure payment,Pago seguro,117
+mb_c0300,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 40 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 40 Lempiras?",1,Flip a coin,Lanzar una moneda,118
+mb_c0300,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 40 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 40 Lempiras?",2,Sure payment,Pago seguro,118
+mb_c0400,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 60 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 60 Lempiras?",1,Flip a coin,Lanzar una moneda,119
+mb_c0400,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 60 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 60 Lempiras?",2,Sure payment,Pago seguro,119
+mb_c0500,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 70 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 70 Lempiras?",1,Flip a coin,Lanzar una moneda,120
+mb_c0500,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 70 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 70 Lempiras?",2,Sure payment,Pago seguro,120
+mb_c0600,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 50 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 50 Lempiras?",1,Flip a coin,Lanzar una moneda,121
+mb_c0600,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 50 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 50 Lempiras?",2,Sure payment,Pago seguro,121
+mb_c0700,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 20 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 20 Lempiras?",1,Flip a coin,Lanzar una moneda,122
+mb_c0700,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 20 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 20 Lempiras?",2,Sure payment,Pago seguro,122
+mb_c0800,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 30 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 30 Lempiras?",1,Flip a coin,Lanzar una moneda,123
+mb_c0800,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 30 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 30 Lempiras?",2,Sure payment,Pago seguro,123
+mb_c0900,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 10 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 10 Lempiras?",1,Flip a coin,Lanzar una moneda,124
+mb_c0900,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 10 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 10 Lempiras?",2,Sure payment,Pago seguro,124
+mb_c1000,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 120 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 120 Lempiras?",1,Flip a coin,Lanzar una moneda,125
+mb_c1000,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 120 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 120 Lempiras?",2,Sure payment,Pago seguro,125
+mb_c1100,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 100 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 100 Lempiras?",1,Flip a coin,Lanzar una moneda,126
+mb_c1100,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 100 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 100 Lempiras?",2,Sure payment,Pago seguro,126
+mb_c1200,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 90 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 90 Lempiras?",1,Flip a coin,Lanzar una moneda,127
+mb_c1200,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 90 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 90 Lempiras?",2,Sure payment,Pago seguro,127
+mb_c1300,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 110 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 110 Lempiras?",1,Flip a coin,Lanzar una moneda,128
+mb_c1300,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 110 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 110 Lempiras?",2,Sure payment,Pago seguro,128
+mb_c1400,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 140 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 140 Lempiras?",1,Flip a coin,Lanzar una moneda,129
+mb_c1400,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 140 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 140 Lempiras?",2,Sure payment,Pago seguro,129
+mb_c1500,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 150 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 150 Lempiras?",1,Flip a coin,Lanzar una moneda,130
+mb_c1500,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 150 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 150 Lempiras?",2,Sure payment,Pago seguro,130
+mb_c1600,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 130 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 130 Lempiras?",1,Flip a coin,Lanzar una moneda,131
+mb_c1600,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 130 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 130 Lempiras?",2,Sure payment,Pago seguro,131
+mb_c1700,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 240 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 240 Lempiras?",1,Flip a coin,Lanzar una moneda,132
+mb_c1700,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 240 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 240 Lempiras?",2,Sure payment,Pago seguro,132
+mb_c1800,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 200 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 200 Lempiras?",1,Flip a coin,Lanzar una moneda,133
+mb_c1800,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 200 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 200 Lempiras?",2,Sure payment,Pago seguro,133
+mb_c1900,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 180 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 180 Lempiras?",1,Flip a coin,Lanzar una moneda,134
+mb_c1900,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 180 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 180 Lempiras?",2,Sure payment,Pago seguro,134
+mb_c2000,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 190 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 190 Lempiras?",1,Flip a coin,Lanzar una moneda,135
+mb_c2000,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 190 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 190 Lempiras?",2,Sure payment,Pago seguro,135
+mb_c2100,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 170 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 170 Lempiras?",1,Flip a coin,Lanzar una moneda,136
+mb_c2100,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 170 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 170 Lempiras?",2,Sure payment,Pago seguro,136
+mb_c2200,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 220 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 220 Lempiras?",1,Flip a coin,Lanzar una moneda,137
+mb_c2200,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 220 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 220 Lempiras?",2,Sure payment,Pago seguro,137
+mb_c2300,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 230 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 230 Lempiras?",1,Flip a coin,Lanzar una moneda,138
+mb_c2300,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 230 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 230 Lempiras?",2,Sure payment,Pago seguro,138
+mb_c2400,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 210 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 210 Lempiras?",1,Flip a coin,Lanzar una moneda,139
+mb_c2400,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 210 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 210 Lempiras?",2,Sure payment,Pago seguro,139
+mb_c2500,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 280 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 280 Lempiras?",1,Flip a coin,Lanzar una moneda,140
+mb_c2500,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 280 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 280 Lempiras?",2,Sure payment,Pago seguro,140
+mb_c2600,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 260 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 260 Lempiras?",1,Flip a coin,Lanzar una moneda,141
+mb_c2600,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 260 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 260 Lempiras?",2,Sure payment,Pago seguro,141
+mb_c2700,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 270 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 270 Lempiras?",1,Flip a coin,Lanzar una moneda,142
+mb_c2700,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 270 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 270 Lempiras?",2,Sure payment,Pago seguro,142
+mb_c2800,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 250 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 250 Lempiras?",1,Flip a coin,Lanzar una moneda,143
+mb_c2800,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 250 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 250 Lempiras?",2,Sure payment,Pago seguro,143
+mb_c2900,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 300 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 300 Lempiras?",1,Flip a coin,Lanzar una moneda,144
+mb_c2900,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 300 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 300 Lempiras?",2,Sure payment,Pago seguro,144
+mb_c3000,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 290 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 290 Lempiras?",1,Flip a coin,Lanzar una moneda,145
+mb_c3000,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 290 Lempiras?,"¿Preferiría tirar la moneda, O recibir un pago seguro de 290 Lempiras?",2,Sure payment,Pago seguro,145
+mb_c3100,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 310 Lempiras?,"¿Preferiría tirar la moneda, o recibir un pago seguro de 310 Lempiras?",1,Flip a coin,Lanzar una moneda,146
+mb_c3100,multiple_choice,Would you prefer to flip a coin OR receive a sure payment of 310 Lempiras?,"¿Preferiría tirar la moneda, o recibir un pago seguro de 310 Lempiras?",2,Sure payment,Pago seguro,146
+mb_ca0100,multiple_choice,Beans,Frijoles,1,Every day,Todos los días,147
+mb_ca0100,multiple_choice,Beans,Frijoles,2,A few days per week,Algunos días a la semana,147
+mb_ca0100,multiple_choice,Beans,Frijoles,3,A few days per month,Algunos días al mes,147
+mb_ca0100,multiple_choice,Beans,Frijoles,4,Never/rarely,Nunca/raramente,147
+mb_ca0200,multiple_choice,Tortillas,Tortillas,1,Every day,Todos los días,148
+mb_ca0200,multiple_choice,Tortillas,Tortillas,2,A few days per week,Algunos días a la semana,148
+mb_ca0200,multiple_choice,Tortillas,Tortillas,3,A few days per month,Algunos días al mes,148
+mb_ca0200,multiple_choice,Tortillas,Tortillas,4,Never/rarely,Nunca/raramente,148
+mb_ca0300,multiple_choice,Rice,Arroz,1,Every day,Todos los días,149
+mb_ca0300,multiple_choice,Rice,Arroz,2,A few days per week,Algunos días a la semana,149
+mb_ca0300,multiple_choice,Rice,Arroz,3,A few times per month,Algunos días al mes,149
+mb_ca0300,multiple_choice,Rice,Arroz,4,Never/rarely,Nunca/raramente,149
+mb_ca0400,multiple_choice,Bread,Pan,1,Every day,Todos los días,150
+mb_ca0400,multiple_choice,Bread,Pan,2,A few days per week,Algunos días a la semana,150
+mb_ca0400,multiple_choice,Bread,Pan,3,A few days per month,Algunos días al mes,150
+mb_ca0400,multiple_choice,Bread,Pan,4,Never/rarely,Nunca/raramente,150
+mb_ca0500,multiple_choice,"Milk (including in porridge, cereal, atoles, coffee, etc)","Leche (incluyendo, cereal, atoles, café, etc.)",1,Every day,Todos los días,151
+mb_ca0500,multiple_choice,"Milk (including in porridge, cereal, atoles, coffee, etc)","Leche (incluyendo, cereal, atoles, café, etc.)",2,A few days per week,Algunos días a la semana,151
+mb_ca0500,multiple_choice,"Milk (including in porridge, cereal, atoles, coffee, etc)","Leche (incluyendo, cereal, atoles, café, etc.)",3,A few days per month,Algunos días al mes,151
+mb_ca0500,multiple_choice,"Milk (including in porridge, cereal, atoles, coffee, etc)","Leche (incluyendo, cereal, atoles, café, etc.)",4,Never/rarely,Nunca/raramente,151
+mb_ca0600,multiple_choice,Yogurt,Yogurt,1,Every day,Todos los días,152
+mb_ca0600,multiple_choice,Yogurt,Yogurt,2,A few days per week,Algunos días a la semana,152
+mb_ca0600,multiple_choice,Yogurt,Yogurt,3,A few days per month,Algunos días al mes,152
+mb_ca0600,multiple_choice,Yogurt,Yogurt,4,Never/rarely,Nunca/raramente,152
+mb_ca0700,multiple_choice,Cream or butter,"Crema, mantequilla o margarina",1,Every day,Todos los días,153
+mb_ca0700,multiple_choice,Cream or butter,"Crema, mantequilla o margarina",2,A few days per week,Algunos días a la semana,153
+mb_ca0700,multiple_choice,Cream or butter,"Crema, mantequilla o margarina",3,A few days per month,Algunos días al mes,153
+mb_ca0700,multiple_choice,Cream or butter,"Crema, mantequilla o margarina",4,Never/rarely,Nunca/raramente,153
+mb_ca0800,multiple_choice,Cheese,Queso,1,Every day,Todos los días,154
+mb_ca0800,multiple_choice,Cheese,Queso,2,A few days per week,Algunos días a la semana,154
+mb_ca0800,multiple_choice,Cheese,Queso,3,A few times per month,Algunos días al mes,154
+mb_ca0800,multiple_choice,Cheese,Queso,4,Never/rarely,Nunca/raramente,154
+mb_ca0900,multiple_choice,Eggs,Huevos,1,Every day,Todos los días,155
+mb_ca0900,multiple_choice,Eggs,Huevos,2,A few days per week,Algunos días a la semana,155
+mb_ca0900,multiple_choice,Eggs,Huevos,3,A few times per month,Algunos días al mes,155
+mb_ca0900,multiple_choice,Eggs,Huevos,4,Never/rarely,Nunca/raramente,155
+mb_ca1000,multiple_choice,"Vegetables (other than potatoes, yams or yucca)","Vegetales (a parte de papas, camote o yuca)",1,Every day,Todos los días,156
+mb_ca1000,multiple_choice,"Vegetables (other than potatoes, yams or yucca)","Vegetales (a parte de papas, camote o yuca)",2,A few days per week,Algunos días a la semana,156
+mb_ca1000,multiple_choice,"Vegetables (other than potatoes, yams or yucca)","Vegetales (a parte de papas, camote o yuca)",3,A few days per month,Algunos días al mes,156
+mb_ca1000,multiple_choice,"Vegetables (other than potatoes, yams or yucca)","Vegetales (a parte de papas, camote o yuca)",4,Never/rarely,Nunca/raramente,156
+mb_ca1100,multiple_choice,Fruits,Frutas,1,Every day,Todos los días,157
+mb_ca1100,multiple_choice,Fruits,Frutas,2,A few days per week,Algunos días a la semana,157
+mb_ca1100,multiple_choice,Fruits,Frutas,3,A few days per month,Algunos días al mes,157
+mb_ca1100,multiple_choice,Fruits,Frutas,4,Never/rarely,Nunca/raramente,157
+mb_ca1200,multiple_choice,"Natural fruit juice, made at home","Jugos de frutas naturales, preparados en casa",1,Every day,Todos los días,158
+mb_ca1200,multiple_choice,"Natural fruit juice, made at home","Jugos de frutas naturales, preparados en casa",2,A few days per week,Algunos días a la semana,158
+mb_ca1200,multiple_choice,"Natural fruit juice, made at home","Jugos de frutas naturales, preparados en casa",3,A few days per month,Algunos días al mes,158
+mb_ca1200,multiple_choice,"Natural fruit juice, made at home","Jugos de frutas naturales, preparados en casa",4,Never/rarely,Nunca/raramente,158
+mb_ca1300,multiple_choice,Chicken,Pollo,1,Every day,Todos los días,159
+mb_ca1300,multiple_choice,Chicken,Pollo,2,A few days per week,Algunos días a la semana,159
+mb_ca1300,multiple_choice,Chicken,Pollo,3,A few days per month,Algunos días al mes,159
+mb_ca1300,multiple_choice,Chicken,Pollo,4,Never/rarely,Nunca/raramente,159
+mb_ca1400,multiple_choice,Beef or pork,Carne de res o cerdo,1,Every day,Todos los días,160
+mb_ca1400,multiple_choice,Beef or pork,Carne de res o cerdo,2,A few days per week,Algunos días a la semana,160
+mb_ca1400,multiple_choice,Beef or pork,Carne de res o cerdo,3,A few days per month,Algunos días al mes,160
+mb_ca1400,multiple_choice,Beef or pork,Carne de res o cerdo,4,Never/rarely,Nunca/raramente,160
+mb_ca1500,multiple_choice,"Ham, sausages, hot dog","Jamón, chorizo, salchichas o longaniza",1,Every day,Todos los días,161
+mb_ca1500,multiple_choice,"Ham, sausages, hot dog","Jamón, chorizo, salchichas o longaniza",2,A few days per week,Algunos días a la semana,161
+mb_ca1500,multiple_choice,"Ham, sausages, hot dog","Jamón, chorizo, salchichas o longaniza",3,A few days per month,Algunos días al mes,161
+mb_ca1500,multiple_choice,"Ham, sausages, hot dog","Jamón, chorizo, salchichas o longaniza",4,Never/rarely,Nunca/raramente,161
+mb_ca1600,multiple_choice,Fish,Pescado,1,Every day,Todos los días,162
+mb_ca1600,multiple_choice,Fish,Pescado,2,A few days per week,Algunos días a la semana,162
+mb_ca1600,multiple_choice,Fish,Pescado,3,A few days per month,Algunos días al mes,162
+mb_ca1600,multiple_choice,Fish,Pescado,4,Never/rarely,Nunca/raramente,162
+mb_ca1700,multiple_choice,"Soda (Coca-cola, etc.)","Refrescos embotellados/sodas (Coca-cola, etc.)",1,Every day,Todos los días,163
+mb_ca1700,multiple_choice,"Soda (Coca-cola, etc.)","Refrescos embotellados/sodas (Coca-cola, etc.)",2,A few days per week,Algunos días a la semana,163
+mb_ca1700,multiple_choice,"Soda (Coca-cola, etc.)","Refrescos embotellados/sodas (Coca-cola, etc.)",3,A few times per month,Algunos días al mes,163
+mb_ca1700,multiple_choice,"Soda (Coca-cola, etc.)","Refrescos embotellados/sodas (Coca-cola, etc.)",4,Never/rarely,Nunca/raramente,163
+mb_ca1800,multiple_choice,"Fruit juices (can or bottles, not prepared at home)",Jugos de fruta - embotellados,1,Every day,Todos los días,164
+mb_ca1800,multiple_choice,"Fruit juices (can or bottles, not prepared at home)",Jugos de fruta - embotellados,2,A few days per week,Algunos días a la semana,164
+mb_ca1800,multiple_choice,"Fruit juices (can or bottles, not prepared at home)",Jugos de fruta - embotellados,3,A few times per month,Algunos días al mes,164
+mb_ca1800,multiple_choice,"Fruit juices (can or bottles, not prepared at home)",Jugos de fruta - embotellados,4,Never/rarely,Nunca/raramente,164
+mb_ca1900,multiple_choice,"Chips (Corn, plantain, potato, etc.)","Churros (de maíz, plátano, papa, etc.)",1,Every day,Todos los días,165
+mb_ca1900,multiple_choice,"Chips (Corn, plantain, potato, etc.)","Churros (de maíz, plátano, papa, etc.)",2,A few days per week,Algunos días a la semana,165
+mb_ca1900,multiple_choice,"Chips (Corn, plantain, potato, etc.)","Churros (de maíz, plátano, papa, etc.)",3,A few days per month,Algunos días al mes,165
+mb_ca1900,multiple_choice,"Chips (Corn, plantain, potato, etc.)","Churros (de maíz, plátano, papa, etc.)",4,Never/rarely,Nunca/raramente,165
+mb_m03,text,"ONCE THE PARTICIPANT HAS FILLED THE TUBE, PLEASE SCAN THE TUBE  (project label).","UNA VEZ EL PARTICIPANTE HAYA TERMINADO DE LLENAR EL TUBO, POR FAVOR ESCANEE EL TUBO (etiqueta del proyecto).",NA,NA,NA,166
+mb_m03b,text,SCAN THE TUBE AGAIN (product label) and store it in the cooler.,VUELVA A ESCANER EL TUBO (etiqueta del producto) y colóquelo en la hielera.,NA,NA,NA,167
+mb_z0001_E5,multiple_choice,"There may be other opportunities to take part in research studies similar to this one in the future resulting from your participation in this study today. Do we have your permission to use your name and address to re-contact you to tell you about other studies similar to this one? At that time, we will explain the study in detail and you can decide whether or not you would like to take part.","Es posible que hayan otras oportunidades para participar en estudios similares a este en un futuro como resultado de su participación en este estudio el día de hoy. Nos da su permiso para utilizar su nombre y dirección para poder contactarlo/a en un futuro para informarle sobre otros estudios similares a este? En ese momento, le explicaremos en detalle el estudio y usted podrá decidir si desea participar o no.",1,Yes,Sí,1
+mb_z0001_E5,multiple_choice,"There may be other opportunities to take part in research studies similar to this one in the future resulting from your participation in this study today. Do we have your permission to use your name and address to re-contact you to tell you about other studies similar to this one? At that time, we will explain the study in detail and you can decide whether or not you would like to take part.","Es posible que hayan otras oportunidades para participar en estudios similares a este en un futuro como resultado de su participación en este estudio el día de hoy. Nos da su permiso para utilizar su nombre y dirección para poder contactarlo/a en un futuro para informarle sobre otros estudios similares a este? En ese momento, le explicaremos en detalle el estudio y usted podrá decidir si desea participar o no.",2,No,No,1
+mb_m0100,year_month_day,ENTER THE DATE WHEN THE SAMPLE WAS PRODUCED,INGRESE LA FECHA EN QUE SE PRODUJO LA MUESTRA,NA,NA,NA,168
+mb_m0110,time,ENTER THE TIME WHEN THE SAMPLE WAS PRODUCED,INGRESE LA HORA EN QUE SE PRODUJO LA MUESTRA,NA,NA,NA,169
+mb_m0200,multiple_choice,Where the sample was taken?,¿En qué lugar tomó la muestra?,a,In the restroom,En el sanitario,170
+mb_m0200,multiple_choice,Where the sample was taken?,¿En qué lugar tomó la muestra?,b,On the floor,En el suelo,170
+mb_m0200,multiple_choice,Where the sample was taken?,¿En qué lugar tomó la muestra?,c,On another surface,En otra superficie,170
+mb_m0300,multiple_choice,PLEASE SHOW THE BRISTOL SCALE SHEET TO THE PARTICIPANT AND ASK HIM/HER TO IDENTIFY WHICH TYPE MOST CLOSELY RESEMBLES THE CONSISTENCY OF THE SAMPLE THEY PRODUCED.,"¿Podría decirnos cuál de estas imágenes refleja la consistencia de su muestra? 
+
+MUESTRE AL PARTICIPANTE LA HOJA DE LA ESCALA DE BRISTOL Y PIDALE QUE SEÑALE EL TIPO MÁS SIMILAR A LA MUESTRA QUE PRODUJERON",a,"TYPE 1 (Separate hard lumps, like nuts)",TIPO 1 (Heces en bolas duras y separadas. Como frutos secos),171
+mb_m0300,multiple_choice,PLEASE SHOW THE BRISTOL SCALE SHEET TO THE PARTICIPANT AND ASK HIM/HER TO IDENTIFY WHICH TYPE MOST CLOSELY RESEMBLES THE CONSISTENCY OF THE SAMPLE THEY PRODUCED.,"¿Podría decirnos cuál de estas imágenes refleja la consistencia de su muestra? 
+
+MUESTRE AL PARTICIPANTE LA HOJA DE LA ESCALA DE BRISTOL Y PIDALE QUE SEÑALE EL TIPO MÁS SIMILAR A LA MUESTRA QUE PRODUJERON",b,TYPE 2 (Sausage shaped but lumpy),TIPO 2 (Heces con forma alargada como salchicha con relieves como formada por bolas unidas),171
+mb_m0300,multiple_choice,PLEASE SHOW THE BRISTOL SCALE SHEET TO THE PARTICIPANT AND ASK HIM/HER TO IDENTIFY WHICH TYPE MOST CLOSELY RESEMBLES THE CONSISTENCY OF THE SAMPLE THEY PRODUCED.,"¿Podría decirnos cuál de estas imágenes refleja la consistencia de su muestra? 
+
+MUESTRE AL PARTICIPANTE LA HOJA DE LA ESCALA DE BRISTOL Y PIDALE QUE SEÑALE EL TIPO MÁS SIMILAR A LA MUESTRA QUE PRODUJERON",c,TYPE 3 (Like a sausage or snake but with cracks on its surface),"TIPO 3 (Heces con forma alargada como salchicha, con grietas en la superficie)",171
+mb_m0300,multiple_choice,PLEASE SHOW THE BRISTOL SCALE SHEET TO THE PARTICIPANT AND ASK HIM/HER TO IDENTIFY WHICH TYPE MOST CLOSELY RESEMBLES THE CONSISTENCY OF THE SAMPLE THEY PRODUCED.,"¿Podría decirnos cuál de estas imágenes refleja la consistencia de su muestra? 
+
+MUESTRE AL PARTICIPANTE LA HOJA DE LA ESCALA DE BRISTOL Y PIDALE QUE SEÑALE EL TIPO MÁS SIMILAR A LA MUESTRA QUE PRODUJERON",d,"TYPE 4 (Like sausage or snake, smooth and soft)","TIPO 4 (Heces con forma alargada como una salchicha, lisa y blanda)",171
+mb_m0300,multiple_choice,PLEASE SHOW THE BRISTOL SCALE SHEET TO THE PARTICIPANT AND ASK HIM/HER TO IDENTIFY WHICH TYPE MOST CLOSELY RESEMBLES THE CONSISTENCY OF THE SAMPLE THEY PRODUCED.,"¿Podría decirnos cuál de estas imágenes refleja la consistencia de su muestra? 
+
+MUESTRE AL PARTICIPANTE LA HOJA DE LA ESCALA DE BRISTOL Y PIDALE QUE SEÑALE EL TIPO MÁS SIMILAR A LA MUESTRA QUE PRODUJERON",e,TYPE 5 (Soft blobs with clear cut edges),TIPO 5 (Heces blandas y a trozos separadas o con bordes definidos),171
+mb_m0300,multiple_choice,PLEASE SHOW THE BRISTOL SCALE SHEET TO THE PARTICIPANT AND ASK HIM/HER TO IDENTIFY WHICH TYPE MOST CLOSELY RESEMBLES THE CONSISTENCY OF THE SAMPLE THEY PRODUCED.,"¿Podría decirnos cuál de estas imágenes refleja la consistencia de su muestra? 
+
+MUESTRE AL PARTICIPANTE LA HOJA DE LA ESCALA DE BRISTOL Y PIDALE QUE SEÑALE EL TIPO MÁS SIMILAR A LA MUESTRA QUE PRODUJERON",f,"TYPE 6 (Fluffy pieces with ragged edges, a mushy stool)",TIPO 6 (Heces blandas y a trozos separadas o con border pegadas como mermelada o puré),171
+mb_m0300,multiple_choice,PLEASE SHOW THE BRISTOL SCALE SHEET TO THE PARTICIPANT AND ASK HIM/HER TO IDENTIFY WHICH TYPE MOST CLOSELY RESEMBLES THE CONSISTENCY OF THE SAMPLE THEY PRODUCED.,"¿Podría decirnos cuál de estas imágenes refleja la consistencia de su muestra? 
+
+MUESTRE AL PARTICIPANTE LA HOJA DE LA ESCALA DE BRISTOL Y PIDALE QUE SEÑALE EL TIPO MÁS SIMILAR A LA MUESTRA QUE PRODUJERON",g,"TYPE 7 (Watery, no solid pieces)",TIPO 7 (Heces líquidas sin trozos sólidos),171
+mb_m0400,multiple_choice,WHO DELIVERED THE RESPONDENT'S SAMPLE?,¿QUIEN ENTREGO LAS MUESTRAS DEL PARTICIPANTE?,1,Participant,El/la participante,172
+mb_m0400,multiple_choice,WHO DELIVERED THE RESPONDENT'S SAMPLE?,¿QUIEN ENTREGO LAS MUESTRAS DEL PARTICIPANTE?,2,Someone else,Alguien mas,172
+mb_m0500,multiple_choice,WHO RECEIVED THE STOOL SAMPLES?,¿QUIEN RECIBIO LAS MUESTRAS DE HECES?,a,Research assistant,Asistente de estudio,173
+mb_m0500,multiple_choice,WHO RECEIVED THE STOOL SAMPLES?,¿QUIEN RECIBIO LAS MUESTRAS DE HECES?,b,Community liason,Enlace comunitario,173
+mb_m05,text,PLACE THE BARCODE STICKER 05 ON ONE OF THE TUBES WITH A BLUE CAP AND SCAN IT.,COLOQUE EL ESTICKER DEL CÓDIGO DE BARRAS NÚMERO 05 EN UNO DE LOS TUBOS AZULES Y ESCANÉELO.,NA,NA,NA,174
+mb_m06,text,PLACE THE BARCODE STICKER 06 ON ONE OF THE TUBES WITH A BLUE CAP AND SCAN IT.,COLOQUE EL ESTICKER DEL CÓDIGO DE BARRAS NÚMERO 06 EN UNO DE LOS TUBOS AZULES Y ESCANÉELO.,NA,NA,NA,175
+mb_m07,text,PLACE THE BARCODE STICKER 07 ON ONE OF THE TUBES WITH A BLUE CAP AND SCAN IT.,"COLOQUE EL ESTICKER DEL CÓDIGO DE BARRAS NÚMERO 07 EN EL VASITO ROJO Y ESCANÉELO, LA CUAL SE LLEVARÁ AL LABORATORIO LOCAL PARA ANALISIS DE PARÁSITOS.",NA,NA,NA,176
+mb_me001,multiple_choice,WERE SAMPLES RETURNED WITHIN 1 HOUR?,¿SE ENTREGARON LAS MUESTRAS DENTRO DE 1 HORA DE HABERSE PRODUCIDO?,1,Yes,Sí,177
+mb_me001,multiple_choice,WERE SAMPLES RETURNED WITHIN 1 HOUR?,¿SE ENTREGARON LAS MUESTRAS DENTRO DE 1 HORA DE HABERSE PRODUCIDO?,2,No,No,177
+mb_me002,multiple_choice,DID THE PARTICIPANT USE THE ICE PACKS?,¿EL PARTICIPANTE UTILIZÓ LOS PAQUETES FRÍOS?,1,Yes,Sí,178
+mb_me002,multiple_choice,DID THE PARTICIPANT USE THE ICE PACKS?,¿EL PARTICIPANTE UTILIZÓ LOS PAQUETES FRÍOS?,2,No,No,178
+mb_me003,multiple_choice,"WERE ALL THREE (3) SAMPLES RECEIVED IN GOOD CONDITION (i.e samples were capped properly, samples were not over the max amount)?","¿SE RECIBIERON LAS TRES (3) MUESTRAS DE HECES EN BUEN ESTADO (ej. la tapa estaba bien puesta, la cantidad no sobrepasa el nivel maximo)?",1,Yes,Sí,179
+mb_me003,multiple_choice,"WERE ALL THREE (3) SAMPLES RECEIVED IN GOOD CONDITION (i.e samples were capped properly, samples were not over the max amount)?","¿SE RECIBIERON LAS TRES (3) MUESTRAS DE HECES EN BUEN ESTADO (ej. la tapa estaba bien puesta, la cantidad no sobrepasa el nivel maximo)?",2,No,No,179
+mb_me004,text_area,"IF YOU WISH TO ADD ANY COMMENTS REGARDING THE STOOL SAMPLES, PLEASE DO SO HERE.","SI DESEA EXPLICAR ALGO MAS SOBRE LAS MUESTRAS DE HECES PARA ESTE PARTICIPANTE, PUEDE HACERLO AQUÍ.",NA,NA,NA,180
