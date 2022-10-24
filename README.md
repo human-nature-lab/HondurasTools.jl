@@ -41,6 +41,9 @@ Tools for cleaning, analyzing, and understanding the Honduras data.
 
 ## Summary of processing steps (fill out further)
 
+N.B. if a step is listed as "manual" it is not performed by any functions internal
+to the package. It may appear in `process.jl`.
+
 ### connections data
 
 1. take requested connections data (W3 data as the closest to W3' MB data)
@@ -57,6 +60,6 @@ Tools for cleaning, analyzing, and understanding the Honduras data.
 ### microbiome data
 1. take the requested MB data
 2. drop all rows with missing village codes
-3. drop all rows s.t. `data_source != 1`
-4. left-join the individual level data  to the MB data on resp. id *and* village code
+3. drop all rows s.t. `data_source != 1` (manual)
+4. left-join the individual level data  to the MB data on resp. id *and* village code (manual)
    1. Depending on how we want to handle people who have a different village code for W3 and W3', we may want to adjust this.
