@@ -3,10 +3,14 @@
 using DataFrames, DataFramesMeta
 using CategoricalArrays, Dates
 import CSV
-
-using Graphs, MetaGraphs
+using PrettyTables
+# using Graphs, MetaGraphs
 
 using HondurasTools
+
+# useful networks
+core = ["personal_private", "closest_friend", "free_time"];
+health = ["health_advice_get", "health_advice_give"];
 
 # respondent data
 
@@ -40,28 +44,30 @@ resp = [
 cohort1pth = "COHORT_1/v1/hmb_respondents_cohort1_baseline_v1_E_FELTHAM_2022-09-08.csv";
 cohort2pth = "COHORT_2/v1/hmb_respondents_cohort2_v1_E_FELTHAM_2022-09-08.csv";
 
-@time mb = clean_microbiome(cohort1pth, cohort2pth);
+mb1, mb2 = [CSV.read(x, DataFrame; missingstring = "NA") for x in [cohort1pth, cohort2pth]]
+
+# 19 villages that are in the study
+microbiome_villages = load_mbvillages();
+
+@time mb = clean_microbiome(mb1, mb2);
+
+mb[!, :mbset] = mb.village_code .∈ Ref(microbiome_villages.village_code)
+
+## remove entries on key variables
 
 dropmissing!(resp, :village_code);
 dropmissing!(hh, :village_code);
 dropmissing!(mb, :village_code);
 
-select!(resp, Not([:household_id, :skip_glitch]))
-select!(hh, Not([:household_id, :skip_glitch]))
+select!(resp, Not([:household_id, :skip_glitch]));
+select!(hh, Not([:household_id, :skip_glitch]));
 
-rename!(hh, :survey_start => :hh_survey_start)
-rename!(hh, :new_building => :hh_new_building)
+rename!(hh, :survey_start => :hh_survey_start);
+rename!(hh, :new_building => :hh_new_building);
 
-dropmissing!(hh, :building_id)
+dropmissing!(hh, :building_id);
 
-sum(ismissing(hh.building_id))
-sum(ismissing(resp.building_id))
-
-sum(ismissing(hh.village_code))
-sum(ismissing(resp.village_code))
-
-sum(ismissing(hh.wave))
-sum(ismissing(resp.wave))
+##
 
 dat = leftjoin(
     resp, hh,
@@ -71,9 +77,17 @@ dat = leftjoin(
     ]
 );
 
+@subset!(dat, (:wave .== 3) .& (:data_source .== 1));
+select!(dat, Not(:data_source));
+
 # for mb join, we need to handle the waves somehow
-rename!(mb, :lives_in_village => :mb_lives_in_village, :works_in_village => :mb_works_in_village)
-mdat = leftjoin(mb, @subset(dat, :wave .== 3), on = [:name, :village_code]);
+rename!(
+    mb,
+    :lives_in_village => :mb_lives_in_village,
+    :works_in_village => :mb_works_in_village
+)
+
+mdat = leftjoin(mb, dat, on = [:name, :village_code]);
 
 # network data
 
@@ -88,15 +102,16 @@ conns = [CSV.read(
     ) for con_path in con_paths];
 
 @time con = clean_connections(
-    conns; alter_source = true, same_village = true
+    conns,
+    [1, 2, 3];
+    alter_source = true,
+    same_village = true,
+    removemissing = true
 );
 
-# unique(conns.relationship)
-core = ["personal_private", "closest_friend", "free_time"];
-health = ["health_advice_get", "health_advice_give"];
-
-nf = begin
-    mbcodes = sort(unique(mb.village_code)); # relevant villages
+nf = let
+    # filter con to the mb village codes
+    mbcodes = sort(unique(mb.village_code));
     rels = sort(unique(con.relationship));
     
     # union network
@@ -111,7 +126,7 @@ nf = begin
         ); # all ties
 
         # network calculations
-        nfi = egoreducts(unionels, mbcodes, :village_code);
+        nfi = egoreductions(unionels, mbcodes, :village_code);
         nfi[!, :wave] .= w
         append!(nf, nfi)
     end
@@ -119,26 +134,18 @@ nf = begin
     nf
 end
 
-mdat = @chain nf begin
+nf = @chain nf begin
     select([:name, :village_code, :degree, :wave])
     unstack([:name, :village_code], :wave, :degree)
-    rename(Symbol(1) => :degree_w1, Symbol(2) => :degree_w2, Symbol(3) => :degree_w3)
-    dropmissing([:degree_w1, :degree_w3])
+    rename(
+        Symbol(1) => :degree_w1,
+        Symbol(2) => :degree_w2,
+        Symbol(3) => :degree_w3
+    )
+    # dropmissing([:degree_w1, :degree_w3])
     @transform(:Δdegree = :degree_w3 - :degree_w1)
-    leftjoin(mdat, _, on = [:village_code, :name])
 end
 
-# mdat = leftjoin(
-#     mdat, select(@subset(nf, :wave .== 3), Not(:wave)), on = [:name, :village_code]
-# );
-
-mb = begin
-    X = select(@subset(nf, :wave .== 1), [:name, :village_code, :degree])
-    rename!(X, :degree => :degree_w1)
-    leftjoin(mb, X, on = [:village_code, :name])
-end
-
-import JLD2
-JLD2.save_object("mb_processed.jld2", mb)
+import JLD2; JLD2.save_object("userfiles/mb_processed.jld2", [mdat, nf, con]);
 
 mb_desc = describe(mb);
