@@ -15,5 +15,12 @@ Tools for cleaning, analyzing the Honduras data.
    1. For each row of the reformatted codebook, there should be an entry corresponding to each wave of the data (in which the data is present; compare to `wave`.)
    2. "baseline" => the survey was only done if a prior measurement did not exist
    3. "wx" (where x is a wave number) => implies that it was the standard survey given to everyone in that wave
-   4. "all" => both 2 and 3 were carried out
-   5. [EXPLAIN: how connected to respondent variable indicating a new subject at wave x?]
+   4. "all" => both "baseline" and "wx" were carried out -- [THIS DOESN'T MAKE SENSE? Why would the surveys overlap?]
+   5. The set of questions in "baseline" varies across the waves; hence, it is denoted "baseline wx"
+   6. [EXPLAIN: how connected to respondent variable indicating a new subject at wave x?]
+5. Are the variables coded consistently?
+   1. Not necessarily: gender is coded as "male" vs. "female" or sometimes "man" vs. "woman"?
+   2. It is worth checking for consistency, the processing code here *should* resolve for gender
+6. What do we do about variables that were only collected say, at W1?
+   1. Case-by-case; but N.B., whether some variable is plausibly static.
+
