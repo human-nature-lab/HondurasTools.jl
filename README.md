@@ -14,23 +14,28 @@ Tools for cleaning, analyzing the Honduras data.
 3. Which are the microbiome villages?
    1. cf. `codebook/microbiome_villages.csv`
    2. Other villages appear in the data, because the team surveyed those from other villages who happened to be present a village while it was being surveyed.
-4. Are the codebooks comprehensive?
-   1. At least in the microbiome dataset, there are some variables not yet referenced.
-5. How do I interpret the `survey` variable in the codebooks?
+4. How do I interpret the `survey` variable in the codebooks?
    1. For each row of the reformatted codebook, there should be an entry corresponding to each wave of the data (in which the data is present; compare to `wave`.)
    2. "baseline" => the survey was only done if a prior measurement did not exist
    3. "wx" (where x is a wave number) => implies that it was the standard survey given to everyone in that wave
    4. "all" => both "baseline" and "wx" were carried out -- [THIS DOESN'T MAKE SENSE? Why would the surveys overlap?]
    5. The set of questions in "baseline" varies across the waves; hence, it is denoted "baseline wx"
    6. [EXPLAIN: how connected to respondent variable indicating a new subject at wave x?]
-6. Are the variables coded consistently?
-   1. Not necessarily: gender is coded as "male" vs. "female" or sometimes "man" vs. "woman"?
-   2. It is worth checking for consistency, the processing code here *should* resolve for gender
-7. What do we do about variables that were only collected say, at W1?
-   1. Case-by-case; but N.B., whether some variable is plausibly static.
-8. What about people who are in a different village from W3 to W3'?
+   7. What do we do about variables that were only collected say, at W1?
+   8. Case-by-case; but N.B., whether some variable is plausibly static.
+5. What about people who are in a different village from W3 to W3'?
    1. (where W3' is when the microbiome data was collected)
-   2. There are around 13 cases. It is currently not clear whether these were permanent moves, or not. (lives in village, works in village are both `missing` in each case)
+   2. There are around 13 cases. It is currently not clear whether these were permanent moves, or not. (lives in village, works in village are both `missing` in each of the 13 cases)
+
+## Codebook issues
+
+1. `survey` variable is not clear
+2. At least in the microbiome dataset, there are some variables not yet referenced.
+   1. e.g., `other_resp`, `data_source`
+3. Some variables are not coded consistently
+   1. e.g., gender is coded as "male" vs. "female" or sometimes "man" vs. "woman"?
+   2. It is worth checking for consistency (the processing code here *should* resolve for gender, but not in the underlying data)
+4. (a few other things were cleaned up and fixed from the stated versions, so check the version history; e.g., variable `p1600`)
 
 ## Summary of processing steps (fill out further)
 
