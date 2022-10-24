@@ -43,7 +43,7 @@ Tools for cleaning, analyzing the Honduras data.
 ### respondent data
 
 1. take the requested respondent data (W3 data)
-2. filter any rows with missing entries for [village_code, gender, date_of_birth, building_id]
+2. filter any rows with missing entries for [`village_code`, `gender`, `date_of_birth`, `building_id`]
 
 ### household data
 
