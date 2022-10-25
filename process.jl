@@ -9,6 +9,8 @@ using PrettyTables
 using HondurasTools
 
 # useful networks
+# unique(conn)
+
 core = ["personal_private", "closest_friend", "free_time"];
 health = ["health_advice_get", "health_advice_give"];
 
@@ -59,13 +61,14 @@ dropmissing!(resp, :village_code);
 dropmissing!(hh, :village_code);
 dropmissing!(mb, :village_code);
 
+dropmissing!(hh, :building_id);
+
 select!(resp, Not([:household_id, :skip_glitch]));
 select!(hh, Not([:household_id, :skip_glitch]));
 
 rename!(hh, :survey_start => :hh_survey_start);
 rename!(hh, :new_building => :hh_new_building);
 
-dropmissing!(hh, :building_id);
 
 ##
 
@@ -77,8 +80,12 @@ dat = leftjoin(
     ]
 );
 
+## response filters
+
 @subset!(dat, (:wave .== 3) .& (:data_source .== 1));
 select!(dat, Not(:data_source));
+
+## microbiome data join
 
 # for mb join, we need to handle the waves somehow
 rename!(
@@ -134,6 +141,10 @@ nf = let
     nf
 end
 
+## WRITE
+import JLD2; JLD2.save_object("userfiles/mb_processed.jld2", [mdat, nf, con]);
+
+## USE FOR SOME PURPOSES
 nf = @chain nf begin
     select([:name, :village_code, :degree, :wave])
     unstack([:name, :village_code], :wave, :degree)
@@ -146,6 +157,6 @@ nf = @chain nf begin
     @transform(:Δdegree = :degree_w3 - :degree_w1)
 end
 
-import JLD2; JLD2.save_object("userfiles/mb_processed.jld2", [mdat, nf, con]);
-
 mb_desc = describe(mb);
+
+##
