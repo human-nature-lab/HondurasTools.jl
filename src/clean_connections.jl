@@ -43,11 +43,13 @@ function clean_connections(
     end
     
     if alter_source
-        @subset!(conns, :alter_source .== 1)
+        rmidx = findall(conns[!, :alter_source] .!= 1)
+        deleteat!(conns, rmidx)
     end
 
     if same_village
-        @subset!(conns, :same_village .== 1)
+        rmidx = findall(conns[!, :same_village] .!= 1)
+        deleteat!(conns, rmidx)
     end
 
     if removemissing

@@ -92,7 +92,8 @@ function clean_respondent(
     rename!(rf, :respondent_master_id => :name);
 
     if onlycomplete
-        @subset!(rf, :complete .== 1);
+        rmidx = findall(rf[!, :complete] .!= 1)
+        deleteat!(rf, rmidx)
     end
 
 
