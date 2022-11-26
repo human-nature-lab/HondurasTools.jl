@@ -9,7 +9,7 @@ network, since we did not ask about this tie directly in W3 (or any wave). Howev
 network if there is at least one tie (over all collected relationships) between
 two individuals.
 """
-function handle_socio(css, con)
+function handle_socio(css, con; checkfamily = true)
 
     cona = deepcopy(con)
 
@@ -25,7 +25,9 @@ function handle_socio(css, con)
         combine(:css_relationship => Ref∘unique => :relationships)
     end
 
-    test_relations(con2)
+    if checkfamily
+        test_relations(con2)
+    end
 
     # both con2 and css are sorted
     sortedges!(css.alter1, css.alter2)
