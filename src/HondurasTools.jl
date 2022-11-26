@@ -5,7 +5,7 @@ using CategoricalArrays
 using Dates
 # using Graphs, MetaGraphs
 using StatsBase, Statistics
-using CSSTools:sortedges!,symmetrize!,tupleize
+using CSSTools:sortedges!,symmetrize!,symmetrize,tupleize
 using CSSTools:graph,egoreduction,egoreductions
 
 import CSV
