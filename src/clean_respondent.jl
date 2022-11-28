@@ -95,15 +95,13 @@ function clean_respondent(
         subset!(rf, :complete => x -> x .== 1; skipmissing = true)
     end
 
+    rf.survey_start = trystring.(rf.survey_start)
+    rf.date_of_birth = trystring.(rf.date_of_birth)
+
+    rf.survey_start = todate_split.(rf.survey_start)
+    rf.date_of_birth = trydate.(rf.date_of_birth)
 
     rf[!, :age] = age.(rf.survey_start, rf.date_of_birth)
-    # [
-    #     ismissing(x) ? missing : Int(round(Dates.value(x)*inv(365); digits=0)) for x in (rf.survey_start - rf.date_of_birth)
-    # ];
-
-    rf.survey_start = [
-        Dates.Date(split(rf.survey_start[i], " ")[1]) for i in 1:nrow(rf)
-    ];
 
     rf.village_code = categorical(rf.village_code);
     rf.building_id = categorical(rf.building_id);
