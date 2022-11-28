@@ -74,10 +74,21 @@ function convertspend(x)
     end
 end
 
+function trydate(y)
+    return try Date(y)
+    catch
+        missing
+    end
+end
+
+trystring(x) = ismissing(x) ? missing : string(x)
+
+todate_split(x) = ismissing(x) ? missing : trydate(split(x)[1])
+
 function age(x, y)
     return if ismissing(x) | ismissing(y)
         missing
     else
-        year(Date(split(x)[1])) - year(Date(y))
+        year(x) - year(y)
     end
 end
