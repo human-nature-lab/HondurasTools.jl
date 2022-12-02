@@ -1,6 +1,8 @@
 # HondurasTools.jl
 Tools for cleaning, analyzing, and understanding the Honduras data.
 
+DEPENDS on CSSTools.jl -- ask Eric
+
 ## Explanations & FAQ
 
 (more explanations to be written)
