@@ -48,6 +48,7 @@ function clean_connections(
     end
 
     if same_village
+        dropmissing!(conns, :same_village)
         rmidx = findall(conns[!, :same_village] .!= 1)
         deleteat!(conns, rmidx)
     end
