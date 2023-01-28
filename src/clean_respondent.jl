@@ -348,16 +348,16 @@ function clean_respondent(
     end
 
     # this has been copied into HondurasTools.jl
-    select!(resp, Not(:b1000i)) # this variable seems meaningless
+    select!(rf, Not(:b1000i)) # this variable seems meaningless
 
     ldrvars = [:b1000a, :b1000b, :b1000c, :b1000d, :b1000e, :b1000f, :b1000g, :b1000h];
 
     for e in ldrvars
-        resp[!, e] = HondurasTools.replmis.(resp[!, e])
+        rf[!, e] = HondurasTools.replmis.(resp[!, e])
     end
 
     rename!(
-        resp,
+        rf,
         :b1000a => :hlthprom,
         :b1000b => :commuityhlthvol,
         :b1000c => :communityboard, # (village council, water board, parents association)
