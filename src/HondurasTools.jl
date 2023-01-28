@@ -18,6 +18,7 @@ include("clean_respondent.jl")
 include("clean_household.jl")
 include("clean_microbiome.jl")
 include("clean_connections.jl")
+include("clean_villages.jl")
 include("updatevalues!.jl")
 include("clean_css.jl")
 include("prepare_css.jl")
@@ -29,7 +30,7 @@ include("loaddata.jl")
 
 export 
     # cleaning
-    clean_respondent, clean_microbiome, clean_household,
+    clean_respondent, clean_microbiome, clean_household, clean_village,
     # networks
     clean_connections, clean_css!,
     process_edgelist, process_edgelist!,
