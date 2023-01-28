@@ -5,26 +5,26 @@
 Update missing values in for  selected wave from the response data with
 those from the next most recent wave.
 """
-function updatevalues!(resp, wave, variable)
-    vrs = [:name, :wave, variable]
+function updatevalues!(resp, wave, variable; unit = :name)
+    vrs = [unit, :wave, variable]
 
     sdf = @views resp[resp.wave .== wave, vrs];
     rdf = @views resp[resp.wave .< wave, :];
-    _updatevalues!(sdf, rdf, vrs, wave)
+    _updatevalues!(sdf, rdf, vrs, wave, unit)
 end
 
-function _updatevalues!(sdf, rdf, vrs, wave)
-    for nm in unique(sdf.name)
-        w4val = sdf[(sdf.name .== nm) .& (sdf.wave .== wave), vrs[3]]
+function _updatevalues!(sdf, rdf, vrs, wave, unit)
+    for nm in unique(sdf[!, unit])
+        w4val = sdf[(sdf[!, unit] .== nm) .& (sdf.wave .== wave), vrs[3]]
         if !isnothing(w4val) 
             if (length(w4val) > 0) & ismissing(w4val[1])
-                y = rdf[rdf.name .== nm, vrs[3]]
+                y = rdf[rdf[!, unit] .== nm, vrs[3]]
                 if length(y) > 0 # there may not be a prior entry for nnm
 
                     # find the most recent entry that is not missing
                     # necessarily isolates a single value
                     fl = findlast(!ismissing(y))
-                    sdf[(sdf.name .== nm) .& (sdf.wave .== wave), vrs[3]] .= y[fl]
+                    sdf[(sdf[!, unit] .== nm) .& (sdf.wave .== wave), vrs[3]] .= y[fl]
                 end
             end
         end

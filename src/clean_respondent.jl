@@ -107,6 +107,10 @@ function clean_respondent(
     rf.building_id = categorical(rf.building_id);
     rf.gender = categorical(rf.gender);
 
+    # fix gender coding
+    replace!(resp.gender, "male" => "man")
+    replace!(resp.gender, "female" => "woman")
+
     rf_desc = describe(rf);
 
     for r in eachrow(rf_desc)
@@ -341,6 +345,28 @@ function clean_respondent(
         nomiss = [:village_code, :gender, :date_of_birth, :building_id];
         dropmissing!(rf, nomiss)
     end
+
+    # this has been copied into HondurasTools.jl
+    select!(resp, Not(:b1000i)) # this variable seems meaningless
+
+    ldrvars = [:b1000a, :b1000b, :b1000c, :b1000d, :b1000e, :b1000f, :b1000g, :b1000h];
+
+    for e in ldrvars
+        resp[!, e] = HondurasTools.replmis.(resp[!, e])
+    end
+
+    rename!(
+        resp,
+        :b1000a => :hlthprom,
+        :b1000b => :commuityhlthvol,
+        :b1000c => :communityboard, # (village council, water board, parents association)
+        :b1000d => :patron, # (other people work for you)
+        :b1000e => :midwife,
+        :b1000f => :religlead,
+        :b1000g => :council, # President/leader of indigenous council
+        :b1000h => :polorglead, # Political organizer/leader
+        # :b1000i => None of the above
+    );
 
     if selected == :standard
         # selected demographic characteristics
