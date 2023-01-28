@@ -105,11 +105,12 @@ function clean_respondent(
 
     rf.village_code = categorical(rf.village_code);
     rf.building_id = categorical(rf.building_id);
+    
     rf.gender = categorical(rf.gender);
 
     # fix gender coding
-    replace!(resp.gender, "male" => "man")
-    replace!(resp.gender, "female" => "woman")
+    replace!(rf.gender, "male" => "man")
+    replace!(rf.gender, "female" => "woman")
 
     rf_desc = describe(rf);
 
