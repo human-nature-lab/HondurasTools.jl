@@ -31,23 +31,6 @@ function _updatevalues!(sdf, rdf, vrs, wave)
     end
 end
 
-for nm in unique(sdf.name)
-        cnt +=1 
-        w4val = sdf[(sdf.name .== nm) .& (sdf.wave .== wave), vrs[3]]
-        if !isnothing(w4val)
-            if (length(w4val) > 0) & ismissing(w4val[1])
-                y = rdf[rdf.name .== nm, vrs[3]]
-                if length(y) > 0 # there may not be a prior entry for nnm
-
-                  # find the most recent entry that is not missing
-                  # necessarily isolates a single value
-                  fl = findlast(!ismissing(y))
-                  sdf[(sdf.name .== nm) .& (sdf.wave .== wave), vrs[3]] .= y[fl]
-                end
-            end
-        end
-    end
-
 """
         updatevalues!(resp, variable)
 
