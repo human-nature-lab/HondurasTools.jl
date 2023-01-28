@@ -27,3 +27,5 @@ function misstring(x)
         string(x)
     end
 end
+
+replmis(x) = ismissing(x) ? false : true

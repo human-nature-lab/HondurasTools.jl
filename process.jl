@@ -141,6 +141,26 @@ nf = let
     nf
 end
 
+ldrvars = [:b1000a, :b1000b, :b1000c, :b1000d, :b1000e, :b1000f, :b1000g, :b1000h];
+
+for e in ldrvars
+    resp[!, e] = replmis.(resp[!, e])
+end
+
+rename!(
+    resp,
+    :b1000a => :hlthprom,
+    :b1000b => :commuityhlthvol,
+    :b1000c => :communityboard, # (village council, water board, parents association)
+    :b1000d => :patron, # (other people work for you)
+    :b1000e => :midwife,
+    :b1000f => :religlead,
+    :b1000g => :council, # President/leader of indigenous council
+    :b1000h => :polorglead, # Political organizer/leader
+    # :b1000i => None of the above
+)
+
+
 ## WRITE
 import JLD2; JLD2.save_object("userfiles/mb_processed.jld2", [mdat, nf, con]);
 
