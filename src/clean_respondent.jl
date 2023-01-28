@@ -353,7 +353,7 @@ function clean_respondent(
     ldrvars = [:b1000a, :b1000b, :b1000c, :b1000d, :b1000e, :b1000f, :b1000g, :b1000h];
 
     for e in ldrvars
-        rf[!, e] = HondurasTools.replmis.(resp[!, e])
+        rf[!, e] = HondurasTools.replmis.(rf[!, e])
     end
 
     rename!(
