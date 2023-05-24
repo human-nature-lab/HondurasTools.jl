@@ -1,7 +1,9 @@
 # HondurasTools.jl
 Tools for cleaning, analyzing, and understanding the Honduras data.
 
-DEPENDS on CSSTools.jl -- ask Eric
+## Dependencies
+
+- GraphTools.jl at [https://github.com/emfeltham/GraphTools.jl](https://github.com/emfeltham/GraphTools.jl)
 
 ## Explanations & FAQ
 
