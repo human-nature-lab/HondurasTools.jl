@@ -1,5 +1,10 @@
 # cleaning_utilities.jl
 
+"""
+        regularizecols!(resp)
+
+Make it possible to combine the dataframes from different waves, which may have different columns. This function creates a common set of columns for merging.
+"""
 function regularizecols!(resp)
 
     dr1 = describe(resp[1])[!, [:variable, :eltype]]
@@ -40,6 +45,11 @@ function regularizecols!(resp)
     end
 end
 
+"""
+        strip_wave!(resp, wnme, wavestring)
+
+Remove wave information, since we will only keep this as a separate variable, indexing the wave for a particular variable value.
+"""
 function strip_wave!(resp, wnme, wavestring)
     for e in wnme
         rename!(resp, Symbol(e) => Symbol(split(e, wavestring)[1]))
