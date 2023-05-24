@@ -90,8 +90,8 @@ select!(dat, Not(:data_source));
 
 # write
 
-CSV.write("resp_data_" * string(today()), resp);
-CSV.write("household_data_" * string(today()), hh);
-CSV.write("village_data_" * string(today()), vdf);
-CSV.write("microbiome_data_"  * string(today()), mdat);
-CSV.write("connections_data_"  * string(today()), con);
+CSV.write(writepath * "resp_data_" * string(today()), resp);
+CSV.write(writepath * "household_data_" * string(today()), hh);
+CSV.write(writepath * "village_data_" * string(today()), vdf);
+CSV.write(writepath * "microbiome_data_"  * string(today()), mdat);
+CSV.write(writepath * "connections_data_"  * string(today()), con);
