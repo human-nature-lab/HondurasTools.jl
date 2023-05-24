@@ -2,12 +2,13 @@
 
 """
         clean_respondent(
-            resp::Vector{DataFrame}; 
+            resp::Vector{DataFrame};
+            waves,
             nokeymiss = false,
             onlycomplete = true
         )
 
-Clean the respondent level data. `resp` must be a vector of dataframes.
+Clean the respondent level data. `resp` must be a vector of dataframes. Respondent data, `resp`, must be ordered by and match `waves`.
 
 ARGS
 ≡≡≡≡≡≡≡≡≡≡
@@ -383,6 +384,9 @@ function clean_respondent(
             rename!(rf, ldict[e]);
         end
     end
+
+    # remove irrelevant variables
+    select!(rf, Not([:household_id, :skip_glitch]));
 
     return rf
 end
