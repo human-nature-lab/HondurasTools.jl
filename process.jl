@@ -36,6 +36,10 @@ con_paths = [
 
 # village paths
 
+village_paths = [
+    
+]
+
 # load data
 
 resp = [
