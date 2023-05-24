@@ -1,10 +1,9 @@
-# clean_respondent_data.jl
+# clean_respondent.jl
 
 """
         clean_respondent(
             resp::Vector{DataFrame}; 
             nokeymiss = false,
-            selected = :standard
             onlycomplete = true
         )
 
@@ -15,13 +14,14 @@ ARGS
 
 - resp: a vector of DataFrames, with entries for each wave of the data.
 - waves: indicate the wave of each DataFrame in the same order as resp.
-- selected: variables to select. The default is :standard, a pre-defined set, otherwise, select :all, or specify a vector of variables.
+- nokeymiss: if true, do not allow entries with missing values for [:village_code, :gender, :date_of_birth, :building_id]
+- onlycomplete: only include completed surveys
 
 """
 function clean_respondent(
-    resp::Vector{DataFrame}, waves;
+    resp::Vector{DataFrame},
+    waves;
     nokeymiss = false,
-    selected = :standard,
     onlycomplete = true
 )
 
@@ -80,10 +80,6 @@ function clean_respondent(
         resp[widx][!, :wave] .= 4;
     end
     
-    # rf = DataFrame(
-    #     [v => tp[] for (v,tp) in zip(drs.variable, drs.type)]...
-    # );
-
     regularizecols!(resp)
 
     rf = reduce(vcat, resp)
@@ -95,6 +91,8 @@ function clean_respondent(
         subset!(rf, :complete => x -> x .== 1; skipmissing = true)
     end
 
+    ## these variables should be included in any dataset
+    
     rf.survey_start = trystring.(rf.survey_start)
     rf.date_of_birth = trystring.(rf.date_of_birth)
 
@@ -112,6 +110,9 @@ function clean_respondent(
     replace!(rf.gender, "male" => "man")
     replace!(rf.gender, "female" => "woman")
 
+    ##
+
+    # raw data description contains variable list and types
     rf_desc = describe(rf);
 
     for r in eachrow(rf_desc)
@@ -120,13 +121,11 @@ function clean_respondent(
         end
     end
 
-    # calculate age in yrs from survey date and date of birth
-
-    # convert "Dont_Know" and "Refused" to missing
-    # missingize!(rf, :b0100);
-
+    # what grade did you complete in school?
     if :b0100 ∈ rf_desc.variable
-
+        
+        # convert "Dont_Know" and "Refused" to missing
+        # missingize!(rf, :b0100);
         rf.b0100 = categorical(rf.b0100; ordered = true);
         recode!(
             rf.b0100,
@@ -170,11 +169,13 @@ function clean_respondent(
         );
     end
 
+    # What is your religion?
     if :b0600 ∈ rf_desc.variable
         rename!(rf, :b0600 => :religion);
         rf.religion = categorical(rf.religion);
     end
 
+    # Do you plan to leave this village in the next 12 months (staying somewhere else for 3 months or longer)?
     if :b0700 ∈ rf_desc.variable
         # "Dont_Know" is important here
         rename!(rf, :b0700 => :migrateplan);
@@ -190,6 +191,7 @@ function clean_respondent(
         );
     end
 
+    # How long have you lived in this village?
     if :b0800 ∈ rf_desc.variable
         rename!(rf, :b0800 => :invillage);
         rf.invillage = categorical(rf.invillage; ordered = true);
@@ -207,6 +209,7 @@ function clean_respondent(
         );
     end
     
+    # Generally, you would say that your health is:
     if :c0100 ∈ rf_desc.variable    
 
         rename!(rf, :c0100 => :health);
@@ -238,6 +241,7 @@ function clean_respondent(
         );
     end
 
+    # Now, thinking of your mental health, including stress, depression and emotional problems, how would you rate your overall mental health?
     if :c0200 ∈ rf_desc.variable
         rename!(rf, :c0200 => :mentalhealth);
         rf[!, :mentalhealth] = categorical(
@@ -271,6 +275,7 @@ function clean_respondent(
         );
     end
 
+    # How safe do you feel walking alone in your village at night?
     if :c1820 ∈ rf_desc.variable
         rename!(rf, :c1820 => :safety);
         rf.safety = categorical(rf.safety; ordered = true);
@@ -282,6 +287,7 @@ function clean_respondent(
         );
     end
 
+    # In the past 3 months, for lack of money or other resources, did you ever worry that your household would run out of food?
     if :d0100 ∈ rf_desc.variable
         rename!(rf, :d0100 => :foodworry);
         rf.foodworry = categorical(rf.foodworry; ordered = true);
@@ -289,6 +295,7 @@ function clean_respondent(
         levels!(rf.foodworry, ["Refused", "Don't know", "No", "Yes"]);
     end
 
+    # In the past 3 months, for lack of money or other resources, did your household ever run out of food?
     if :d0200 ∈ rf_desc.variable
         rename!(rf, :d0200 => :foodlack);
         rf.foodlack = categorical(rf.foodlack; ordered = true);
@@ -296,6 +303,7 @@ function clean_respondent(
         levels!(rf.foodlack, ["Refused", "Don't know", "No", "Yes"]);
     end
 
+    # add variable question
     if :d0300 ∈ rf_desc.variable
         rename!(rf, :d0300 => :foodskipadult);
         rf.foodskipadult = categorical(rf.foodskipadult; ordered = true);
@@ -339,25 +347,25 @@ function clean_respondent(
         levels!(rf.pregnant, ["Refused", "Don't know", "No", "Yes"]);
     end
 
-    # ignore ivars for now
+    # ignore i- variables
     # select!(rf, Not([:i0200, :i0300, :i0400, :i0500, :i0600, :i0700]));
 
+    # do not allow entries with missing variables on the following:
     if nokeymiss
         nomiss = [:village_code, :gender, :date_of_birth, :building_id];
         dropmissing!(rf, nomiss)
     end
-
-    # this has been copied into HondurasTools.jl
+    
+    # leadership variables
     select!(rf, Not(:b1000i)) # this variable seems meaningless
 
-    ldrvars = [:b1000a, :b1000b, :b1000c, :b1000d, :b1000e, :b1000f, :b1000g, :b1000h];
-
-    for e in ldrvars
-        rf[!, e] = HondurasTools.replmis.(rf[!, e])
-    end
-
-    rename!(
-        rf,
+    ldrvars = [
+        :b1000a, :b1000b, :b1000c, :b1000d, :b1000e, :b1000f, :b1000g, :b1000h
+    ];
+    
+    # names for leadership categories
+    # these are plausibly overlapping, so do not collapse to a single categorical variable
+    ldict = Dict(
         :b1000a => :hlthprom,
         :b1000b => :commuityhlthvol,
         :b1000c => :communityboard, # (village council, water board, parents association)
@@ -369,48 +377,11 @@ function clean_respondent(
         # :b1000i => None of the above
     );
 
-    if selected == :standard
-        # selected demographic characteristics
-        demos = [
-            :name,
-            :village_code,
-            :resp_target,
-            :building_id,
-            :gender,
-            :date_of_birth,
-            :municipality,
-            :office,
-            :village_name,
-            :data_source,
-            :survey_start,
-            :inter_village_leader,
-            :b0100, # grade in school
-            :b0600, # what is your religion
-            :b0700, # plans to leave village w/in 12 mo
-            :b0800, # how long lived in village (cat)
-            :b1000, # leader
-            :c0100, # general health self-report
-            :c0200, # mental-health self-report
-            :c1820, # safety walking in village at night
-            :d0100, # worry about food lack
-            :d0200, # food lack
-            :d0300, # skip meals adult money
-            :d0400, # skip meals child money
-            :d0700, # family income (ordinal)
-            :e0200, # married or "free union"
-            :e0700, # currently pregnant
-            # :i0200, # who should make household decisions (cat) 3 = together
-            # :i0300, # beat spouse justified?
-            # :i0400,
-            # :i0500,
-            # :i0600,
-            # :i0700,
-        ];
-        select!(rf, demos);
-    elseif !isnothing(selected) & (typeof(selected) == Vector{Symbol})
-        select!(rf, selected)
-    elseif selected == :all
-        rf
+    for e in ldrvars
+        if e ∈ rf_desc.variable
+            rf[!, e] = HondurasTools.replmis.(rf[!, e])
+            rename!(rf, ldict[e]);
+        end
     end
 
     return rf
