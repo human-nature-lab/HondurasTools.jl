@@ -41,4 +41,6 @@ export
     unilen, interlen, tupleize, symmetrize!,
     # codebook
     load_mbvillages
+    # re-export from GraphTools
+    graph, sortedges!, symmetrize!, symmetrize, egoreduction, egoreductions, GraphTable, graphtable, nodemeasure!
 end
