@@ -47,8 +47,9 @@ Tools for cleaning, analyzing, and understanding the Honduras data.
 
 ## Summary of processing steps (fill out further)
 
-N.B. if a step is listed as "manual" it is not performed by any functions internal
-to the package. It may appear in `process.jl`.
+See `process.jl` for a basic example of processing the raw data into clean CSV files.
+- N.B. the relative paths.
+- The processing functions should be agnostic to the specific variables requested, meaning that they should work whether you requested some, many, or all variables.
 
 ### connections data
 
