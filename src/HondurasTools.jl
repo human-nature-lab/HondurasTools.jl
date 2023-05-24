@@ -3,10 +3,8 @@ module HondurasTools
 using DataFrames, DataFramesMeta
 using CategoricalArrays
 using Dates
-# using Graphs, MetaGraphs
 using StatsBase, Statistics
-using CSSTools:sortedges!,symmetrize!,symmetrize,tupleize
-using CSSTools:graph,egoreduction,egoreductions
+using GraphTools
 
 import CSV
 import Base.get # method added in css_socio
