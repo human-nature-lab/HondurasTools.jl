@@ -15,25 +15,31 @@ ARGS
 function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
 
     if 1 ∈ waves
-        hnme1 = names(hh[1]);
-        hh[1][!, :wave] .= 1;
+        widx = findfirst(waves .== 1)
+
+        hnme1 = names(hh[widx]);
+        hh[widx][!, :wave] .= 1;
         whnme11 = hnme1[occursin.("_w1", hnme1)];
-        strip_wave!(hh[1], whnme11, "_w1")
+        strip_wave!(hh[widx], whnme11, "_w1")
     end
 
     if 2 ∈ waves
-        hnme2 = names(hh[2]);
-        hh[2][!, :wave] .= 2;
+        widx = findfirst(waves .== 2)
+
+        hnme2 = names(hh[widx]);
+        hh[widx][!, :wave] .= 2;
         # no 21
         whnme22 = hnme2[occursin.("_w2", hnme2)];
-        strip_wave!(hh[2], whnme22, "_w2")
+        strip_wave!(hh[widx], whnme22, "_w2")
     end
        
     if 3 ∈ waves
-        hnme3 = names(hh[3]);
-        hh[3][!, :wave] .= 3;
+        widx = findfirst(waves .== 3)
+
+        hnme3 = names(hh[widx]);
+        hh[widx][!, :wave] .= 3;
         whnme33 = hnme3[occursin.("_w3", hnme3)];
-        strip_wave!(hh[3], whnme33, "_w3")
+        strip_wave!(hh[widx], whnme33, "_w3")
     end
 
     regularizecols!(hh)

@@ -3,21 +3,27 @@
 function clean_village(vdfs, waves)
 
     if 1 ∈ waves
-        vdfs[1][!, :wave] .= 1
-        rename!(vdfs[1], :village_wealth_index_w1 => :village_wealth_index)
-        rename!(vdfs[1], :village_wealth_index_median_w1 => :village_wealth_index_median)
+        widx = findfirst(waves .== 1)
+
+        vdfs[widx][!, :wave] .= 1
+        rename!(vdfs[widx], :village_wealth_index_w1 => :village_wealth_index)
+        rename!(vdfs[widx], :village_wealth_index_median_w1 => :village_wealth_index_median)
     end
 
     if 2 ∈ waves
-        vdfs[2][!, :wave] .= 2
-        rename!(vdfs[2], :village_wealth_index_w2 => :village_wealth_index)
-        rename!(vdfs[2], :village_wealth_index_median_w2 => :village_wealth_index_median)
+        widx = findfirst(waves .== 2)
+
+        vdfs[widx][!, :wave] .= 2
+        rename!(vdfs[widx], :village_wealth_index_w2 => :village_wealth_index)
+        rename!(vdfs[widx], :village_wealth_index_median_w2 => :village_wealth_index_median)
     end
 
     if 3 ∈ waves
-        vdfs[3][!, :wave] .= 3;
-        rename!(vdfs[3], :village_wealth_index_w3 => :village_wealth_index)
-        rename!(vdfs[3], :village_wealth_index_median_w3 => :village_wealth_index_median)
+        widx = findfirst(waves .== 3)
+
+        vdfs[widx][!, :wave] .= 3;
+        rename!(vdfs[widx], :village_wealth_index_w3 => :village_wealth_index)
+        rename!(vdfs[widx], :village_wealth_index_median_w3 => :village_wealth_index_median)
     end
 
     regularizecols!(vdfs)
