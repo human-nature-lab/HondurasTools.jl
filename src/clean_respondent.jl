@@ -389,7 +389,9 @@ function clean_respondent(
 
     # remove irrelevant variables
     for e in [:household_id, :skip_glitch]
-        select!(rf, Not(e))
+        if e ∈ rf_desc.variable
+            select!(rf, Not(e))
+        end
     end
 
     return rf
