@@ -108,7 +108,8 @@ function process_risk(risk)
         :purple_score => Vector{Union{Int, Missing}}(missing, ln)
     );
 
-
+    sort!(riskflat, :name)
+    sort!(risks, :name)
     if riskflat.name != risks.name
         error("names not aligned")
     end
