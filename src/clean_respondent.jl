@@ -381,7 +381,7 @@ function clean_respondent(
     for e in ldrvars
         if e ∈ rf_desc.variable
             rf[!, e] = HondurasTools.replmis.(rf[!, e])
-            rename!(rf, ldict[e]);
+            rename!(rf, e => ldict[e]);
         end
     end
 
