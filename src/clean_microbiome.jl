@@ -87,7 +87,7 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
         )
     end
 
-    if :mb_ab0100 ∈ mb_desc_variable
+    if :mb_ab0100 ∈ mb_desc.variable
         rename!(mb, :mb_ab0100 => :spend)
         mb.spend = convertspend.(mb.spend)
     end
