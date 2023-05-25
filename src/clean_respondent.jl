@@ -358,7 +358,9 @@ function clean_respondent(
     end
     
     # leadership variables
-    select!(rf, Not(:b1000i)) # this variable seems meaningless
+    if :b1000i ∈ rf_desc.variable
+        select!(rf, Not(:b1000i)) # this variable seems meaningless
+    end
 
     ldrvars = [
         :b1000a, :b1000b, :b1000c, :b1000d, :b1000e, :b1000f, :b1000g, :b1000h
