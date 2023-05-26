@@ -1,9 +1,30 @@
 # HondurasTools.jl
+
 Tools for cleaning, analyzing, and understanding the Honduras data.
+
+## Installation
+
+This is a private repository, so you will need to use GitHub credentials with access to this repository, to install the package. You will need these every time you want to reinstall or update the package.
+
+## Generate the clean data
+
+This data is too large and too protected to be tracked on GitHub. Consequently, it must be generated locally.
+
+1. You should create a new file based on the existing `make_data.jl` template file with the directories and files appropriate to your specific data request. E.g., the types of raw data files and filenames will be specific to your request.
+
+2. From your top directory (e.g., for a Quarto project):
+
+```bash
+julia --threads=20 make_data.jl
+```
+
+This yields one CSV at each level of the data, with all (selected) waves concatenated together. Additionally, the data has been filtered by `alter_source` (connections data) and `data_source` for the respondent level data.
+
+Cf. the codebook directory for a codebook that matches the data in this format.
 
 ## Dependencies
 
-- GraphTools.jl at [https://github.com/emfeltham/GraphTools.jl](https://github.com/emfeltham/GraphTools.jl)
+- [GraphTools.jl](https://github.com/emfeltham/GraphTools.jl) (public repository)
 
 ## Explanations & FAQ
 
@@ -45,9 +66,10 @@ Tools for cleaning, analyzing, and understanding the Honduras data.
    2. It is worth checking for consistency (the processing code here *should* resolve for gender, but not in the underlying data)
 4. (a few other things were cleaned up and fixed from the stated versions, so check the version history; e.g., variable `p1600`)
 
-## Summary of processing steps (fill out further)
+## Summary of processing steps (fill out further and update)
 
-See `process.jl` for a basic example of processing the raw data into clean CSV files.
+See `make_data.jl` for a template to process the raw data into clean CSV files.
+
 - N.B. the relative paths.
 - The processing functions should be agnostic to the specific variables requested, meaning that they should work whether you requested some, many, or all variables.
 
