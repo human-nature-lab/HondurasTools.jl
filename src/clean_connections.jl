@@ -54,7 +54,16 @@ function clean_connections(
     end
 
     if removemissing
-        disallowmissing!(conns)
+        disallowmissing!(
+            conns,
+            [
+                :ego,
+                :alter,
+                :question,
+                :alter_source,
+                :relationship
+            ]
+        )
     end
 
     return conns
