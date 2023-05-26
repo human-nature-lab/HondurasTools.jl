@@ -99,7 +99,11 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
     end
 
     # remove irrelevant variables
-    select!(hh, Not([:household_id, :skip_glitch]));
+    for e in [:household_id, :skip_glitch]
+        if e ∈ hh_desc.variable
+            select!(hh, Not(e))
+        end
+    end
 
     # rename to avoid conflicts with other data
     rename!(hh, :survey_start => :hh_survey_start);
