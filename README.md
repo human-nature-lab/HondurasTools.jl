@@ -6,6 +6,10 @@ Tools for cleaning, analyzing, and understanding the Honduras data.
 
 This is a private repository, so you will need to use GitHub credentials with access to this repository, to install the package. You will need these every time you want to reinstall or update the package.
 
+### Dependencies
+
+- [GraphTools.jl](https://github.com/emfeltham/GraphTools.jl) (public repository)
+
 ## Generate the clean data
 
 This data is too large and too protected to be tracked on GitHub. Consequently, it must be generated locally.
@@ -21,10 +25,6 @@ julia --threads=20 make_data.jl
 This yields one CSV at each level of the data, with all (selected) waves concatenated together. Additionally, the data has been filtered by `alter_source` (connections data) and `data_source` for the respondent level data.
 
 Cf. the codebook directory for a codebook that matches the data in this format.
-
-## Dependencies
-
-- [GraphTools.jl](https://github.com/emfeltham/GraphTools.jl) (public repository)
 
 ## Explanations & FAQ
 
