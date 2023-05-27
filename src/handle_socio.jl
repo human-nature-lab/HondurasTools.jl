@@ -1,5 +1,5 @@
 """
-        handle_socio(con)
+        handle_socio(css, con; checkfamily = true)
 
 Add the truth of each tie from the sociocentric network, `con` to the
 css data.
@@ -43,7 +43,7 @@ function handle_socio(css, con; checkfamily = true)
         css,
         relationship_questions,
         [
-            :village_code_w4,
+            :village_code,
             :perceiver, :alter1, :alter2, :order,
             :knows_alter1, :knows_alter2
         ];

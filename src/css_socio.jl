@@ -35,26 +35,32 @@ function assign_socioties!(
 end
 
 function checkrelations(css_r, con_rels)
-    return if css_r ∈ con_rels
-        # if there is a direct match for the css2 relationship in 
-        # the con_rels set, "Yes" the tie is true
-        # this should happen for "personal_private" and "free_time"
-        # otherwise that perceived tie does not exist in the sociocentric
-        # network
-        "Yes"
-    elseif (css_r == "are_related")
-        # there is a switch for "are_related":
-        # we are not checking if the relationship is present
-        # but the particular response, which we propogate if there is
-        # a match
-        # these should not overlap in the sociocentric network, so
-        # this logic flow is OK
-        if "Siblings" ∈ con_rels
-            "Siblings"
-        elseif "Parent/child" ∈ con_rels
-            "Parent/child"
-        elseif "Partners" ∈ con_rels
-            "Partners"
+    return if length(con_rels) > 0
+        if css_r == "know_each_other"
+            "Yes"
+        elseif css_r ∈ con_rels
+            # if there is a direct match for the css2 relationship in 
+            # the con_rels set, "Yes" the tie is true
+            # this should happen for "personal_private" and "free_time"
+            # otherwise that perceived tie does not exist in the sociocentric
+            # network
+            "Yes"
+        elseif (css_r == "are_related")
+            # there is a switch for "are_related":
+            # we are not checking if the relationship is present
+            # but the particular response, which we propogate if there is
+            # a match
+            # these should not overlap in the sociocentric network, so
+            # this logic flow is OK
+            if "Siblings" ∈ con_rels
+                "Siblings"
+            elseif "Parent/child" ∈ con_rels
+                "Parent/child"
+            elseif "Partners" ∈ con_rels
+                "Partners"
+            else
+                "None of the above"
+            end
         else
             "No"
         end
