@@ -50,22 +50,7 @@ function groundtruth(css, con, resp)
         combine(:answer => Ref∘unique => :answers)
     end;
 
-    namedict = let
-        # get the unique set of individuals, their waves and their villages at each wave
-        # why are there more entries when we have the combination of
-        # respondents and connections?
-        # add village code if we want to track movement or limit to within village networks
-
-        uresp = unique(resp[!, [:wave, :name, :village_code]]);
-        xx = unique(__con[!, [:wave, :ego, :alter, :village_code]]);
-        ucon = unique(DataFrame(:wave => vcat(xx.wave, xx.wave), :name => vcat(xx.ego, xx.alter), :village_code => vcat(xx.village_code, xx.village_code)));
-        ur = unique(vcat(uresp, ucon))
-        sort!(ur, [:name, :wave, :village_code])
-        ur = groupby(ur, [:name])
-        ur = combine(ur, :wave => Ref => :waves, :village_code => Ref => :village_codes)
-        
-        Dict(ur.name .=> tuple.(ur.waves, ur.village_codes))
-    end;
+    namedict = make_namedict(resp, __con)
 
     ___con = Dict{Tuple{String, String}, Vector{String}}();
     sizehint!(___con, 500000);
@@ -113,13 +98,31 @@ function groundtruth(css, con, resp)
     return css2, known
 end
 
+function make_namedict(resp, con)
+    # __con
+    # get the unique set of individuals, their waves and their villages at each wave
+    # why are there more entries when we have the combination of
+    # respondents and connections?
+    # add village code if we want to track movement or limit to within village networks
+
+    uresp = unique(resp[!, [:wave, :name, :village_code]]);
+    xx = unique(con[!, [:wave, :ego, :alter, :village_code]]);
+    ucon = unique(DataFrame(:wave => vcat(xx.wave, xx.wave), :name => vcat(xx.ego, xx.alter), :village_code => vcat(xx.village_code, xx.village_code)));
+    ur = unique(vcat(uresp, ucon))
+    sort!(ur, [:name, :wave, :village_code])
+    ur = groupby(ur, [:name])
+    ur = combine(ur, :wave => Ref => :waves, :village_code => Ref => :village_codes)
+    
+    return Dict(ur.name .=> tuple.(ur.waves, ur.village_codes))
+end;
+
 function tieverity(rel, answ, out1, out2, ca1, ca2, w)
     return if ismissing(ca1) | ismissing(ca2)
         # if not both are present
-        missing
+        "not both present"
     elseif !((w ∈ ca1[1]) & (w ∈ ca2[1]))
         # if not both present at wave
-        missing
+        "not both present at wave"
         # if there is a relationship but an alter does not exist at wave
         # c1 = (w ∈ ca1[1]) & (w ∈ ca2[1]);
         # if !c1 & (length(out) != 0)
