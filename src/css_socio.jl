@@ -119,10 +119,10 @@ end;
 function tieverity(rel, answ, out1, out2, ca1, ca2, w)
     return if ismissing(ca1) | ismissing(ca2)
         # if not both are present
-        "not both present"
+        "Not both present"
     elseif !((w ∈ ca1[1]) & (w ∈ ca2[1]))
         # if not both present at wave
-        "not both present at wave"
+        "Not both present at wave"
         # if there is a relationship but an alter does not exist at wave
         # c1 = (w ∈ ca1[1]) & (w ∈ ca2[1]);
         # if !c1 & (length(out) != 0)
