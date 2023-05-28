@@ -29,18 +29,26 @@ include("loaddata.jl")
 export 
     # cleaning
     clean_respondent, clean_microbiome, clean_household, clean_village,
+    
     # networks
-    clean_connections, clean_css!,
+    clean_connections,
     process_edgelist, process_edgelist!,
-    prepare_css,
     graph, egoreduction, egoreductions,
     handle_socio,
+    
+    # css
+    prepare_css, # old
+    clean_css!,
+    groundtruth,
+    
     # utilities
     updatevalues!,
     sortedges!,symmetrize!,
     unilen, interlen, tupleize, symmetrize!,
+    
     # codebook
     load_mbvillages
+    
     # re-export from GraphTools
     graph, sortedges!, symmetrize!, symmetrize, egoreduction, egoreductions, GraphTable, graphtable, nodemeasure!
 end
