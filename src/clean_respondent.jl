@@ -394,5 +394,27 @@ function clean_respondent(
         end
     end
 
+
+    # age category
+    begin
+        rf[!, :agecat] = fill("<= 65", nrow(rf));
+
+        for (i, x) in enumerate(resp[!, :age])
+            if !ismissing(x)
+                if x > 65
+                    rf[i, :agecat] = if x > 80
+                        "> 80"
+                    elseif x > 75
+                        "> 75"
+                    elseif x > 70
+                        "> 70"
+                    elseif x > 65
+                        "> 65"
+                    end
+                end
+            end
+        end
+    end
+
     return rf
 end

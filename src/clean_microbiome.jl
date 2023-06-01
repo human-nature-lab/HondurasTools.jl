@@ -113,7 +113,11 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
     mb[!, :mbset] = mb.village_code .∈ Ref(microbiome_villages.village_code)
 
     if nokeymiss
-        dropmissing!(mb, :village_code);
+        dropmissing!(mb, [:village_code, :name]);
+
+        # drop non-unique names
+        nu_names_loc = nonunique(mb[!, [:name]]);
+        deleteat!(mb, nu_names_loc)
     end
 
     # rename to avoid conflicts with other data
@@ -123,5 +127,19 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
         :works_in_village => :mb_works_in_village
     )
 
+    # leftjoin!(resp, mb; on = :name)
+    
+    # create new variables
+        
+    mb[!, :impaired] = Vector{Union{Missing, Bool}}(missing, nrow(mb));
+    for (i, e) in enumerate(mb.cognitive_score)
+        if !ismissing(e)
+            mb[i, :impaired] = e < 29 ? true : false
+        end
+    end
+    resp[!, :cognitive_status] = convert(
+        Vector{Union{Missing, String}}, resp.cognitive_status
+    )
+    
     return mb
 end

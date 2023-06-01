@@ -25,6 +25,8 @@ include("handle_socio.jl")
 include("process_edgelist.jl")
 include("risk_process.jl")
 include("loaddata.jl")
+include("networktools.jl")
+include("groundtruth.jl")
 
 export 
     # cleaning
