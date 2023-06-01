@@ -189,6 +189,7 @@ function kinstatus(out1, out2)
     else
         false
     end
+end
 
 
 function tiedirection(p1, p2)
