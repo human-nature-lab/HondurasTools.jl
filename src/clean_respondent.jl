@@ -399,7 +399,7 @@ function clean_respondent(
     begin
         rf[!, :agecat] = fill("<= 65", nrow(rf));
 
-        for (i, x) in enumerate(resp[!, :age])
+        for (i, x) in enumerate(rf[!, :age])
             if !ismissing(x)
                 if x > 65
                     rf[i, :agecat] = if x > 80
