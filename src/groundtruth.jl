@@ -1,6 +1,6 @@
 # groundtruth.jl
 
-function widecon(con, sort = false)
+function widecon(con; sort = false)
     _con = deepcopy(con)
 
     if sort
@@ -54,7 +54,7 @@ function groundtruth(css, con, resp)
 
     dropmissing!(css2)
 
-    __con = widecon(con, sort = false)
+    __con = widecon(con; sort = false)
     
     namedict = make_namedict(resp, __con)
 
