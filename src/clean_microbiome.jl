@@ -137,8 +137,8 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
             mb[i, :impaired] = e < 29 ? true : false
         end
     end
-    resp[!, :cognitive_status] = convert(
-        Vector{Union{Missing, String}}, resp.cognitive_status
+    mb[!, :cognitive_status] = convert(
+        Vector{Union{Missing, String}}, mb.cognitive_status
     )
     
     return mb
