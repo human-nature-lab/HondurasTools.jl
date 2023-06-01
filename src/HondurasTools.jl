@@ -36,7 +36,7 @@ export
     clean_connections,
     process_edgelist, process_edgelist!,
     graph, egoreduction, egoreductions,
-    handle_socio,
+    handle_socio, reciprocated,
     
     # css
     prepare_css, # old
