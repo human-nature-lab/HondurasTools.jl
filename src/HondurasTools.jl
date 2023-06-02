@@ -5,7 +5,7 @@ using CategoricalArrays
 using Dates
 using StatsBase, Statistics
 using GraphTools
-import GraphTools:dijkstra_shortest_paths
+using Graphs
 
 import CSV
 import Base.get # method added in css_socio
