@@ -40,12 +40,12 @@ function initialize_networks_info()
         :village_code => Int[], :relationship => String[],
         :distance => Float64[]
     );
-    
+
     return nfs, gf, nd
 end
 
 # need to add kin; union
-function networksinfo!(nfs, gf, css_villages, relationships)
+function networksinfo!(nfs, gf, css_villages, relationships, con)
     for w in [1, 3, 4], i in css_villages, (rel, directed) in relationships
         # w = 4
         # i = 152
@@ -97,7 +97,7 @@ function networksinfo!(nfs, gf, css_villages, relationships)
     end
 end
 
-function nodedistances!(nd, css_villages, relationships)
+function nodedistances!(nd, css_villages, relationships, con)
     
     for w in [1, 3, 4], i in css_villages, (rel, directed) in relationships
         # w = 4
@@ -124,7 +124,7 @@ function nodedistances!(nd, css_villages, relationships)
         # node reductions
         n = nv(gt.g)
         # nl = Int((n*(n-1))/2)
-        fill!(dists, 0)
+        # fill!(dists, 0)
         D = Matrix{Int}(undef, n, n)
         
         _distances!(D, gt.g, n)
