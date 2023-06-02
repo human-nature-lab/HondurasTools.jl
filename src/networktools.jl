@@ -134,7 +134,7 @@ function nodedistances!(nd, css_villages, relationships, con)
         D = Matrix{Int}(undef, n, n)
         
         _distances!(D, gt.g, n)
-        _distances_add!(nd, D, gt.g, vtx, i, rel)
+        _distances_add!(nd, D, gt.g, vtx, i, rel, w)
     end
 
     nd.distance[nd.distance .> 10000.0] .= NaN
@@ -146,7 +146,7 @@ function _distances!(D, g, n)
     end
 end
 
-function _distances_add!(nd, D, g, vtx, v, rel)
+function _distances_add!(nd, D, g, vtx, v, rel, w)
     for i in 1:nv(g), j in 1:nv(g)
         if i < j
             a1, a2 = sort([vtx[i], vtx[j]])
