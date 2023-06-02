@@ -84,3 +84,19 @@ function clean_response(x)
         missing
     end
 end
+
+function assign_kin!(css, con)
+    conrel = con[con.relationship .∈ Ref(kin), :];
+    select!(conrel, [:ego, :alter, :village_code]);
+    sortedges!(conrel.ego, conrel.alter);
+    conrel = unique(conrel); # list of true kin relationships
+    conrel[!, :kin] .= true
+
+    leftjoin!(
+        css, conrel,
+        on = [:alter1 => :ego, :alter2 => :alter, :village_code]
+    )
+    css.kin[ismissing.(css.kin)] .= false;
+    disallowmissing!(css, :kin)
+
+end

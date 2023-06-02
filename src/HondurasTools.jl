@@ -37,11 +37,16 @@ export
     process_edgelist, process_edgelist!,
     graph, egoreduction, egoreductions,
     handle_socio, reciprocated,
+    initialize_networks_info, networksinfo!, nodedistances!,
     
     # css
     prepare_css, # old
     clean_css!,
     groundtruth,
+    assign_kin!,
+
+    # data
+    transformunitvalues,
     
     # utilities
     updatevalues!,
