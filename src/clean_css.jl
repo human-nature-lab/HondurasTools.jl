@@ -86,6 +86,7 @@ function clean_response(x)
 end
 
 function assign_kin!(css, con)
+    kin = ["child_over12_other_house", "father", "mother", "sibling", "partner"];
     conrel = con[con.relationship .∈ Ref(kin), :];
     select!(conrel, [:ego, :alter, :village_code]);
     sortedges!(conrel.ego, conrel.alter);
