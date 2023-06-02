@@ -26,7 +26,11 @@ end
 
 # network level
 function initialize_networks_info() 
-    gf = DataFrame(:village_code => Int[], :relationship => String[]);
+    gf = DataFrame(
+        :village_code => Int[],
+        :wave => Int[],
+        :relationship => String[],
+    );
     gf.nv = Int[];
     gf.ne = Int[];
     gf.global_clustering_coef = Float64[];
@@ -37,7 +41,9 @@ function initialize_networks_info()
 
     nd = DataFrame(
         :alter1 => String[], :alter2 => String[],
-        :village_code => Int[], :relationship => String[],
+        :village_code => Int[],
+        :wave => Int[],
+        :relationship => String[],
         :distance => Float64[]
     );
 
@@ -87,7 +93,7 @@ function networksinfo!(nfs, gf, css_villages, relationships, con)
         push!(
             gf,
             [
-                i, string(rel),
+                i, w, string(rel),
                 nv(gt.g), ne(gt.g),
                 global_clustering_coefficient(gt.g),
                 cp,
@@ -144,7 +150,7 @@ function _distances_add!(nd, D, g, vtx, v, rel)
     for i in 1:nv(g), j in 1:nv(g)
         if i < j
             a1, a2 = sort([vtx[i], vtx[j]])
-            push!(nd, [a1, a2, v, rel, D[i,j]])
+            push!(nd, [a1, a2, v, w, rel, D[i,j]])
         end
     end
 end

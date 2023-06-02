@@ -28,6 +28,7 @@ include("risk_process.jl")
 include("loaddata.jl")
 include("networktools.jl")
 include("groundtruth.jl")
+include("data.jl")
 
 export 
     # cleaning
