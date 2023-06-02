@@ -131,8 +131,7 @@ function nodedistances!(nd, css_villages, relationships, con)
         _distances_add!(nd, D, gt.g, vtx, i, rel)
     end
 
-    nd.distance[nd.distance .> 10000.0] .= NaN        
-    return dists, a1, a2
+    nd.distance[nd.distance .> 10000.0] .= NaN
 end
 
 function _distances!(D, g, n)
