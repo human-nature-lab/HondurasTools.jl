@@ -25,6 +25,7 @@ include("css_socio.jl")
 include("handle_socio.jl")
 include("process_edgelist.jl")
 include("risk_process.jl")
+include("addsymmetric.jl")
 include("loaddata.jl")
 include("networktools.jl")
 include("groundtruth.jl")
@@ -40,6 +41,7 @@ export
     graph, egoreduction, egoreductions,
     handle_socio, reciprocated,
     initialize_networks_info, networksinfo!, nodedistances!,
+    addsymmetric!,
     
     # css
     prepare_css, # old
@@ -52,7 +54,7 @@ export
     
     # utilities
     updatevalues!,
-    sortedges!,symmetrize!,
+    sortedges!, symmetrize!,
     unilen, interlen, tupleize, symmetrize!,
     
     # codebook
