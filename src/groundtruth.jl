@@ -46,7 +46,7 @@ function groundtruth(css, con, resp)
 
     css2 = select(css, Not(["knows_alter1", "knows_alter2"]))
 
-    css2 = stack(
+    css2 = DataFrames.stack(
         css2,
         ["know_each_other", "free_time", "personal_private", "are_related"];
         variable_name = :relation, value_name = :response
@@ -127,6 +127,20 @@ function make_namedict(resp, con)
     return Dict(ur.name .=> tuple.(ur.waves, ur.village_codes))
 end;
 
+"""
+        tieverity(rel, answ, out1, out2, ca1, ca2, w)
+
+### Description
+
+Determines the truth of a CSS response, noting the directionality of the tie.
+
+### Arguments
+
+- `rel` : relationship string
+- `answ` : true relationship string
+- `w` : wave
+
+"""
 function tieverity(rel, answ, out1, out2, ca1, ca2, w)
     return if ismissing(ca1) | ismissing(ca2)
         # if not both are present
@@ -164,10 +178,7 @@ function tieverity(rel, answ, out1, out2, ca1, ca2, w)
             end
 
         else
-            p1 = rel ∈ out1
-            p2 = rel ∈ out2
-            tiedirection(p1, p2)
-
+            tiedirection(rel ∈ out1, rel ∈ out2)
         end
     end
 end
@@ -191,7 +202,16 @@ function kinstatus(out1, out2)
     end
 end
 
+"""
+        tiedirection(p1, p2)
 
+Determine the direction of the tie.
+- both nominate => "Yes"
+- alter 1 nominates => "Alter1"
+- alter 2 nominates => "Alter2"
+- neither nominates => "No"
+
+"""
 function tiedirection(p1, p2)
     return if p1 & !p2
         "Alter1"

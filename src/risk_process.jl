@@ -82,7 +82,7 @@ end
 
 function process_risk(risk)
 
-    risk = stack(
+    risk = DataFrames.stack(
         risk, Not([:name, :village_code]);
         value_name = :outcome, variable_name = :choice
     );

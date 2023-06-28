@@ -1,14 +1,19 @@
 # networktools.jl
 
 """
-        reciprocated(con)
+        reciprocated(con, relationship::Symbol)
 
 Add a column indicating whether tie is recipricated. In constrast to using
 non-unique, this marks both directions.
 
+### Arguments
+
+- `con` : edge list
+- `relationship` : column name for the relationship vector
+
 """
-function reciprocated(con)
-    df = select(con, [:ego, :alter, :relationship, :village_code, :wave]);
+function reciprocated(con, relationship::Symbol)
+    df = select(con, [:ego, :alter, relationship, :village_code, :wave]);
     sortedges!(df.ego, df.alter)
     nu = df[nonunique(df), :]; # one of every duplicate
     nu2 = deepcopy(nu);
@@ -18,7 +23,10 @@ function reciprocated(con)
     nu[!, :reciprocated] .= true; # both directions (both are true for duplicated entries under ego-alter sort)
 
     # match duplicated entries to each direction present in the con data
-    con = leftjoin(con, nu, on = [:ego, :alter, :relationship, :village_code, :wave]);
+    con = leftjoin(
+        con, nu,
+        on = [:ego, :alter, relationship, :village_code, :wave]
+    );
     con.reciprocated[ismissing.(con.reciprocated)] .= false
     disallowmissing!(con, :reciprocated)
     return con

@@ -39,7 +39,7 @@ function handle_socio(css, con; checkfamily = true)
         :are_related
     ];
 
-    css2 = stack(
+    css2 = DataFrames.stack(
         css,
         relationship_questions,
         [
