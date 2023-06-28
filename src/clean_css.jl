@@ -1,22 +1,6 @@
 # clean_css.jl
 # clean the (Liza-processed) data
 
-function clean_css(css)
-    
-    clean_css!(css)
-    
-    css.response = string.(css.response);
-    
-    try
-        .!isnothing(fakemissing.(css.response))
-    catch
-        css.response = [x == "missing" ? missing : x for x in css.response];
-    end;
-
-    order_adjust!(css)
-
-    css = handle_socio(css, con; checkfamily = false);
-end
 
 function clean_css!(css)
 
@@ -85,8 +69,15 @@ function clean_response(x)
     end
 end
 
+"""
+        assign_kin!(css, con)
+
+Add kin variable to css.
+"""
 function assign_kin!(css, con)
-    kin = ["child_over12_other_house", "father", "mother", "sibling", "partner"];
+    kin = [
+        "child_over12_other_house", "father", "mother", "sibling", "partner"
+    ];
     conrel = con[con.relationship .∈ Ref(kin), :];
     select!(conrel, [:ego, :alter, :village_code]);
     sortedges!(conrel.ego, conrel.alter);
