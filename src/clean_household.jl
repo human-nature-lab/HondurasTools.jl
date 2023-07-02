@@ -15,6 +15,9 @@ ARGS
 """
 function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
 
+    # check presence of each wave
+    # remove `_wx` suffix
+
     if 1 ∈ waves
         widx = findfirst(waves .== 1)
 
@@ -43,12 +46,26 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         strip_wave!(hh[widx], whnme33, "_w3")
     end
 
+    # make a common set of columns that includes all unique
+    # (e.g., if column only present a wave 1, it is present)
     regularizecols!(hh)
 
+    # combine waves
     hh = reduce(vcat, hh)
 
     # raw data description contains variable list and types
     hh_desc = describe(hh);
+
+    # remove irrelevant variables
+    for e in [:household_id, :skip_glitch]
+        if e ∈ hh_desc.variable
+            select!(hh, Not(e))
+        end
+    end
+
+    # rename to avoid conflicts with other data
+    rename!(hh, :survey_start => :hh_survey_start);
+    rename!(hh, :new_building => :hh_new_building);
 
     # must be in data
     hh.building_id = categorical(hh.building_id);
@@ -101,6 +118,24 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
             ["None of the above" => "Yes", missing => "No"]
         )
     ];
+
+    vs = [:children_under12, :boys_under12, :girls_under12]
+
+    for v in vs
+        if v ∈ hh_desc.variable
+            vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
+            for (i, e) in enumerate(hh[!, v])
+                x = tryparse(Int, e)
+                if !isnothing(x)
+                    vx[i] = x
+                end
+            end
+            hh[!, v] = vx
+            if !any(ismissing.(hh[!, v]))
+                disallowmissing!(hh, v)
+            end
+        end
+    end
     
     for (x, t, c) in xs
         if x ∈ hh_desc.variable
@@ -133,17 +168,6 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
             end
         end
     end
-
-    # remove irrelevant variables
-    for e in [:household_id, :skip_glitch]
-        if e ∈ hh_desc.variable
-            select!(hh, Not(e))
-        end
-    end
-
-    # rename to avoid conflicts with other data
-    rename!(hh, :survey_start => :hh_survey_start);
-    rename!(hh, :new_building => :hh_new_building);
 
     # decisions related to role of women
     xs = [
@@ -201,6 +225,7 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         )
     ];
 
+    # handle integer variables
     vs = [
         :girl_join_partner_age, :girl_first_baby_age, :women_pregnancy_checkups
     ];
@@ -252,6 +277,8 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
             end
         end
     end
+
+    # filters
 
     if nokeymiss
         dropmissing!(hh, :village_code);
