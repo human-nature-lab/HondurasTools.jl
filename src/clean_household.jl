@@ -247,7 +247,7 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         end
     end
 
-    for ((pr, c), t, c) in xs
+    for (pr, t, c) in xs
         (xold, x) = pr
         if xold ∈ hh_desc.variable
             rename!(hh, pr)
