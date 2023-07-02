@@ -137,9 +137,10 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         end
     end
     
-    for (x, t, c) in xs
+    for (pr, t, c) in xs
+        (x, b) = pr
         if x ∈ hh_desc.variable
-            rename!(hh, x)
+            rename!(hh, pr)
             if t
                 hh[!, x] = categorical(hh[!, x]);
                 if !ismissing(c)
@@ -246,9 +247,10 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         end
     end
 
-    for (x, t, c) in xs
+    for ((pr, c), t, c) in xs
+        (x, b) = pr
         if x ∈ hh_desc.variable
-            rename!(hh, x)
+            rename!(hh, pr)
             if t
                 hh[!, x] = categorical(hh[!, x]);
                 if !ismissing(c)
