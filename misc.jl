@@ -38,7 +38,7 @@
 ## USE FOR SOME PURPOSES
 # nf = @chain nf begin
 #     select([:name, :village_code, :degree, :wave])
-#     unstack([:name, :village_code], :wave, :degree)
+#     DataFrames.unstack([:name, :village_code], :wave, :degree)
 #     rename(
 #         Symbol(1) => :degree_w1,
 #         Symbol(2) => :degree_w2,
