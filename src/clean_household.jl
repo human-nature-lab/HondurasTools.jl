@@ -143,7 +143,7 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
             if t
                 hh[!, x] = categorical(hh[!, x]);
                 if !ismissing(c)
-                    recode!(hh[!, x] = c...)
+                    recode!(hh[!, x],  c...)
                 end
 
                 # if really binary make boolean
@@ -252,7 +252,7 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
             if t
                 hh[!, x] = categorical(hh[!, x]);
                 if !ismissing(c)
-                    recode!(hh[!, x] = c...)
+                    recode!(hh[!, x], c...)
                 end
 
                 # if really binary make boolean
