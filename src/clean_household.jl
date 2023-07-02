@@ -119,10 +119,10 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         )
     ];
 
-    vs = [:children_under12, :boys_under12, :girls_under12]
+    vs = [(:l0100, :children_under12), (:l0200, :boys_under12), (:l0300, :girls_under12)]
 
-    for v in vs
-        if v ∈ hh_desc.variable
+    for (vold, v) in vs
+        if vold ∈ hh_desc.variable
             vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
             for (i, e) in enumerate(hh[!, v])
                 if !ismissing(e)
@@ -230,11 +230,12 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
 
     # handle integer variables
     vs = [
-        :girl_join_partner_age, :girl_first_baby_age, :women_pregnancy_checkups
+        (:i0800, :girl_join_partner_age), (:i1000, :girl_first_baby_age),
+        (:i1300, :women_pregnancy_checkups)
     ];
     
-    for v in vs
-        if v ∈ hh_desc.variable
+    for (vold, v) in vs
+        if vold ∈ hh_desc.variable
             vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
             for (i, e) in enumerate(hh[!, v])
                 if !ismissing(e)
