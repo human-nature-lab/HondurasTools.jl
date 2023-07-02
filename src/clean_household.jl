@@ -81,7 +81,7 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         (:l0100 => :children_under12, false, missing),
         (:l0200 => :girls_under12, false, missing),
         (:l0300 => :boys_under12, false, missing),
-        (:l0400 => :watersource, false, ["Dont_Know" => "Don't Know"]),
+        (:l0400 => :watersource, true, ["Dont_Know" => "Don't Know"]),
         (:l0600 => :cleaningagent, true, ["Dont_Know" => "Don't Know"]),
         (:l0700 => :toilettype, true, ["Dont_Know" => "Don't Know"]),
         (:l0800 => :toiletshared, true, ["Dont_Know" => "Don't Know"]),
@@ -125,9 +125,11 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         if v ∈ hh_desc.variable
             vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
             for (i, e) in enumerate(hh[!, v])
-                x = tryparse(Int, e)
-                if !isnothing(x)
-                    vx[i] = x
+                if !ismissing(e)
+                    x = tryparse(Int, e)
+                    if !isnothing(x)
+                        vx[i] = x
+                    end
                 end
             end
             hh[!, v] = vx
@@ -235,9 +237,11 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         if v ∈ hh_desc.variable
             vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
             for (i, e) in enumerate(hh[!, v])
-                x = tryparse(Int, e)
-                if !isnothing(x)
-                    vx[i] = x
+                if !ismissing(e)
+                    x = tryparse(Int, e)
+                    if !isnothing(x)
+                        vx[i] = x
+                    end
                 end
             end
             hh[!, v] = vx
