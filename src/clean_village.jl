@@ -62,7 +62,7 @@ function clean_village(vdfs, waves)
     end
 
     # fix misc.
-    rename!(vill, :prostestant_church => :protestant_church); # typo in data
+    rename!(vdf, :prostestant_church => :protestant_church); # typo in data
 
     return vdf
 end
