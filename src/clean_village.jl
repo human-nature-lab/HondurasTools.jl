@@ -50,7 +50,7 @@ function clean_village(vdfs, waves)
         :pool, :gas_station,
         :ngo_activity,
         :health_committee, :education_committee, :water_committee, 
-        :women_commitee, :management_committee, :religious_committee,
+        :women_committee, :management_committee, :religious_committee,
         :parent_society_committee, :school_snack_committee, :school_pto,
         :community_board, :education_development_council,
         :indigenous_org, :indigenous_org_2, :savings_group,
