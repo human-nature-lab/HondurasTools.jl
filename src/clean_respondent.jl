@@ -94,7 +94,7 @@ function clean_respondent(
 
     ## these variables should be included in any dataset
     
-    for vbl in vbls [:survey_start, :date_of_birth]
+    for vbl in vbls = [:survey_start, :date_of_birth]
         rf[!, vbl] = passmissing(string).(rf[!, vbl])
     end
 
