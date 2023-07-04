@@ -94,8 +94,9 @@ function clean_respondent(
 
     ## these variables should be included in any dataset
     
-    rf.survey_start = trystring.(rf.survey_start)
-    rf.date_of_birth = trystring.(rf.date_of_birth)
+    for vbl in vbls [:survey_start, :date_of_birth]
+        rf[!, vbl] = passmissing(string).(rf[!, vbl])
+    end
 
     rf.survey_start = todate_split.(rf.survey_start)
     rf.date_of_birth = trydate.(rf.date_of_birth)
@@ -104,7 +105,6 @@ function clean_respondent(
 
     rf.village_code = categorical(rf.village_code);
     rf.building_id = categorical(rf.building_id);
-    
     rf.gender = categorical(rf.gender);
 
     # fix gender coding
@@ -170,11 +170,35 @@ function clean_respondent(
         );
     end
 
+    # belong to indigenous community
+    rename!(rf, :b0200 => :indigenous)
+    rf.indigenous_simple = deepcopy(rf.indigenous)
+    for (i, e) in enumerate(rf.indigenous)
+        if !ismissing(e)
+            if e .== "Si, Maya Chorti"
+                rf.indigenous[i] = "Yes, Maya Chorti"
+            end
+            if (e .== "Yes, Maya Chorti") | (e .== "Yes, Lenca") | (e .== "Other")
+                rf.indigenous_simple[i] = "Yes"
+            end
+        end
+    end
+
     # What is your religion?
     if :b0600 ∈ rf_desc.variable
         rename!(rf, :b0600 => :religion);
         rf.religion = categorical(rf.religion);
     end
+
+    protestant(x) = return if x == "Protestant"
+        true
+    elseif x == "Catholic"
+        false
+    else
+        missing
+    end
+
+    rf.religion = passmissing(protestant).(rf.religion)
 
     # Do you plan to leave this village in the next 12 months (staying somewhere else for 3 months or longer)?
     if :b0700 ∈ rf_desc.variable
@@ -347,6 +371,7 @@ function clean_respondent(
         recode!(rf.pregnant, "Dont_Know" => "Don't know");
         levels!(rf.pregnant, ["Refused", "Don't know", "No", "Yes"]);
     end
+
 
     # ignore i- variables
     # select!(rf, Not([:i0200, :i0300, :i0400, :i0500, :i0600, :i0700]));
