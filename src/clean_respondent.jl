@@ -443,19 +443,19 @@ function clean_respondent(
     # older-wave variables to wave4
     # (pregnant is also missing at w4 - but cannot use old values)
     if 4 ∈ waves
-        updatevalues!(resp, 4, :mentallyhealthy)
-        updatevalues!(resp, 4, :healthy)
-        updatevalues!(resp, 4, :safety)
-        updatevalues!(resp, 4, :foodworry)
-        updatevalues!(resp, 4, :incomesuff)
-        updatevalues!(resp, 4, :partnered)
+        updatevalues!(rf, 4, :mentallyhealthy)
+        updatevalues!(rf, 4, :healthy)
+        updatevalues!(rf, 4, :safety)
+        updatevalues!(rf, 4, :foodworry)
+        updatevalues!(rf, 4, :incomesuff)
+        updatevalues!(rf, 4, :partnered)
 
         # not sure
-        updatevalues!(resp, 4, :invillage)
+        updatevalues!(rf, 4, :invillage)
 
         # collected, but only asked if unknown or changed
-        updatevalues!(resp, 4, :school)
-        updatevalues!(resp, 4, :educated)
+        updatevalues!(rf, 4, :school)
+        updatevalues!(rf, 4, :educated)
 
         nldrvars = [
             :hlthprom, :commuityhlthvol, :communityboard, :patron, :midwife,
@@ -463,16 +463,16 @@ function clean_respondent(
         ];
 
         for e in nldrvars
-            updatevalues!(resp, 4, e)
+            updatevalues!(rf, 4, e)
         end
 
         # add leader variable
-        resp[!, :leader] = fill(false, nrow(resp))
+        rf[!, :leader] = fill(false, nrow(rf))
         for c in nldrvars
-            for (i, b) in enumerate(resp[!, c])
+            for (i, b) in enumerate(rf[!, c])
                 if !ismissing(b)
                     if b
-                        resp[i, :leader] = true
+                        rf[i, :leader] = true
                     end
                 end
             end
