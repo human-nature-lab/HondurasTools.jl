@@ -118,26 +118,6 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
             ["None of the above" => "Yes", missing => "No"]
         )
     ];
-
-    vs = [(:l0100, :children_under12), (:l0200, :boys_under12), (:l0300, :girls_under12)]
-
-    for (vold, v) in vs
-        if vold ∈ hh_desc.variable
-            vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
-            for (i, e) in enumerate(hh[!, v])
-                if !ismissing(e)
-                    x = tryparse(Int, e)
-                    if !isnothing(x)
-                        vx[i] = x
-                    end
-                end
-            end
-            hh[!, v] = vx
-            if !any(ismissing.(hh[!, v]))
-                disallowmissing!(hh, v)
-            end
-        end
-    end
     
     for (pr, t, c) in xs
         (xold, x) = pr
@@ -168,6 +148,26 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
 
             if !any(ismissing.(hh[!, x]))
                 disallowmissing!(hh, x)
+            end
+        end
+    end
+
+    vs = [(:l0100, :children_under12), (:l0200, :boys_under12), (:l0300, :girls_under12)]
+
+    for (vold, v) in vs
+        if vold ∈ hh_desc.variable
+            vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
+            for (i, e) in enumerate(hh[!, v])
+                if !ismissing(e)
+                    x = tryparse(Int, e)
+                    if !isnothing(x)
+                        vx[i] = x
+                    end
+                end
+            end
+            hh[!, v] = vx
+            if !any(ismissing.(hh[!, v]))
+                disallowmissing!(hh, v)
             end
         end
     end
@@ -228,30 +228,6 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         )
     ];
 
-    # handle integer variables
-    vs = [
-        (:i0800, :girl_join_partner_age), (:i1000, :girl_first_baby_age),
-        (:i1300, :women_pregnancy_checkups)
-    ];
-    
-    for (vold, v) in vs
-        if vold ∈ hh_desc.variable
-            vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
-            for (i, e) in enumerate(hh[!, v])
-                if !ismissing(e)
-                    x = tryparse(Int, e)
-                    if !isnothing(x)
-                        vx[i] = x
-                    end
-                end
-            end
-            hh[!, v] = vx
-            if !any(ismissing.(hh[!, v]))
-                disallowmissing!(hh, v)
-            end
-        end
-    end
-
     for (pr, t, c) in xs
         (xold, x) = pr
         if xold ∈ hh_desc.variable
@@ -281,6 +257,30 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
             
             if !any(ismissing.(hh[!, x]))
                 disallowmissing!(hh, x)
+            end
+        end
+    end
+    
+    # handle integer variables
+    vs = [
+        (:i0800, :girl_join_partner_age), (:i1000, :girl_first_baby_age),
+        (:i1300, :women_pregnancy_checkups)
+    ];
+    
+    for (vold, v) in vs
+        if vold ∈ hh_desc.variable
+            vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
+            for (i, e) in enumerate(hh[!, v])
+                if !ismissing(e)
+                    x = tryparse(Int, e)
+                    if !isnothing(x)
+                        vx[i] = x
+                    end
+                end
+            end
+            hh[!, v] = vx
+            if !any(ismissing.(hh[!, v]))
+                disallowmissing!(hh, v)
             end
         end
     end
