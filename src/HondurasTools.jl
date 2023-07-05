@@ -41,7 +41,7 @@ export
     graph, egoreduction, egoreductions,
     handle_socio, reciprocated,
     initialize_networks_info, networksinfo!, nodedistances!,
-    addsymmetric!,
+    addsymmetric!, jointnetwork,
     
     # css
     prepare_css, # old
