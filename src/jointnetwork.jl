@@ -1,7 +1,7 @@
 # jointnetwork.jl
 
 """
-        jointnetwork(con, net_name1, net_name2, new_name)
+        jointnetwork(con, net_name1, net_name2, new_name; add_symmetric = false)
 
 ## ARGS
 
@@ -15,10 +15,15 @@
 Take two paired networks; e.g., borrow and lend money, and construct an edgelist (network) based on a compound relationship, for relationships R, Q and new relationship W: such that if (aRb) & (bQa), then aWb. The function will also note whether each (new) edge is (i) symmetric, and (ii) whether the alter in the edge also exists as an ego (N.B., using only the data in the new set. If you want to use the larger node-set run `addsymmetric()` on the full, combined, data). Return a dataframe with columns identical to `con` that contains the edges.
 
 """
-function jointnetwork(con, net_name1, net_name2, new_name)
+function jointnetwork(
+    con, net_name1, net_name2, new_name;
+    add_symmetric = false
+)
     ndf = similar(con, 0); # store by push
     _jointnetwork!(ndf, con, net_name1, net_name2, new_name)
-    addsymmetric!(ndf) # move this to data processing
+    if add_symmetric
+        addsymmetric!(ndf) # move this to data processing
+    end
     return ndf
 end
 

@@ -1,6 +1,15 @@
 # addsymmetric.jl
 
-function addsymmetric!(con)
+function addties!(con)
+    # create unordered `tie` variable
+    # that indexes the unique pairs (without reference to order)
+    con.tie = Vector{Set{String}}(undef, nrow(con))
+    for (i, (z1, z2)) in enumerate(zip(con.ego, con.alter))
+        con.tie[i] = Set([z1, z2])
+    end;
+end
+
+function shiftkin!(con)
     kin = [
         "father", "mother", "sibling", "child_over12_other_house", "partner"
     ];
@@ -19,20 +28,19 @@ function addsymmetric!(con)
     end
 
     con.relationship[con.relationship .∈ Ref(kin)] .= "are_related";
+end
 
-    # create unordered `tie` variable
-    # that indexes the unique pairs (without reference to order)
-    con.tie = Vector{Set{String}}(undef, nrow(con))
-    for (i, (z1, z2)) in enumerate(zip(con.ego, con.alter))
-        con.tie[i] = Set([z1, z2])
-    end;
+function addsymmetric!(con)
+
+    con.symmetric = fill(false, nrow(con))
+    con.alter_as_ego = Vector{Bool}(undef, nrow(con))
+
+    addties!(con)
 
     # track whether relationship is symmetric/reciprocated
-    con.symmetric = fill(false, nrow(con))
-
     gc = groupby(con, [:tie, :relationship, :wave, :village_code, :kintype])
 
-    if sort(unique(combine(gc, nrow => :count).count)) != [1,2]
+    if sort(unique(combine(gc, nrow => :count).count)) != [1, 2]
         error("problem")
     end
 
@@ -44,7 +52,7 @@ function addsymmetric!(con)
 
     intr = intersect(con.ego, con.alter);
     interdict = Dict(intr .=> true)
-    con.alter_as_ego = Vector{Bool}(undef, nrow(con))
+    
     for (i, e) in enumerate(con.alter)
         con.alter_as_ego[i] = get(interdict, e, false)
     end
