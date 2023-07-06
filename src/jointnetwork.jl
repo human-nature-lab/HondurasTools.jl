@@ -93,8 +93,9 @@ function _jointnetwork!(ndf, con, net_name1, net_name2, new_name)
                     [
                         vtx[src(e)],
                         vtx[dst(e)],
-                        "none", new_name, samevillage[idx], samebldg[idx], vc, w, missing, "", false, false
+                        "none", new_name, samevillage[idx], samebldg[idx], vc, w, missing, false, false
                     ]
+                    # 12
                 )
             end
         end
