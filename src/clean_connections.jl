@@ -53,6 +53,9 @@ function clean_connections(
         deleteat!(conns, rmidx)
     end
 
+    conns.same_building = ifelse.(conns.same_building .== 1, true, false);
+    conns.same_village = ifelse.(conns.same_village .== 1, true, false);
+
     if removemissing
         disallowmissing!(
             conns,
