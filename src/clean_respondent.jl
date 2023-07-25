@@ -197,7 +197,7 @@ function clean_respondent(
     # What is your religion?
     if :b0600 ∈ rf_desc.variable
         rename!(rf, :b0600 => :religion);
-        rf.religion = categorical(passmissing(string).(rf.b0600));
+        rf.religion = categorical(passmissing(string).(rf.religion));
     end
 
     rf.protestant = passmissing(protestant).(rf.religion)
