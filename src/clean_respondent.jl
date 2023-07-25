@@ -1,5 +1,13 @@
 # clean_respondent.jl
 
+protestant(x) = return if x == "Protestant"
+    true
+elseif x == "Catholic"
+    false
+else
+    missing
+end
+
 """
         clean_respondent(
             resp::Vector{DataFrame};
@@ -171,15 +179,17 @@ function clean_respondent(
     end
 
     # belong to indigenous community
-    rename!(rf, :b0200 => :indigenous)
-    rf.indigenous_simple = deepcopy(rf.indigenous)
-    for (i, e) in enumerate(rf.indigenous)
-        if !ismissing(e)
-            if e .== "Si, Maya Chorti"
-                rf.indigenous[i] = "Yes, Maya Chorti"
-            end
-            if (e .== "Yes, Maya Chorti") | (e .== "Yes, Lenca") | (e .== "Other")
-                rf.indigenous_simple[i] = "Yes"
+    if :b0200 ∈ desc.variable
+        rename!(rf, :b0200 => :indigenous)
+        rf.indigenous_simple = deepcopy(rf.indigenous)
+        for (i, e) in enumerate(rf.indigenous)
+            if !ismissing(e)
+                if e .== "Si, Maya Chorti"
+                    rf.indigenous[i] = "Yes, Maya Chorti"
+                end
+                if (e .== "Yes, Maya Chorti") | (e .== "Yes, Lenca") | (e .== "Other")
+                    rf.indigenous_simple[i] = "Yes"
+                end
             end
         end
     end
@@ -188,14 +198,6 @@ function clean_respondent(
     if :b0600 ∈ rf_desc.variable
         rename!(rf, :b0600 => :religion);
         rf.religion = categorical(rf.religion);
-    end
-
-    protestant(x) = return if x == "Protestant"
-        true
-    elseif x == "Catholic"
-        false
-    else
-        missing
     end
 
     rf.religion = passmissing(protestant).(rf.religion)
