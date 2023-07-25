@@ -67,7 +67,7 @@ function clean_village(vdfs, waves)
         :friend_treatment, :isolation
     ]
     for vbl in vbls
-        if x ∈ vdf_desc.variable
+        if vbl ∈ vdf_desc.variable
             vdf[!, vbl] = boolvec(vdf[!, vbl])
         end
     end
