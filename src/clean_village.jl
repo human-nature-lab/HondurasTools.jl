@@ -67,11 +67,15 @@ function clean_village(vdfs, waves)
         :friend_treatment, :isolation
     ]
     for vbl in vbls
-        vdf[!, vbl] = boolvec(vdf[!, vbl])
+        if x ∈ vdf_desc.variable
+            vdf[!, vbl] = boolvec(vdf[!, vbl])
+        end
     end
 
     # fix misc.
-    rename!(vdf, :prostestant_church => :protestant_church); # typo in data
+    if :prostestant_church ∈ vdf_desc.variable
+        rename!(vdf, :prostestant_church => :protestant_church); # typo in data
+    end
 
     return vdf
 end
