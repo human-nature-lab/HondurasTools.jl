@@ -200,7 +200,7 @@ function clean_respondent(
         rf.religion = categorical(rf.religion);
     end
 
-    rf.religion = passmissing(protestant).(rf.religion)
+    rf.protestant = passmissing(protestant).(rf.religion)
 
     # Do you plan to leave this village in the next 12 months (staying somewhere else for 3 months or longer)?
     if :b0700 ∈ rf_desc.variable
