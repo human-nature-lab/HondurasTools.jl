@@ -130,16 +130,18 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
     # leftjoin!(resp, mb; on = :name)
     
     # create new variables
-        
-    mb[!, :impaired] = Vector{Union{Missing, Bool}}(missing, nrow(mb));
-    for (i, e) in enumerate(mb.cognitive_score)
-        if !ismissing(e)
-            mb[i, :impaired] = e < 29 ? true : false
+    
+    if :cognitive_score ∈ mb_desc.variable
+        mb[!, :impaired] = Vector{Union{Missing, Bool}}(missing, nrow(mb));
+        for (i, e) in enumerate(mb.cognitive_score)
+            if !ismissing(e)
+                mb[i, :impaired] = e < 29 ? true : false
+            end
         end
+        mb[!, :cognitive_status] = convert(
+            Vector{Union{Missing, String}}, mb.cognitive_status
+        )
     end
-    mb[!, :cognitive_status] = convert(
-        Vector{Union{Missing, String}}, mb.cognitive_status
-    )
     
     return mb
 end
