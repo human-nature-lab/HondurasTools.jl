@@ -30,17 +30,26 @@ function clean_village(vdfs, waves)
 
     vdf = reduce(vcat, vdfs)
 
+    vdf_desc = describe(vdf);
+
     # these variables should not be updated
-    noupdate = [
+    noupdate_potential = [
         :num_hh_census, :num_hh_survey, :ave_resp_hh, :num_resp,
         :ave_age, :pct_male, :pct_female, :access_to_village,
         :vilage_wealth_index, :village_wealth_index_median,
         :village_name, :village_code, :municipality, :office, :wave
     ];
 
+    noupdate = Symbol[];
+    for x in noupdate_potential
+        if x ∈ vdf_desc.variable
+            push!(noupdate, x)
+        end
+    end
+
     for e in setdiff(Symbol.(names(vdf)), noupdate)
-        updatevalues!(vdf, 2, e; unit = :village_name)
-        updatevalues!(vdf, 3, e; unit = :village_name)
+        updatevalues!(vdf, 2, e; unit = :village_code)
+        updatevalues!(vdf, 3, e; unit = :village_code)
     end
 
     # recode variables as binary
