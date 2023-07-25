@@ -179,7 +179,7 @@ function clean_respondent(
     end
 
     # belong to indigenous community
-    if :b0200 ∈ desc.variable
+    if :b0200 ∈ rf_desc.variable
         rename!(rf, :b0200 => :indigenous)
         rf.indigenous_simple = deepcopy(rf.indigenous)
         for (i, e) in enumerate(rf.indigenous)
