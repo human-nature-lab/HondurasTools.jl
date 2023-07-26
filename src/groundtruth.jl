@@ -66,10 +66,10 @@ function groundtruth(css, con, resp)
     for (i, (w, wx)) in enumerate(zip([4, 3, 1], [:w4, :w3, :w1]))
         empty!(___con)
         # note the ground truth status of the tie for the relation
-        css2[!, wx] = Vector{Union{Missing, String}}(undef, nrow(css2));
+        css2[!, wx] = Vector{Union{Missing, String}}(missing, nrow(css2));
         # separately track whether a tie is truly kin
         kinvar = Symbol("kin_" * string(wx))
-        css2[!, kinvar] = Vector{Union{Missing, Bool}}(undef, nrow(css2));
+        css2[!, kinvar] = Vector{Union{Missing, Bool}}(missing, nrow(css2));
 
         # connections data at wave w
         i__con = @views __con[__con.wave .== w, :]
@@ -104,6 +104,13 @@ function groundtruth(css, con, resp)
             css2[l, wx] = tieverity(rel, answ, out1, out2, ca1, ca2, w)
             css2[l, kinvar] = kinstatus(out1, out2)
         end
+    end
+
+    css2.kin = Vector{Union{Missing, Bool}}(missing, nrow(css2))
+    for i in 1:length(css2.kin)
+        css2[i, :kin] = passmissing(any)(
+            [css2.kin_w4[i], css2.kin_w3[i], css2.kin_w3[i]]
+        )
     end
 
     return css2, known
@@ -190,7 +197,7 @@ function kinstatus(out1, out2)
         # if either nominates, count it
         for ax in [out1, out2]
             for e in ax
-                if e ∈ ["Parent/child", "Siblings", "Partners"]
+                if e == "are_related" # ["Parent/child", "Siblings", "Partners"]
                     return true
                 end
             end
