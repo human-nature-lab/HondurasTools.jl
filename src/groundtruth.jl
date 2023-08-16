@@ -22,11 +22,17 @@ function widecon(con; sort = false)
     ];
 
     __con = @chain _con begin
-        select([:ego, :alter, :answer, :wave, :village_code])
+        select([:ego, :alter, :answer, :kintype, :wave, :village_code])
         unique()
         groupby([:ego, :alter, :village_code, :wave])
-        combine(:answer => Ref∘unique => :answers)
+        combine(
+            :answer => Ref∘unique => :answers, 
+            :kintype => Ref∘collect∘skipmissing∘unique => :kintypes
+        )
     end;
+    __con.answers = convert(Vector{Vector{String}}, vcat.(__con.answers, __con.kintypes));
+    select!(__con, Not(:kintypes))
+    
     return __con
 end
 
@@ -56,7 +62,7 @@ function groundtruth(css, con, resp)
 
     __con = widecon(con; sort = false)
     
-    namedict = make_namedict(resp, __con)
+    namedict = make_namedict(resp, __con);
 
     ___con = Dict{Tuple{String, String}, Vector{String}}();
     sizehint!(___con, 500000);
