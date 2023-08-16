@@ -62,6 +62,8 @@ function clean_response(x)
             "Yes"
         elseif x == "no"
             "No"
+        elseif x == "Dont_Know"
+            "Don't Know"
         else x
         end
     else
