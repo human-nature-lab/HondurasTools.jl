@@ -31,10 +31,12 @@ include("loaddata.jl")
 include("networktools.jl")
 include("groundtruth.jl")
 include("data.jl")
+include("clean_ihr.jl")
 
 export 
     # cleaning
     clean_respondent, clean_microbiome, clean_household, clean_village,
+    clean_ihr,
     
     # networks
     clean_connections,

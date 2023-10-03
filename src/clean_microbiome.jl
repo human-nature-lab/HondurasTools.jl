@@ -103,10 +103,12 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
     if :mb_b1700 ∈ mb_desc.variable
         rename!(mb, :mb_b1700 => :mb_chronic)
     end
-    
+
     if :mb_c0000 ∈ mb_desc.variable
         rename!(mb, :mb_c0000 => :getmoney)
     end
+    mb[!, :getmoney] = passmissing(tryparse).(Int, mb[!, :getmoney])
+
 
     # 19 villages that are in the study
     microbiome_villages = load_mbvillages();
