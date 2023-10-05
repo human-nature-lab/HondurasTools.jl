@@ -58,7 +58,8 @@ export
     # utilities
     updatevalues!,
     sortedges!, symmetrize!,
-    unilen, interlen, tupleize, symmetrize!,
+    unilen, interlen, symmetrize!,
+    # tupleize
     
     # codebook
     load_mbvillages
