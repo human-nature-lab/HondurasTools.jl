@@ -199,10 +199,6 @@ function clean_respondent(
         rf.religion = categorical(passmissing(string).(rf.religion));
     end
 
-    ## update religion
-    updatevalues!(rf, 2, :religion)
-    updatevalues!(rf, 3, :religion)
-
 
     # Do you plan to leave this village in the next 12 months (staying somewhere else for 3 months or longer)?
     if :b0700 ∈ rf_desc.variable
@@ -438,49 +434,6 @@ function clean_respondent(
                         "> 70"
                     elseif x > 65
                         "> 65"
-                    end
-                end
-            end
-        end
-    end
-
-    # update this since clearly static
-    [updatevalues!(rf, x, :indigenous) for x in [2,3,4]]
-
-    # older-wave variables to wave4
-    # (pregnant is also missing at w4 - but cannot use old values)
-    wx = 4
-    if wx ∈ waves
-        updatevalues!(rf, wx, :mentallyhealthy)
-        updatevalues!(rf, wx, :healthy)
-        updatevalues!(rf, wx, :safety)
-        updatevalues!(rf, wx, :foodworry)
-        updatevalues!(rf, wx, :incomesuff)
-        updatevalues!(rf, wx, :partnered)
-
-        # not sure
-        updatevalues!(rf, wx, :invillage)
-
-        # collected, but only asked if unknown or changed
-        updatevalues!(rf, wx, :school)
-        updatevalues!(rf, wx, :educated)
-
-        nldrvars = [
-            :hlthprom, :commuityhlthvol, :communityboard, :patron, :midwife,
-            :religlead, :council, :polorglead
-        ];
-
-        for e in nldrvars
-            updatevalues!(rf, wx, e)
-        end
-
-        # add leader variable
-        rf[!, :leader] = fill(false, nrow(rf))
-        for c in nldrvars
-            for (i, b) in enumerate(rf[!, c])
-                if !ismissing(b)
-                    if b
-                        rf[i, :leader] = true
                     end
                 end
             end
