@@ -36,7 +36,7 @@ include("clean_ihr.jl")
 export 
     # cleaning
     clean_respondent, clean_microbiome, clean_household, clean_village,
-    clean_ihr, code_cop!, code_ihr!
+    clean_ihr, code_cop!, code_ihr!, updatevalues!,
     
     # networks
     clean_connections,

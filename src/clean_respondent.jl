@@ -1,13 +1,5 @@
 # clean_respondent.jl
 
-protestant(x) = return if x == "Protestant"
-    true
-elseif x == "Catholic"
-    false
-else
-    missing
-end
-
 """
         clean_respondent(
             resp::Vector{DataFrame};
@@ -194,13 +186,23 @@ function clean_respondent(
         end
     end
 
+    rf.indigenous = categorical(rf.indigenous)
+    rf.indigenous = recode(
+        rf.indigenous, "Refused" => missing, "Dont_Know" => missing
+    )
+
+    
+
     # What is your religion?
     if :b0600 ∈ rf_desc.variable
         rename!(rf, :b0600 => :religion);
         rf.religion = categorical(passmissing(string).(rf.religion));
     end
 
-    rf.protestant = passmissing(protestant).(rf.religion)
+    ## update religion
+    updatevalues!(rf, 2, :religion)
+    updatevalues!(rf, 3, :religion)
+
 
     # Do you plan to leave this village in the next 12 months (staying somewhere else for 3 months or longer)?
     if :b0700 ∈ rf_desc.variable
@@ -442,22 +444,26 @@ function clean_respondent(
         end
     end
 
+    # update this since clearly static
+    [updatevalues!(rf, x, :indigenous) for x in [2,3,4]]
+
     # older-wave variables to wave4
     # (pregnant is also missing at w4 - but cannot use old values)
-    if 4 ∈ waves
-        updatevalues!(rf, 4, :mentallyhealthy)
-        updatevalues!(rf, 4, :healthy)
-        updatevalues!(rf, 4, :safety)
-        updatevalues!(rf, 4, :foodworry)
-        updatevalues!(rf, 4, :incomesuff)
-        updatevalues!(rf, 4, :partnered)
+    wx = 4
+    if wx ∈ waves
+        updatevalues!(rf, wx, :mentallyhealthy)
+        updatevalues!(rf, wx, :healthy)
+        updatevalues!(rf, wx, :safety)
+        updatevalues!(rf, wx, :foodworry)
+        updatevalues!(rf, wx, :incomesuff)
+        updatevalues!(rf, wx, :partnered)
 
         # not sure
-        updatevalues!(rf, 4, :invillage)
+        updatevalues!(rf, wx, :invillage)
 
         # collected, but only asked if unknown or changed
-        updatevalues!(rf, 4, :school)
-        updatevalues!(rf, 4, :educated)
+        updatevalues!(rf, wx, :school)
+        updatevalues!(rf, wx, :educated)
 
         nldrvars = [
             :hlthprom, :commuityhlthvol, :communityboard, :patron, :midwife,
@@ -465,7 +471,7 @@ function clean_respondent(
         ];
 
         for e in nldrvars
-            updatevalues!(rf, 4, e)
+            updatevalues!(rf, wx, e)
         end
 
         # add leader variable
