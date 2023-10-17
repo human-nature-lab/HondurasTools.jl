@@ -122,6 +122,16 @@ function clean_respondent(
         end
     end
 
+    if :f0100 ∈ rf_desc.variable
+        rename!(rf, :f0100 => :child)
+        rf[!, bv] = passmissing(String).(rf[!, bv]);
+    end
+
+    if :f0200 ∈ rf_desc.variable
+        rename!(rf, :f0200 => :childcount);
+
+    end
+
     # what grade did you complete in school?
     if :b0100 ∈ rf_desc.variable
         
@@ -173,32 +183,32 @@ function clean_respondent(
     # belong to indigenous community
     if :b0200 ∈ rf_desc.variable
         rename!(rf, :b0200 => :indigenous)
-        rf.indigenous_simple = deepcopy(rf.indigenous)
+        # rf.indigenous_simple = deepcopy(rf.indigenous)
         for (i, e) in enumerate(rf.indigenous)
             if !ismissing(e)
                 if e .== "Si, Maya Chorti"
                     rf.indigenous[i] = "Yes, Maya Chorti"
                 end
-                if (e .== "Yes, Maya Chorti") | (e .== "Yes, Lenca") | (e .== "Other")
-                    rf.indigenous_simple[i] = "Yes"
-                end
             end
         end
+        replace!(
+            rf.indigenous,
+            "Yes, Maya Chorti" => "Chorti", "Yes, Lenca" => "Lenca"
+        )
     end
+
 
     rf.indigenous = categorical(rf.indigenous)
     rf.indigenous = recode(
         rf.indigenous, "Refused" => missing, "Dont_Know" => missing
     )
 
-    
-
     # What is your religion?
     if :b0600 ∈ rf_desc.variable
         rename!(rf, :b0600 => :religion);
         rf.religion = categorical(passmissing(string).(rf.religion));
-    end
 
+    end
 
     # Do you plan to leave this village in the next 12 months (staying somewhere else for 3 months or longer)?
     if :b0700 ∈ rf_desc.variable
