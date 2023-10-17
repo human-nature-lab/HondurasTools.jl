@@ -144,6 +144,25 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
             Vector{Union{Missing, String}}, mb.cognitive_status
         )
     end
+
+    mbpairs = (
+        :mb_ba0100 => :feel_nervous,
+        :mb_ba0400 => :trouble_relax,
+        :mb_ba0600 => :irritable,
+        :mb_ba0700 => :afraid,
+        :mb_ba0800 => :little_pleasure,
+        :bfi10_extraversion => :b5_extraversion,
+        :bfi10_agreeableness => :b5_agreeab,
+        :bfi10_conscientiousness => :b5_conscien,
+        :bfi10_neuroticism => :b5_neurot,
+        :bfi10_openness_to_experience => :b5_openness,
+    )
+
+    for mbpair in mbpairs
+        if mbpair ∈ mb_desc.variable
+            rename!(mb, mbpair)
+        end
+    end
     
     return mb
 end
