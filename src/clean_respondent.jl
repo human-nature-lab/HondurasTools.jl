@@ -124,12 +124,11 @@ function clean_respondent(
 
     if :f0100 ∈ rf_desc.variable
         rename!(rf, :f0100 => :child)
-        rf[!, bv] = passmissing(String).(rf[!, bv]);
+        rf[!, :child] = passmissing(String).(rf[!, :child]);
     end
 
     if :f0200 ∈ rf_desc.variable
         rename!(rf, :f0200 => :childcount);
-
     end
 
     # what grade did you complete in school?
