@@ -23,7 +23,7 @@ function clean_respondent(
     resp::Vector{DataFrame},
     waves;
     nokeymiss = false,
-    onlycomplete = true
+    onlycomplete = false
 )
 
     if 1 ∈ waves
