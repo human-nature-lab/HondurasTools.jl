@@ -6,6 +6,7 @@ using Dates
 using StatsBase, Statistics
 using GraphTools
 using Graphs
+using CategoricalArrays
 
 import CSV
 import Base.get # method added in css_socio

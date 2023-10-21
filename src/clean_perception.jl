@@ -173,6 +173,7 @@ Clean the behavior/norm perception variables in the respondent data.
 """
 function clean_perception!(resp)
 
+    rms = ["Don't know", "Dont_Know", "Refused", "Removed"];
     rename_perception!(resp)
 
     # responses with children
