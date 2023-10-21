@@ -27,8 +27,8 @@ function clean_css!(css)
 
     # remove problem rows
     @subset!(css, :alter1 .!= :alter2);
-    @subset!(css, :ego .!= :alter2);
-    @subset!(css, :ego .!= :alter1);
+    @subset!(css, :perceiver .!= :alter2);
+    @subset!(css, :perceiver .!= :alter1);
     sortedges!(css.alter1, css.alter2)
 
     relationship_questions = [
@@ -49,29 +49,13 @@ function clean_css!(css)
         ]
     )
 
+
     for r in relationship_questions
-        css[!, r] = clean_response.(css[!, r])
+        replace!(
+            css[!, r], "yes" => "Yes", "no" => "No",
+            "Dont_Know" => "Don't Know"
+        )
     end    
-
-end
-
-function clean_response(x)
-    return if !ismissing(x)
-        # "None of the above"
-        # "Parent/child"
-        # "Siblings"
-        # "Partners"
-        if x == "yes"
-            "Yes"
-        elseif x == "no"
-            "No"
-        elseif x == "Dont_Know"
-            "Don't Know"
-        else x
-        end
-    else
-        missing
-    end
 end
 
 """
