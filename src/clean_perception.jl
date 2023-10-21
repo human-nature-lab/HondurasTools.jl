@@ -223,7 +223,6 @@ function clean_perception!(resp)
     let
         # Do people in your community use or do anything to delay or avoid pregnancies? 
         v = :avoid_preg_perc
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -231,8 +230,6 @@ function clean_perception!(resp)
         levels!(resp[!, v], freqscale);
 
         v1 = :avoid_preg_ever; v2 = :avoid_preg_now;
-
-        sort(unique(resp[!, [v1, v2]]))
 
         for v in [v1, v2]
             replace!(resp[!, v], [rx => missing for rx in rms]...)
@@ -246,7 +243,6 @@ function clean_perception!(resp)
         # If someone decides to use or do something to delay or avoid pregnancy, would people in this commnuity think this is good, bad or neither?
 
         v = :avoid_preg_moralperc
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -260,7 +256,6 @@ function clean_perception!(resp)
         # Do women in your community take folic acid tablets?
 
         v = :folic_perc
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -319,7 +314,6 @@ function clean_perception!(resp)
         # If a woman in your community does not receive pregnancy care within the first 12 weeks of pregnancy, will people in the community think it is good, bad,  or neither?
 
         v = :prenatal_care_moralperc
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -373,14 +367,10 @@ function clean_perception!(resp)
         resp[!, v] = categorical(resp[!, v]; ordered = false);
 
         v = :birthdecision;
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
         resp[!, v] = categorical(resp[!, v]; ordered = false);
-
-        sunique(resp[bidx, v]) # why are there missings for the birth rows?
-        sunique(resp[.!bidx, v])
 
         pidx = resp[!, :birthdecision] .== "Partner";
         pidx = coalesce.(pidx, false);
@@ -426,7 +416,6 @@ function clean_perception!(resp)
     let
         # Do women in this community have their health checked at any time during the 7 days following the birth of their baby?
         v = :postnatal_care_perc;
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -434,14 +423,13 @@ function clean_perception!(resp)
         levels!(resp[!, v], freqscale);
 
         v = :postnatal_care_any;
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
         resp[!, v] = passmissing(ifelse).(resp[!, v] .== "Yes", true, false);
 
         v = :postnatal_care_when;
-        sort(unique(resp[!, v]))
+        
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -451,7 +439,7 @@ function clean_perception!(resp)
 
         # within the first seven days
         v = :postnatal_good;
-        sort(unique(resp[!, v]))
+        
         replace!(resp[!, v], [rx => missing for rx in rms]...)
 
         resp[!, v] = ifelse.(ismissing.(resp[!, v]), false, true);
@@ -460,7 +448,6 @@ function clean_perception!(resp)
     let
         # Do people in this community bathe their babies as soon as possible after birth? 
         v = :baby_bath_perc;
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -469,7 +456,6 @@ function clean_perception!(resp)
 
         # If a baby is not bathed as soon as possible after she/he is born, would people in this community see it as good, bad, neither?
         v = :baby_bath_moralperc;
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -481,8 +467,6 @@ function clean_perception!(resp)
         # v2 = :f4800p2;
         # resp[!, v2]
         # sort(unique(resp[!, v2]))
-
-        sunique(resp[!, v])
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -514,7 +498,7 @@ function clean_perception!(resp)
         end
 
         v = :baby_skin_good;
-        sort(unique(resp[!, v]))
+        
 
         # N.B. assume that missing is "No"
         replace!(resp[!, v], [rx => missing for rx in rms]...)
@@ -529,7 +513,6 @@ function clean_perception!(resp)
         resp[!, v] = passmissing(ifelse).(resp[!, v] .== "Yes", true, false);
 
         v = :fajero_perc;
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -537,14 +520,14 @@ function clean_perception!(resp)
         levels!(resp[!, v], freqscale);
         
         v = :fajero_good_1;
-        sort(unique(resp[!, v]))
+        
         
         # N.B. assume that missing is "No"
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = ifelse.(ismissing.(resp[!, v]), false, true)
         
         v = :fajero_good_2;
-        sort(unique(resp[!, v]))
+        
         
         # N.B. assume that missing is "No"
         replace!(resp[!, v], [rx => missing for rx in rms]...)
@@ -557,7 +540,6 @@ function clean_perception!(resp)
         # Do the people in your community give the baby chupones during the first
         # 6 months of life?
         v = :chupon_perc
-        sort(unique(resp[!, v]))
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -565,7 +547,7 @@ function clean_perception!(resp)
         levels!(resp[!, v], freqscale);
 
         v = :chupon_moralperc
-        sort(unique(resp[!, v]))
+        
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -573,7 +555,7 @@ function clean_perception!(resp)
         levels!(resp[!, v], goodness);
 
         v = :chupon
-        sort(unique(resp[!, v]))
+        
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
@@ -606,8 +588,6 @@ function clean_perception!(resp)
 
         v = :f6000m
         v2 = :f5900
-        sort(unique(resp[!, v]))
-        sort(unique(resp[!, v2]))
 
         replace!(@views(resp[bidx, v]), missing => "No", "Laxative" => "Yes");
         resp[!, v] = passmissing(ifelse).(resp[!, v] .== "Yes", true, false);
@@ -775,7 +755,6 @@ function clean_perception!(resp)
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(ifelse).(resp[!, v] .== "Yes", true, false);
 
-        sunique(resp[!, v])
     end;
 
     let

@@ -25,10 +25,6 @@ function clean_css!(css)
         :village_name_w4 => :village_name
     )
 
-    # remove problem rows
-    @subset!(css, :alter1 .!= :alter2);
-    @subset!(css, :perceiver .!= :alter2);
-    @subset!(css, :perceiver .!= :alter1);
     sortedges!(css.alter1, css.alter2)
 
     relationship_questions = [
