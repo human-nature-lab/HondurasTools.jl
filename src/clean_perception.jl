@@ -174,10 +174,15 @@ Clean the behavior/norm perception variables in the respondent data.
 function clean_perception!(resp)
 
     rms = ["Don't know", "Dont_Know", "Refused", "Removed"];
+    freqscale = ["Never", "Rarely", "Sometimes", "Always"];
+    goodness = ["Bad", "Neither", "Good"];
+
     rename_perception!(resp)
 
     # responses with children
-    bidx = coalesce.(resp[!, :child], false);
+    ch = resp[!, :child]
+    ch = passmissing(ifelse).(ch .== "Yes", true, false)
+    bidx = coalesce.(ch, false);
 
     let
         # If a girl younger than 18 joins with a partner, will people in the community think this is good, bad or neither?
