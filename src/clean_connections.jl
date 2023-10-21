@@ -10,7 +10,7 @@ Filters to `alter_source = 1`, and `same_village =1`
 function clean_connections(
     conns::Vector{DataFrame},
     waves;
-    alter_source = true,
+    alter_source = false,
     same_village = true,
     removemissing = true
 )
