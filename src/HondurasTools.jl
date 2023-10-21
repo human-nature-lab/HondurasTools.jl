@@ -14,6 +14,7 @@ include("utilities.jl")
 include("cleaning_utilities.jl")
 include("cleaning.jl")
 include("clean_respondent.jl")
+include("clean_perception.jl")
 include("clean_household.jl")
 include("clean_microbiome.jl")
 include("clean_connections.jl")
@@ -36,6 +37,7 @@ include("clean_ihr.jl")
 export 
     # cleaning
     clean_respondent, clean_microbiome, clean_household, clean_village,
+    clean_perception!, 
     clean_ihr, code_cop!, code_ihr!, updatevalues!,
     
     # networks
