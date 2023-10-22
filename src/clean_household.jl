@@ -46,6 +46,15 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
         strip_wave!(hh[widx], whnme33, "_w3")
     end
 
+    if 4 ∈ waves
+        widx = findfirst(waves .== 4)
+
+        hnme4 = names(hh[widx]);
+        hh[widx][!, :wave] .= 4;
+        whnme44 = hnme4[occursin.("_w4", hnme4)];
+        strip_wave!(hh[widx], whnme44, "_w4")
+    end
+
     # make a common set of columns that includes all unique
     # (e.g., if column only present a wave 1, it is present)
     regularizecols!(hh)
@@ -283,6 +292,31 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
                 disallowmissing!(hh, v)
             end
         end
+    end
+
+    for x in [:l0900, :l1800, :l1900, :l8888, :l9999]
+        if x ∈ hh_desc.variable
+            select!(hh, Not(x))
+        end
+    end
+
+    for x in [:l1700, :l0010]
+        if x ∈ hh_desc.variable
+            replace!(hh[!, x], [rm => missing for rm in rms]...);
+            hh[!, x] = passmissing(parse).(Int, hh[!, x]);
+        end
+    end
+    
+    for x in ["l0500" => "handwash", "l1700" => "sleepingrooms", "l0010" => "over12live"]
+        if Symbol(x[1]) ∈ hh_desc.variable
+            rename!( hh, x)
+        end
+    end
+
+    rename!(hh, "respondent_master_id" => "hh_resp_name")
+
+    if :hh_wealth ∈ hh_desc.variable
+        rename!(hh, "hh_wealth" => "hh_wealth_orig")
     end
 
     # filters

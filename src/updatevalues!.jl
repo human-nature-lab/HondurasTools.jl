@@ -2,7 +2,7 @@
 """
         updatevalues!(resp, wave, variable)
 
-Update missing values in for  selected wave from the response data with
+Update missing values for selected wave from the response data with
 those from the next most recent wave.
 """
 function updatevalues!(resp, wave, variable; unit = :name)
