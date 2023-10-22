@@ -173,10 +173,6 @@ Clean the behavior/norm perception variables in the respondent data.
 """
 function clean_perception!(resp)
 
-    rms = ["Don't know", "Dont_Know", "Refused", "Removed"];
-    freqscale = ["Never", "Rarely", "Sometimes", "Always"];
-    goodness = ["Bad", "Neither", "Good"];
-
     rename_perception!(resp)
 
     # responses with children
