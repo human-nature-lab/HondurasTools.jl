@@ -39,6 +39,8 @@ include("groundtruth.jl")
 include("data.jl")
 include("clean_ihr.jl")
 
+include("networkinfo.jl")
+
 export 
     # cleaning
     clean_respondent, clean_microbiome, clean_household, clean_village,
@@ -69,8 +71,13 @@ export
     # tupleize
     
     # codebook
-    load_mbvillages
+    load_mbvillages,
+
+    # networkinfo
+    network_info!, join_ndf_cr!, modudict, node_fund, g_fund,
+    # cssdistances
+    perceiver_distances!,
     
     # re-export from GraphTools
-    graph, sortedges!, symmetrize!, symmetrize, egoreduction, egoreductions, GraphTable, graphtable, nodemeasure!
+    graph, sortedges!, symmetrize!, symmetrize, egoreduction, egoreductions, nodemeasure!
 end
