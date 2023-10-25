@@ -6,7 +6,7 @@ using Dates
 using StatsBase, Statistics
 using GraphTools
 using Graphs, MetaGraphs, GraphDataFrameBridge
-using CategoricalArrays
+using CategoricalArrays, Skipper
 
 import CSV
 import Base.get # method added in css_socio
@@ -84,5 +84,11 @@ export
     graph, sortedges!, symmetrize!, symmetrize, egoreduction, egoreductions, nodemeasure!,
 
     # utilities
-    tryindex
+    tryindex,
+    sunique, nicedisplay,
+    sa, onehot, OneHot, 
+    irrelreplace!, binarize!,
+
+   # graphs
+   names
 end
