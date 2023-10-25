@@ -40,12 +40,14 @@ include("data.jl")
 include("clean_ihr.jl")
 
 include("networkinfo.jl")
+include("cssdistances.jl")
 
 export 
     # cleaning
     clean_respondent, clean_microbiome, clean_household, clean_village,
     clean_perception!, 
     clean_ihr, code_cop!, code_ihr!, updatevalues!,
+    node_fund, g_fund,
     
     # networks
     clean_connections,
