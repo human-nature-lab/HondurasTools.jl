@@ -93,5 +93,5 @@ export
 
    # graphs
    names, MetaGraph,
-   DataFrame,
+   DataFrame
 end
