@@ -1,5 +1,14 @@
 # utilities.jl
 
+function tryindex(g::T, a, prop; alt = NaN) where T <: AbstractMetaGraph
+    return try
+        g[a, prop]
+    catch
+        alt
+    end
+end
+
+
 ## general
 
 """

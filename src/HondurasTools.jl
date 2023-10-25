@@ -81,5 +81,8 @@ export
     perceiver_distances!,
     
     # re-export from GraphTools
-    graph, sortedges!, symmetrize!, symmetrize, egoreduction, egoreductions, nodemeasure!
+    graph, sortedges!, symmetrize!, symmetrize, egoreduction, egoreductions, nodemeasure!,
+
+    # utilities
+    tryindex
 end
