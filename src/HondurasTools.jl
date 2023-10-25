@@ -7,6 +7,7 @@ using StatsBase, Statistics
 using GraphTools
 using Graphs, MetaGraphs, GraphDataFrameBridge
 using CategoricalArrays, Skipper
+using PrettyTables
 
 import CSV
 import Base.get # method added in css_socio
@@ -41,6 +42,7 @@ include("clean_ihr.jl")
 
 include("networkinfo.jl")
 include("cssdistances.jl")
+include("graphdataframe.jl")
 
 export 
     # cleaning
@@ -90,5 +92,6 @@ export
     irrelreplace!, binarize!,
 
    # graphs
-   names
+   names, MetaGraph,
+   DataFrame,
 end
