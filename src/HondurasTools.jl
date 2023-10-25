@@ -5,7 +5,7 @@ using CategoricalArrays
 using Dates
 using StatsBase, Statistics
 using GraphTools
-using Graphs
+using Graphs, MetaGraphs, GraphDataFrameBridge
 using CategoricalArrays
 
 import CSV
