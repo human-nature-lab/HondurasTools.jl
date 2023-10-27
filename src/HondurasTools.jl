@@ -44,6 +44,8 @@ include("networkinfo.jl")
 include("cssdistances.jl")
 include("graphdataframe.jl")
 
+include("nicedisplay.jl")
+
 export 
     # cleaning
     clean_respondent, clean_microbiome, clean_household, clean_village,
@@ -87,9 +89,10 @@ export
 
     # utilities
     tryindex,
-    sunique, nicedisplay,
+    sunique, 
     sa, onehot, OneHot, 
     irrelreplace!, binarize!,
+    nicedisplay, niceout,
 
    # graphs
    names, MetaGraph,

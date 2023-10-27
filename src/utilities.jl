@@ -15,45 +15,6 @@ sa(a) = skip(x -> ismissing(x) || isnan(x), a)
 
 sunique(x) = (sort∘unique)(x)
 
-"""
-        nicedisplay(
-            v::Vector; crop = :none, rows = nothing,
-            colnum = 7
-        )
-
-Display a vector in a multicolumn format.
-"""
-
-function nicedisplay(
-    v::Vector; crop = :none, rows = nothing,
-    colnum = 6
-)
-    # reasonable width for default
-    ln = length(v);
-    rows = if isnothing(rows)
-        (Int∘ceil)(ln/colnum)
-    else
-        rows
-    end
-
-    cls = (Int∘ceil)(ln/rows)
-    shw = similar(v, rows, cls);
-    shw[1:ln] .= v
-
-    return pretty_table(
-        shw;
-        max_num_of_rows = rows, compact_printing = true,
-        limit_printing = false, show_header = false,
-        show_row_number = true, vlines = :all,
-        renderer = :print,
-        crop = crop
-    )
-end
-
-function nicedisplay(df::DataFrame; crop = :none, rows = nothing, colnum = 6)
-    return nicedisplay(names(df), crop = crop, rows = rows, colnum = colnum)
-end
-
 struct OneHot{T}
     m::T
     assign::Vector{Any}
