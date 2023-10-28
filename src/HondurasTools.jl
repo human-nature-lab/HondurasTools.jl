@@ -82,7 +82,7 @@ export
     perceiver_distances!,
     
     # GraphTools
-    sortedges!, symmetrize!, symmetrize
+    sortedges!, symmetrize!, symmetrize,
 
     # utilities
     tryindex,
