@@ -92,4 +92,36 @@ export
    # graphs
    names, MetaGraph,
    DataFrame
+
+using Reexport
+
+@reexport using DataFrames, DataFramesMeta, Dates, CategoricalArrays
+
+@reexport import CSV, JSONTables
+@reexport using StandardizedPredictors, Effects
+
+@reexport using Skipper
+
+@reexport using StatsBase, Statistics, Distributions
+@reexport using Lasso, GLM, MixedModels
+
+@reexport using Graphs, MetaGraphs, GraphDataFrameBridge
+@reexport using Distributions
+
+@reexport using JLD2
+
+# exports are in the files
+for x in [
+    "analysis_utilities.jl", "variables.jl", "standardize.jl"
+]
+    include("working/" * x)
+end
+
+# output paths
+npath = "new-analysis-report/objects/";
+ppath = "paper_draft/tables/";
+
+# data date
+dte = "2023-10-21"
+export npath, ppath, dte
 end
