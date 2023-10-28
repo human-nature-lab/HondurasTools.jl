@@ -42,6 +42,7 @@ include("clean_ihr.jl")
 include("networkinfo.jl")
 include("cssdistances.jl")
 include("graphdataframe.jl")
+include("sortedges!.jl")
 
 export 
     # cleaning
@@ -81,8 +82,7 @@ export
     # cssdistances
     perceiver_distances!,
     
-    # GraphTools
-    sortedges!, symmetrize!, symmetrize,
+    sortedges!
 
     # utilities
     tryindex,
