@@ -4,7 +4,6 @@ using DataFrames, DataFramesMeta
 using CategoricalArrays
 using Dates
 using StatsBase, Statistics
-using GraphTools
 using Graphs, MetaGraphs, GraphDataFrameBridge
 using CategoricalArrays, Skipper
 
