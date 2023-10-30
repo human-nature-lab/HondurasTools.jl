@@ -30,6 +30,8 @@ function onehot(x; tp = :float)
     return OneHot{t}(b, a)
 end
 
+export onehot, OneHot
+
 function irrelreplace!(cr, v)
     replace!(cr[!, v], [x => missing for x in HondurasTools.rms]...);
 end

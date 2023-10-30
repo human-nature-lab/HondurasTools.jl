@@ -35,7 +35,6 @@ include("jointnetwork.jl")
 include("loaddata.jl")
 include("networktools.jl")
 include("groundtruth.jl")
-include("data.jl")
 include("clean_ihr.jl")
 
 include("networkinfo.jl")
@@ -86,42 +85,44 @@ export
     # utilities
     tryindex,
     sunique, 
-    sa, onehot, OneHot, 
+    sa,
     irrelreplace!, binarize!,
 
    # graphs
    names, MetaGraph,
    DataFrame
 
-using Reexport
+   include("errors.jl")
 
-@reexport using DataFrames, DataFramesMeta, Dates, CategoricalArrays
+    using Reexport
 
-@reexport import CSV, JSONTables
-@reexport using StandardizedPredictors, Effects
+    @reexport using DataFrames, DataFramesMeta, Dates, CategoricalArrays
 
-@reexport using Skipper
+    @reexport import CSV, JSONTables
+    @reexport using StandardizedPredictors, Effects
 
-@reexport using StatsBase, Statistics, Distributions
-@reexport using Lasso, GLM, MixedModels
+    @reexport using Skipper
 
-@reexport using Graphs, MetaGraphs, GraphDataFrameBridge
-@reexport using Distributions
+    @reexport using StatsBase, Statistics, Distributions
+    @reexport using Lasso, GLM, MixedModels
 
-@reexport using JLD2
+    @reexport using Graphs, MetaGraphs, GraphDataFrameBridge
+    @reexport using Distributions
 
-# exports are in the files
-for x in [
-    "analysis_utilities.jl", "variables.jl", "standardize.jl", "code_variables.jl"
-]
-    include("working/" * x)
-end
+    @reexport using JLD2
 
-# output paths
-npath = "new-analysis-report/objects/";
-ppath = "paper_draft/tables/";
+    # exports are in the files
+    for x in [
+        "analysis_utilities.jl", "variables.jl", "standardize.jl", "code_variables.jl"
+    ]
+        include("working/" * x)
+    end
 
-# data date
-dte = "2023-10-21"
-export npath, ppath, dte
+    # output paths
+    npath = "new-analysis-report/objects/";
+    ppath = (b = "css-paper/", t = "tables/", f = "figures/");
+
+    # data date
+    dte = "2023-10-21"
+    export npath, ppath, dte
 end

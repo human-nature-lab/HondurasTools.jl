@@ -1,12 +1,9 @@
 # code_variables.jl
 
-
-
-## individuals
-
 function code_variables!(df)
     ns = names(df)
     
+    ## individuals
     if "name" ∈ ns
         df.name = categorical(df.name)
     end
@@ -20,138 +17,178 @@ function code_variables!(df)
     end
 
     # ordered
-    df.safety = categorical(df.safety; ordered = true);
-    levels!(
-        df.safety,
-        ["Refused", "Don't know", "Unsafe", "A little unsafe", "Safe"]
-    );
+    v = :safety
+    if string(v) ∈ ns
+        replace!(df[!, v], [rm => missing for rm in rms]...);
+        df.safety = categorical(df[!, v]; ordered = true);
+        levels!(
+            df[!, v],
+            ["Refused", "Don't know", "Unsafe", "A little unsafe", "Safe"]
+        );
+    end
 
-    df.incomesuff = categorical(df.incomesuff; ordered = true);
+    if "incomesuff" ∈ ns
+        replace!(df[!, :incomesuff], [rm => missing for rm in rms]...);
+        df.incomesuff = categorical(df.incomesuff; ordered = true);
+        
+        # N.B. names are simplified from original
+        levels!(
+            df.incomesuff,
+            ["major hardship", "hardship", "sufficient", "live and save"]
+        );
+    end
     
-    # levels!(
-    #     df.incomesuff,
-    #     "It is not sufficient and there are major difficulties" => "major hardship",
-    #     "It is not sufficient and there are difficulties" => "hardship",
-    #     "It is sufficient, without major difficulties" => "sufficient",
-    #     "There is enough to live on and save" => "live and save"
-    # );
+    if "school" ∈ ns
+        replace!(df[!, :school], [rm => missing for rm in rms]...);
+        df.school = categorical(df.school; ordered = true);
 
-    levels!(
-        df.incomesuff,
-        ["major hardship", "hardship", "sufficient", "live and save"]
-    );
+        levels!(
+            df.school,
+            [
+                "None",
+                "1st grade",
+                "2nd grade",
+                "3rd grade",
+                "4th grade",
+                "5th grade",
+                "6th grade",
+                "Some secondary",
+                "Secondary",
+                "More than secondary"
+            ]
+        );
+    end
 
-    df.school = categorical(df.school; ordered = true);
+    if "invillage" ∈ ns
+        replace!(df[!, :invillage], [rm => missing for rm in rms]...);
+        df.invillage = categorical(df.invillage; ordered = true);
+        levels!(
+            df.invillage, ["Less than a year", "More than a year", "Since birth"]
+        );
+    end
 
-    levels!(
-        df.school,
-        [
-            "None",
-            "1st grade",
-            "2nd grade",
-            "3rd grade",
-            "4th grade",
-            "5th grade",
-            "6th grade",
-            "Some secondary",
-            "Secondary",
-            "More than secondary"
-        ]
-    );
+    if "migrateplan" ∈ ns
+        replace!(df[!, :migrateplan], [rm => missing for rm in rms]...);
+        df.migrateplan = categorical(df.migrateplan; ordered = true)
+        levels!(
+            df.migrateplan, ["No", "Inside", "Outside", "Country"];
+            allowmissing = true
+        )
+    end
 
-    df.invillage = categorical(df.invillage; ordered = true);
-    levels!(
-        df.invillage, ["Less than a year", "More than a year", "Since birth"]
-    );
+    if "educated" ∈ ns
+        replace!(df[!, :educated], [rm => missing for rm in rms]...);
+        df.educated = categorical(df.educated)
+        levels!(
+            df.educated, ["No", "Some", "Yes"]; allowmissing = true
+        )
+    end
 
-    df.migrateplan = categorical(df.migrateplan; ordered = true)
-    levels!(
-        df.migrateplan, ["No", "Inside", "Outside", "Country"];
-        allowmissing = true
-    )
+    if "indigenous" ∈ ns
+        replace!(df[!, :indigenous], [rm => missing for rm in rms]...);
+        df.indigenous = categorical(df.indigenous);
+        levels!(df.indigenous, ["No", "Other", "Lenca", "Chorti"]);
+    end
 
-    df.educated = categorical(df.educated)
-    levels!(
-        df.educated, ["No", "Some", "Yes"]; allowmissing = true
-    )    
+    ## household variables
+    if "handwash" ∈ ns
+        replace!(df[!, :handwash], [rm => missing for rm in rms]...);
+        df.handwash = categorical(df.handwash; ordered = true);
+        levels!(df.handwash, ["Not observed", "Observed, water not available", "Observed, water available"])
+    end
 
-    # ## health
+    if "watersource" ∈ ns
+        replace!(df[!, :watersource], [rm => missing for rm in rms]...);
+        df.watersource = categorical(df.watersource)
+        levels!(df.watersource, ["Not observed", "Observed, water not available", "Observed, water available"])
+    
+        replace!(df.watersource, "Dug well (proctected)" => "Dug well (protected)", "Water from spring (unproctected)" => "Water from spring (unprotected)");
+        replace!(df.watersource, "Surface water (river/dam/lake/pond/stream/canal/irrigation channel)" => "Surface water")
+        replace!(df.watersource, "Don't Know" => missing);
+        levels!(
+            df.watersource,
+            [
+                "Rainwater"
+                "Surface water"
+                "bottle water"
+                "Water from spring (unprotected)"
+                "Water from spring (protected)"
+                "Dug well (unprotected)"
+                "Dug well (protected)"
+                "Well with tube"
+                "Other"
+            ]
+        );
+    end
 
-    # df.healthy = categorical(df.healthy)
+    if "toilettype" ∈ ns
+        replace!(df[!, :toilettype], [rm => missing for rm in rms]...);
+        df.toilettype = categorical(df.toilettype; ordered=true);
+        levels!(df.toilettype, [
+            "No facility (other home/establishment)"
+            "No facility (outdoors)"
+            "Septic latrine"   
+            "Bucket toilet"
+            "Composting toilet"
+            "Flush toilet"
+        ])
+    end
 
-    # ## mental health
+    if "cooktype" ∈ ns
+        replace!(df[!, :cooktype], [rm => missing for rm in rms]...);
+        df.cooktype = categorical(df.cooktype)
+        replace!(df.cooktype, "Other" => missing)
+        levels!(df.cooktype, [
+            "None (there is no stove/firebox)"
+            "Furnace/firebox without a chimney"
+            "Furnace/firebox with a chimney"
+            "Stove"
+        ])
+    end
 
+    if "cookfueltype" ∈ ns
+        replace!(df[!, :cookfueltype], [rm => missing for rm in rms]...);
+        df.cookfueltype = categorical(df.cookfueltype);
+        replace!(df.cookfueltype, "Keronsene" => "Kerosene")
+        levels!(df.cookfueltype, [
+            "None"
+            "Wood"
+            "Kerosene"
+            "Gas (cylinder)"
+            "Electricity"
+        ])
+    end
 
-    # levels!(
-    #     df.mentalhealth,
-    #     ["Don't know", "poor", "fair", "good", "very good", "excellent"];
-    #     allowmissing = true
-    # ) # Refused
+    if "windows" ∈ ns
+        replace!(df[!, :windows], [rm => missing for rm in rms]...);
+        df.windows = categorical(df.windows);
+        replace!(df.windows, "Don't Know" => missing);
+        levels!(df.windows, ["There aren't windows", "Yes, unfinished windows", "Yes, wooden windows", "Yes, metal windows", "Yes, glass windows"]);
+    end
 
-    # df.mentallyhealthy = categorical(df.mentallyhealthy, ordered = true)
-    # recode!(
-    #     df.mentallyhealthy,
-    #     "poor" => "No",
-    #     "fair" => "No",
-    #     "good" => "Yes",
-    #     "very good" => "Yes",
-    #     "excellent" => "Yes",
-    # );
+    if "walltype" ∈ ns
+        replace!(df[!, :walltype], [rm => missing for rm in rms]...);
+        df.walltype = categorical(df.walltype);
+        replace!(df.walltype, "Other" => missing, "Don't Know" => missing);
+        levels!(
+            df.walltype,
+            ["There are no walls", "Discarded materials", "Clay/uncovered adobe/mud", "Cane/palm/trunks", "Clay bricks", "Cement blocks", "Wood (polished)", "Wood (unpolished)"]
+        );
+    end
 
-
-    # ## food
-
-    # df.foodworry = categorical(df.foodworry; ordered = true);
-    # levels!(df.foodworry, ["Refused", "Don't know", "No", "Yes"]);
-
-    # df.foodlack = categorical(df.foodlack; ordered = true);
-    # levels!(df.foodlack, ["Refused", "Don't know", "No", "Yes"]);
-
-    # df.foodskipadult = categorical(df.foodskipadult; ordered = true);
-    # levels!(df.foodskipadult, ["Refused", "Don't know", "No", "Yes"]);
-
-    # df.foodskipchild = categorical(df.foodskipchild; ordered = true);
-    # levels!(df.foodskipchild, ["Refused", "Don't know", "No", "Yes"]);
-
-    # ## pregnant
-
-    # df.pregnant = categorical(df.pregnant; ordered = true);
-    # levels!(df.pregnant, ["Refused", "Don't know", "No", "Yes"]);
-
-    # df.indigenous = categorical(df.indigenous)
-
-    # ## age
-
-    # df.agecat = categorical(df.agecat; ordered = true);
-
-    # ## microbiome
-
-    # mb[!, :cognitive_status] = categorical(
-    #     mb[!, :cognitive_status];
-    #     levels = ["none", "impairment", "dementia"]
-    # )
-
-    # mb.village_code = categorical(mb.village_code)
-    # mb.name = categorical(mb.name)
-    # mb.cognitive_status = categorical(mb.cognitive_status; ordered = true);
-    # mb.whereborn = categorical(mb.whereborn)
-    # mb.dept = categorical(mb.dept)
-
-    # ## household
-
-    # hh.building_id = categorical(hh.building_id);
-    # hh.hh_wealth = categorical(
-    #     hh.hh_wealth; ordered = true
-    # );
-
-    # let
-    #     vbl = [
-    #         :watersource, :cleaningagent, :toilettype, :toiletshared, :cooktype, :cookfueltype, :flooring, :windows, :walltype, :roofing
-    #     ];
-    #     for v in vbl
-    #         hh[!, v] = categorical(hh[!, v])
-    #     end
-    # end
+    if "roofing" ∈ ns
+        replace!(df[!, :roofing], [rm => missing for rm in rms]...);
+        df.roofing = categorical(df.roofing)
+        replace!(df.roofing, "Other" => missing, "Don't Know" => missing);
+        levels!(df.roofing, [
+            "Thatch/palm leaf"
+            "Plastic sheets/tiles"
+            "Wood planks"
+            "Clay tiles"
+            "Concrete/concrete tiles"
+            "Metal (aluminum/zinc sheets)"
+        ]);
+    end
 
     ## perceptions
 
@@ -160,102 +197,151 @@ function code_variables!(df)
     goodness = ["Bad", "Neither", "Good"];
 
     v = :girl_partner_moralperc
-
-    df[!, v] = categorical(df[!, v]; ordered = true)
-    # assign levels to scale
-    levels!(df[!, v], goodness)
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true)
+        # assign levels to scale
+        levels!(df[!, v], goodness)
+    end
 
     v = :girl_baby_moralperc
-    df[!, v] = categorical(df[!, v]; ordered = true)
-    levels!(df[!, v], goodness)
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true)
+        levels!(df[!, v], goodness)
+    end
 
     v = :avoid_preg_perc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :avoid_preg_moralperc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], goodness);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], goodness);
+    end
 
     v = :folic_perc
-    df[!, v] = categorical(df[!, v]; ordered = true)
-    levels!(df[!, v], freqscale)
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true)
+        levels!(df[!, v], freqscale)
+    end
 
     v = :folic_good_when
-    df[!, v] = categorical(df[!, v]; ordered = false)
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = false)
+    end
 
     v = :prenatal_care_perc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :prenatal_care_moralperc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], goodness);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], goodness);
+    end
 
     v = :homebirth_perc;
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :homebirth_moralperc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], goodness);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], goodness);
+    end
 
     v = :birth_good_where
-    df[!, v] = categorical(df[!, v]; ordered = false);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = false);
+    end
 
     v = :birthdecision_perc;
-    df[!, v] = categorical(df[!, v]; ordered = false);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = false);
+    end
 
     v = :birthdecision;
-    df[!, v] = categorical(df[!, v]; ordered = false);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = false);
+    end
 
     v = :postnatal_care_perc;
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :baby_bath_perc;
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :baby_bath_moralperc;
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], goodness);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], goodness);
+    end
 
     v = :fajero_perc;
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :chupon_perc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :father_check_perc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :father_check_moralperc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], goodness);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], goodness);
+    end
 
     v = :father_wait_perc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :father_wait_moralperc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], goodness);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], goodness);
+    end
 
     v = :father_care_sick_perc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :men_hit_perc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], freqscale);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], freqscale);
+    end
 
     v = :men_hit_moralperc
-    df[!, v] = categorical(df[!, v]; ordered = true);
-    levels!(df[!, v], goodness);
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], goodness);
+    end
 end;
 
 export code_variables!

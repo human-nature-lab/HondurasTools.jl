@@ -19,7 +19,7 @@ function standardize_vars(df)
 
     # respondent
     vbls = [
-        :age,
+        :age, :age_ln,
         :sleepingrooms, :children_under12,
         :total_churches, :catholic_church, :protestant_church,
         :total_athletic_areas, :total_schools,
