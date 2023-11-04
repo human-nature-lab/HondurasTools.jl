@@ -3,6 +3,7 @@
 """
 Using the ZScore convenience fn. to do UnitRange transformation
 
+for use with StandardizedPredictors.jl
 """
 function transformunitvalues(x)
     return (
@@ -10,6 +11,83 @@ function transformunitvalues(x)
         maximum(skipmissing(x)) - minimum(skipmissing(x)),
     )
 end
+
+"""
+        applytransform!(transforms, vbl; tr = UnitRangeTransform)
+
+Skip `missing` and `NaN`.
+"""
+function applytransform!(transforms, vbl, df; tr = UnitRangeTransform)
+    cl = collect(sa(df[!, vbl])) * 1.0
+    transforms[vbl] = fit(tr, cl, dims=1)
+end
+
+# use css perceiver values extrema to standardize
+function standards(df)
+    transforms = Dict{Symbol, AbstractDataTransform}();
+
+    # respondent
+    vbls = [
+        :age, :age_ln, :age2,
+        :sleepingrooms, :children_under12,
+        :total_churches, :catholic_church, :protestant_church,
+        :total_athletic_areas, :total_schools,
+        :elevation,
+        # network distances
+        :dists_p, :dists_a, :union_dists_p, :union_dists_a,
+        :dists_p_i
+    ];
+    
+    for vbl in vbls
+        if string(vbl) ∈ names(df)
+            applytransform!(transforms, vbl, df; tr = UnitRangeTransform)
+        end
+    end
+
+    # network
+    for (k, _) in node_fund
+        if string(k) ∈ names(df)
+            applytransform!(transforms, k, df; tr = UnitRangeTransform)
+        end
+    end
+    
+    for vbl in[:modularity_religion]
+        if string(vbl) ∈ names(df)
+            applytransform!(transforms, vbl, df; tr = UnitRangeTransform)
+        end
+    end
+
+    # microbiome
+    vbls = [:spend, :risk_score, :cognitive_score];
+    for vbl in vbls
+        if string(vbl) ∈ names(df)
+            applytransform!(transforms, vbl, df; tr = UnitRangeTransform)
+        end
+    end
+
+    return transforms
+end
+
+function applystandards!(df, transforms)
+    for (v, dt) in transforms
+        df[!, v] = df[!, v] * 1.0;
+        idx = .!ismissing.(df[!, v])
+        vnm = df[idx, v]
+        vnm = disallowmissing(vnm)
+        df[idx, v] = StatsBase.transform(dt, vnm) 
+    end;
+end
+
+function reversestandards!(df, transforms)
+    for (v, dt) in transforms
+        idx = .!ismissing.(df[!, v])
+        vnm = df[idx, v]
+        vnm = disallowmissing(vnm)
+        df[idx, v] = StatsBase.reconstruct(dt, vnm)
+    end;
+end
+
+export standards, applystandards!, reversestandards!
 
 # use css perceiver values extrema to standardize
 function standardize_vars(df)
@@ -26,6 +104,7 @@ function standardize_vars(df)
         :elevation,
         # network distances
         :dists_p, :dists_a, :union_dists_p, :union_dists_a,
+        :dists_p_i,
     ]
     for vbl in vbls
         contrasts[vbl] = ZScore(transformunitvalues(df[!, vbl])...);
