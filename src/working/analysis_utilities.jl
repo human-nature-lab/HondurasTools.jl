@@ -83,3 +83,29 @@ export pairwiseinteractions
 grpidx(grp_idx) = [findfirst(grp_idx .== u):findlast(grp_idx .== u) for u in unique(grp_idx)];
 
 export grpidx
+
+"""
+        bifit(
+            model, fx, dft, dff;
+            fx2 = nothing, dstr = Binomial(), lnk = LogitLink()
+        )
+
+Fit two models: TPR and FPR.
+`model` one of GeneralizedLinearModel, MixedModel
+
+"""
+function bifit(fx, dft, dff; fx2 = nothing, dstr = Binomial(), lnk = LogitLink())
+
+    fx2 = if !isnothing(fx2)
+        fx2
+    else
+        fx
+    end
+
+    return emodel(
+        fit(model, fx, dft, dstr, lnk),
+        fit(model, fx2, dff, dstr, lnk),
+    )
+end
+
+export bifit

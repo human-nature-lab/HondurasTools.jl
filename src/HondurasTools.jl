@@ -41,6 +41,7 @@ include("networkinfo.jl")
 include("cssdistances.jl")
 include("graphdataframe.jl")
 include("sortedges!.jl")
+include("EModel.jl")
 
 export 
     # cleaning
@@ -99,6 +100,7 @@ export
     @reexport using DataFrames, DataFramesMeta, Dates, CategoricalArrays
 
     @reexport import CSV, JSONTables
+    @reexport using StatsModels
     @reexport using StandardizedPredictors, Effects
 
     @reexport using Skipper
@@ -122,7 +124,17 @@ export
     npath = "new-analysis-report/objects/";
     ppath = (b = "css-paper/", t = "tables/", f = "figures/");
 
+    # Reports paths
+    prj = (
+        pp = "./honduras-reports/",
+        dev = "development/",
+        ind = "indigeneity/",
+        rel = "religion/",
+        net = "network/",
+        css = "CSS/"
+    )
+
     # data date
     dte = "2023-10-21"
-    export npath, ppath, dte
+    export prj, npath, ppath, dte
 end

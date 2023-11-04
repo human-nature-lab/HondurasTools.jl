@@ -13,7 +13,9 @@ function code_variables!(df)
 
     # not ordered
     for v in [:village_code, :gender, :religion]
-        df[!,v] = categorical(df[!, v])
+        if string(v) ∈ ns
+            df[!,v] = categorical(df[!, v])
+        end
     end
 
     # ordered
@@ -99,12 +101,11 @@ function code_variables!(df)
 
     if "watersource" ∈ ns
         replace!(df[!, :watersource], [rm => missing for rm in rms]...);
-        df.watersource = categorical(df.watersource)
-        levels!(df.watersource, ["Not observed", "Observed, water not available", "Observed, water available"])
-    
+
         replace!(df.watersource, "Dug well (proctected)" => "Dug well (protected)", "Water from spring (unproctected)" => "Water from spring (unprotected)");
         replace!(df.watersource, "Surface water (river/dam/lake/pond/stream/canal/irrigation channel)" => "Surface water")
-        replace!(df.watersource, "Don't Know" => missing);
+        
+        df.watersource = categorical(df.watersource)
         levels!(
             df.watersource,
             [
@@ -112,6 +113,7 @@ function code_variables!(df)
                 "Surface water"
                 "bottle water"
                 "Water from spring (unprotected)"
+                "Cart with small tank"
                 "Water from spring (protected)"
                 "Dug well (unprotected)"
                 "Dug well (protected)"
@@ -126,12 +128,22 @@ function code_variables!(df)
         df.toilettype = categorical(df.toilettype; ordered=true);
         levels!(df.toilettype, [
             "No facility (other home/establishment)"
+            "No facility (other location)"
             "No facility (outdoors)"
             "Septic latrine"   
             "Bucket toilet"
             "Composting toilet"
             "Flush toilet"
         ])
+    end
+
+    if "toiletshared" ∈ ns
+        binarize!(df, :toiletshared)
+    end
+
+    v = "kitchen"
+    if string(v) ∈ ns
+        binarize!(df, v)
     end
 
     if "cooktype" ∈ ns
@@ -152,6 +164,7 @@ function code_variables!(df)
         replace!(df.cookfueltype, "Keronsene" => "Kerosene")
         levels!(df.cookfueltype, [
             "None"
+            "Other"
             "Wood"
             "Kerosene"
             "Gas (cylinder)"
@@ -163,7 +176,10 @@ function code_variables!(df)
         replace!(df[!, :windows], [rm => missing for rm in rms]...);
         df.windows = categorical(df.windows);
         replace!(df.windows, "Don't Know" => missing);
-        levels!(df.windows, ["There aren't windows", "Yes, unfinished windows", "Yes, wooden windows", "Yes, metal windows", "Yes, glass windows"]);
+        levels!(
+            df.windows,
+            ["There aren't windows", "Other", "Yes, unfinished windows", "Yes, wooden windows", "Yes, metal windows", "Yes, glass windows"
+        ]);
     end
 
     if "walltype" ∈ ns
@@ -181,6 +197,7 @@ function code_variables!(df)
         df.roofing = categorical(df.roofing)
         replace!(df.roofing, "Other" => missing, "Don't Know" => missing);
         levels!(df.roofing, [
+            "No roof"
             "Thatch/palm leaf"
             "Plastic sheets/tiles"
             "Wood planks"

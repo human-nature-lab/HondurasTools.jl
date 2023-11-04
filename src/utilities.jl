@@ -12,8 +12,10 @@ Skip missing and NaN.
 via Skipper.jl
 """
 sa(a) = skip(x -> ismissing(x) || isnan(x), a) 
+export sa
 
 sunique(x) = (sort∘unique)(x)
+export sunique
 
 struct OneHot{T}
     m::T
