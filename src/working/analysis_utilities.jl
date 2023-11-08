@@ -94,7 +94,7 @@ Fit two models: TPR and FPR.
 `model` one of GeneralizedLinearModel, MixedModel
 
 """
-function bifit(fx, dft, dff; fx2 = nothing, dstr = Binomial(), lnk = LogitLink())
+function bifit(model, fx, dft, dff; fx2 = nothing, dstr = Binomial(), lnk = LogitLink())
 
     fx2 = if !isnothing(fx2)
         fx2
@@ -109,3 +109,14 @@ function bifit(fx, dft, dff; fx2 = nothing, dstr = Binomial(), lnk = LogitLink()
 end
 
 export bifit
+
+function distance_interaction!(col, v)
+    v2 = string(v) * "_notinf" |> Symbol
+    fnte = .!(isinf.(col[!, v]) .| isnan.(col[!, v])); # finite
+    col[!, v2] = fnte
+    col[.!fnte, v] .= 0 # revalue dist as zero when infinite
+    vi = string(v) * "_i" |> Symbol
+    col[!, vi] = col[!, v2] .* col[!, v] # create interaction
+end
+
+export distance_interaction!
