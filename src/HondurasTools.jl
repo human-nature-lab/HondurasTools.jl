@@ -42,6 +42,7 @@ include("cssdistances.jl")
 include("graphdataframe.jl")
 include("sortedges!.jl")
 include("EModel.jl")
+include("effects_utilities.jl")
 
 export 
     # cleaning
@@ -113,6 +114,9 @@ export
 
     @reexport using JLD2
 
+    using StatsFuns:logistic
+    export logistic
+
     # exports are in the files
     for x in [
         "analysis_utilities.jl", "variables.jl", "standardize.jl", "code_variables.jl"
@@ -129,6 +133,7 @@ export
         pp = "./honduras-reports/",
         dev = "development/",
         ind = "indigeneity/",
+        cop = "cooperation/",
         rel = "religion/",
         net = "network/",
         css = "CSS/"

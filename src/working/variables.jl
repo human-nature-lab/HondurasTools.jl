@@ -99,3 +99,10 @@ percvars = [
 ];
 
 export respvars, percvars
+
+ext_occs = [
+    "ext_occ_farm", "ext_occ_food", "ext_occ_const", "ext_occ_tourism",
+    "ext_occ_trans", "ext_occ_handi", "ext_occ_fam", "ext_occ_oth"
+];
+
+export ext_occs
