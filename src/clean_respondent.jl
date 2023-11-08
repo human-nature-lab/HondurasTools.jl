@@ -431,7 +431,7 @@ function clean_respondent(
     # occupational data
     b0116s = ["b0116" * lt for lt in 'b':'i'];
         
-    for (a, b) in zip(b0116s, ext_occs)
+    for (a, b) in zip(b0116s, string.(ext_occs))
         if Symbol(a) ∈ rf_desc.variable
             rename!(rf, a => b)
             # if is not missing, then it is true

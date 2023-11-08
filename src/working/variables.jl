@@ -39,9 +39,6 @@ sym = [# relationships that are possibly symmetric (non-kin)
     "personal_private"
 ];
 
-
-#
-
 b5 = [:bfi10_extraversion, :bfi10_agreeableness, :bfi10_conscientiousness, :bfi10_neuroticism, :bfi10_openness_to_experience];
 
 ldr = [:hlthprom, :commuityhlthvol, :communityboard, :patron, :midwife, :religlead, :council, :polorglead];
@@ -55,6 +52,10 @@ respvars = [
     :indigenous, :isindigenous,
     :school, :educated,
     :religion, :protestant,
+    :relig_import, :relig_freq, :relig_attend,
+    :occupation,
+    :ext_occ_farm, :ext_occ_food, :ext_occ_const, :ext_occ_tourism,
+    :ext_occ_trans, :ext_occ_handi, :ext_occ_fam, :ext_occ_oth,
     :wealth_w1, :wealth_w3, :wealth5_w1, :wealth5_w3, :wealth_d,
     :migrateplan, :invillage,
     :hlthprom, :commuityhlthvol, :communityboard, :council,
@@ -101,8 +102,8 @@ percvars = [
 export respvars, percvars
 
 ext_occs = [
-    "ext_occ_farm", "ext_occ_food", "ext_occ_const", "ext_occ_tourism",
-    "ext_occ_trans", "ext_occ_handi", "ext_occ_fam", "ext_occ_oth"
+    :ext_occ_farm, :ext_occ_food, :ext_occ_const, :ext_occ_tourism,
+    :ext_occ_trans, :ext_occ_handi, :ext_occ_fam, :ext_occ_oth,
 ];
 
 export ext_occs
