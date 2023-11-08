@@ -381,6 +381,62 @@ function clean_respondent(
         levels!(rf.pregnant, ["Refused", "Don't know", "No", "Yes"]);
     end
 
+    # occupational data
+    b0116s = ["b0116" * lt for lt in 'b':'i'];
+        
+    for (a, b) in zip(b0116s, ext_occs)
+        if Symbol(a) ∈ rf_desc.variable
+            rename!(rf, a => b)
+            # if is not missing, then it is true
+            rf[!, Symbol(b)] = ifelse.(
+                ismissing.(rf[!, Symbol(b)]), false, true
+            )
+        end
+    end
+
+    if :b0111 ∈ rf_desc.variable
+        rename!(resp, "b0111" => "occupation");
+        replace!(resp[!, :occupation], [rx => missing for rx in HondurasTools.rms]...);
+        
+    
+        oldnames = [
+            "Armed or police forces"
+            "Employee of a service or goods sales company (for example stores, food merchant, clothing, etc.)"
+            "Housework, housewife, caring for children or elderly people at home"
+            "Looking for a job"
+            "Merchant, business owner, boss or employer (for example clothing, food, etc.)"
+            "Not working but not looking for a job/ employment"
+            "Not working due to disability"
+            "Other"
+            "Owner of a farm"
+            "Profession (for example teachers, nurses, promoters, etc.)"
+            "Trades (for example construction, carpenter, craftsman, mechanic, driver, midwife, security guard, etc.)"
+            "Work in the field (farmer, day laborer, etc.)"
+            "Retired/ pensioned"
+            "Student"
+        ];
+
+        newnames = [
+            "Armed/police forces"
+            "Emp. service/goods co."
+            "Care work"
+            "Unemp. looking"
+            "Merchant/bus. owner"
+            "Unemp: not looking"
+            "Unemp. disabled"
+            "Other"
+            "Farm owner"
+            "Profession"
+            "Trades"
+            "Work in field"
+            "Retired/pensioned"
+            "Student"
+        ];
+    
+        for (oldname, newname) in zip(oldnames, newnames)
+            replace!(resp.occupation, oldname => newname)
+        end;
+    end
 
     # ignore i- variables
     # select!(rf, Not([:i0200, :i0300, :i0400, :i0500, :i0600, :i0700]));
