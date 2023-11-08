@@ -1,6 +1,30 @@
 # clean_household.jl
 
 """
+toiletify(ts, tt)
+
+`ts` toilet shared, `tt` toilet type.
+Create a combined variable that makes more sense.
+N.B. this outputs a `Tuple`.
+"""
+function toiletify(ts, tt)
+    return if ismissing(ts) & ismissing(tt)
+        missing, missing
+    elseif (tt == "No facility (other location)") | (tt == "No facility (outdoors)") | (tt == "No facility (other home/establishment)")
+        "No toilet", "No toilet"
+    elseif !ismissing(ts)
+        if ts == "Yes"
+            "Shared", tt
+        elseif ts == "No"
+            "Yes", tt
+        # Judgement for a few cases -> they don't share
+        elseif (ts == "Don't Know") & (tt ∈ ["Flush toilet", "Bucket toilet"])
+            "No", tt
+        end
+    end
+end
+
+"""
         clean_household(hh, waves; nokeymiss = true)
 
 Clean the household level data. `hh` must be a vector of dataframes. Data must Must be ordered by and match `waves`.
@@ -317,6 +341,15 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
 
     if :hh_wealth ∈ hh_desc.variable
         rename!(hh, "hh_wealth" => "hh_wealth_orig")
+    end
+
+    if (:toiletshared ∈ hh_desc.variable) & (:toilettype ∈ hh_desc.variable)
+        hh.toilet = missings(String, nrow(hh));
+        hh.toiletkind = missings(String, nrow(hh));
+
+        for (i, (ts, tt)) in (enumerate∘zip)(hh.toiletshared, hh.toilettype)
+            hh.toilet[i], hh.toiletkind[i] = toiletify(ts, tt)
+        end
     end
 
     # filters

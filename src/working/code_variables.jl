@@ -190,6 +190,16 @@ function code_variables!(df)
         binarize!(df, :toiletshared)
     end
 
+    if "toilet" ∈ ns
+        df.toilet = categorical(df.toilet; ordered = true)
+        levels!(df.toilet, ["No toilet", "Shared", "Yes"])
+    end
+
+    # this probably is ordered
+    if "toiletkind" ∈ ns
+        df.toiletkind = categorical(df.toiletkind)
+    end
+
     v = "kitchen"
     if string(v) ∈ ns
         binarize!(df, v)
