@@ -114,3 +114,11 @@ relig = (
 )
 
 export relig
+
+# village econ data
+vecon = (
+    stores = :stores_count, basket = :basket_of_goods, cof_inc = :coffee_income,
+    prices = [:price_kerosene_bottle, :price_gasoline_gallon, :price_diesel_gallon, :price_firewood_bundle, :price_gas_cylinder] #:price_charcoal] missing?
+);
+
+export vecon

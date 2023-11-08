@@ -82,7 +82,7 @@ export
     # cssdistances
     perceiver_distances!,
     
-    sortedges!
+    sortedges!,
 
     # utilities
     tryindex,
