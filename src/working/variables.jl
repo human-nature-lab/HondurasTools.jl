@@ -106,3 +106,10 @@ ext_occs = [
 ];
 
 export ext_occs
+
+relig = (
+    r = :religion, p = :protestant, imp = :relig_import,
+    fq = :relig_freq, at = :relig_attend
+)
+
+export relig

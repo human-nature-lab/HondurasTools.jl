@@ -211,7 +211,6 @@ function clean_respondent(
 
     if :b0510 ∈ rf_desc.variable
         rename!(resp, "b0510" => "relig_import")
-        replace!(resp[!, "relig_import"], [rx => missing for rx in HondurasTools.rms]...)
 
         resp[!, :relig_import] = categorical(resp[!, :relig_import]; ordered = true);
 
@@ -227,7 +226,6 @@ function clean_respondent(
     v = "relig_freq"
     if Symbol(v) ∈ rf_desc.variable
         rename!(resp, "b0520" => v)
-        replace!(resp[!, v], [rx => missing for rx in HondurasTools.rms]...)
 
         resp[!, Symbol(v)] = categorical(resp[!, Symbol(v)]; ordered = true);
 
@@ -243,7 +241,6 @@ function clean_respondent(
     v = "relig_attend"
     if Symbol(v) ∈ rf_desc.variable
         rename!(resp, "b0530" => v)
-        replace!(resp[!, v], [rx => missing for rx in HondurasTools.rms]...)
 
         sunique(resp[!, v])
 

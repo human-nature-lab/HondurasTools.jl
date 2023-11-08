@@ -18,6 +18,51 @@ function code_variables!(df)
         end
     end
 
+    if :b0510 ∈ rf_desc.variable
+        replace!(resp[!, "relig_import"], [rx => missing for rx in HondurasTools.rms]...)
+
+        resp[!, :relig_import] = categorical(resp[!, :relig_import]; ordered = true);
+
+        levels!(
+            resp[!, :relig_import],
+            ["Not at all important",
+            "Not very important",
+            "Somewhat important",
+            "Very important"], allowmissing = true
+        );
+    end
+
+    v = "relig_freq"
+    if Symbol(v) ∈ rf_desc.variable
+        replace!(resp[!, v], [rx => missing for rx in HondurasTools.rms]...)
+
+        resp[!, Symbol(v)] = categorical(resp[!, Symbol(v)]; ordered = true);
+
+        levels!(
+            resp[!, Symbol(v)],
+            ["Never"
+            "Sometimes"
+            "About once a day"
+            "More than once a day"], allowmissing = true
+        );
+    end
+
+    v = "relig_attend"
+    if Symbol(v) ∈ rf_desc.variable
+        replace!(resp[!, v], [rx => missing for rx in HondurasTools.rms]...)
+
+        resp[!, Symbol(v)] = categorical(resp[!, Symbol(v)]; ordered = true);
+
+        levels!(
+            resp[!, Symbol(v)],
+            ["Never or almost never"
+            "Once or twice a year"
+            "Once a month"
+            "Once per week"
+            "More than once per week"], allowmissing = true
+        );
+    end
+
     # ordered
     v = :safety
     if string(v) ∈ ns
@@ -27,6 +72,10 @@ function code_variables!(df)
             df[!, v],
             ["Refused", "Don't know", "Unsafe", "A little unsafe", "Safe"]
         );
+    end
+
+    if "occupation" ∈ ns
+        df[!, :occupation] = categorical(df[!, :occupation]);
     end
 
     if "incomesuff" ∈ ns
