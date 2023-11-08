@@ -34,16 +34,29 @@ end
 
 export onehot, OneHot
 
+"""
+        irrelreplace!(cr, v)
+
+values equal to any of
+["Don't know", "Don't Know", "Dont_Know", "Refused", "Removed"]
+become missing.
+"""
 function irrelreplace!(cr, v)
     replace!(cr[!, v], [x => missing for x in HondurasTools.rms]...);
 end
 
-function binarize!(cr, v)
+"""
+        binarize!(cr, v)
+
+Values == `yes` -> `true`; other values -> `false`.
+Missing values are retained as `missing`.
+"""
+function binarize!(cr, v; yes = "Yes")
     if (eltype(cr[!, v]) == Union{Missing, Bool}) | (eltype(cr[!, v]) == Bool)
         println("already converted")
     else
         irrelreplace!(cr, v)
-        cr[!, v] = passmissing(ifelse).(cr[!, v] .== "Yes", true, false);
+        cr[!, v] = passmissing(ifelse).(cr[!, v] .== yes, true, false);
     end
 end
 
@@ -54,7 +67,6 @@ function tryindex(g::T, a, prop; alt = NaN) where T <: AbstractMetaGraph
         alt
     end
 end
-
 
 ## general
 
