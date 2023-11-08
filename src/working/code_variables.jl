@@ -18,13 +18,13 @@ function code_variables!(df)
         end
     end
 
-    if :b0510 ∈ rf_desc.variable
-        replace!(resp[!, "relig_import"], [rx => missing for rx in HondurasTools.rms]...)
+    if "b0510" ∈ ns
+        replace!(df[!, "relig_import"], [rx => missing for rx in HondurasTools.rms]...)
 
-        resp[!, :relig_import] = categorical(resp[!, :relig_import]; ordered = true);
+        df[!, :relig_import] = categorical(df[!, :relig_import]; ordered = true);
 
         levels!(
-            resp[!, :relig_import],
+            df[!, :relig_import],
             ["Not at all important",
             "Not very important",
             "Somewhat important",
@@ -33,13 +33,13 @@ function code_variables!(df)
     end
 
     v = "relig_freq"
-    if Symbol(v) ∈ rf_desc.variable
-        replace!(resp[!, v], [rx => missing for rx in HondurasTools.rms]...)
+    if v ∈ ns
+        replace!(df[!, v], [rx => missing for rx in HondurasTools.rms]...)
 
-        resp[!, Symbol(v)] = categorical(resp[!, Symbol(v)]; ordered = true);
+        df[!, Symbol(v)] = categorical(df[!, Symbol(v)]; ordered = true);
 
         levels!(
-            resp[!, Symbol(v)],
+            df[!, Symbol(v)],
             ["Never"
             "Sometimes"
             "About once a day"
@@ -48,13 +48,13 @@ function code_variables!(df)
     end
 
     v = "relig_attend"
-    if Symbol(v) ∈ rf_desc.variable
-        replace!(resp[!, v], [rx => missing for rx in HondurasTools.rms]...)
+    if v ∈ ns
+        replace!(df[!, v], [rx => missing for rx in HondurasTools.rms]...)
 
-        resp[!, Symbol(v)] = categorical(resp[!, Symbol(v)]; ordered = true);
+        df[!, Symbol(v)] = categorical(df[!, Symbol(v)]; ordered = true);
 
         levels!(
-            resp[!, Symbol(v)],
+            df[!, Symbol(v)],
             ["Never or almost never"
             "Once or twice a year"
             "Once a month"
@@ -256,7 +256,29 @@ function code_variables!(df)
         ]);
     end
 
-    ## perceptions
+    ## village-level
+
+    if "hotel_hostel" ∈ ns
+        df.hotel_hostel = passmissing(ifelse).(df.hotel_hostel .== 1, true, false);
+    end
+
+    if "access_to_village" ∈ ns
+        df.access_to_village = replace(
+            df.access_to_village, 1=>"Good", 2=>"Average", 3=> "Poor"
+        );
+        df.access_to_village = categorical(df.access_to_village; ordered = true);
+        levels!(df.access_to_village, ["Poor", "Average", "Good"])
+    end
+
+    if "trash" ∈ ns
+        df.trash = replace(
+            df.trash, 1 => "None", 2 => "A little", 3 => "Some", 4 => "A lot"
+        )
+        df.trash = categorical(df.trash; ordered = true)
+        levels!(df.trash, ["None", "A little", "Some", "A lot"], allowmissing=true);
+    end
+
+    ## perceptions (in respondent-level data)
 
     # code perception variables
     freqscale = ["Never", "Rarely", "Sometimes", "Always"];
