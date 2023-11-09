@@ -18,7 +18,34 @@ function code_variables!(df)
         end
     end
 
-    if "b0510" ∈ ns
+    for v in [:educated, :invillage, :incomesuff, :school]
+        if string(v) ∈ ns
+            HondurasTools.irrelreplace!(df, v)
+        end
+    end
+    
+    for v in [:foodworry, :foodskipadult, :foodskipchild, :partnered, :mentallyhealthy, :healthy]
+        if string(v) ∈ ns
+            HondurasTools.binarize!(df, v)
+        end
+    end
+
+    # add binary versions
+    if "educated" ∈ ns
+        df.iseducated = passmissing(ifelse).(df.educated .== "No", false, true);
+    end
+
+    if "invillage" ∈ ns
+        df.sincebirth = passmissing(ifelse).(df.invillage .== "Since birth", true, false);
+    end
+
+    if "migrateplan" ∈ ns
+        cpn = ["Outside", "Country"]
+        df.leavecopan = passmissing(ifelse).(df.migrateplan .∈ Ref(cpn), true, false)
+        df.leavecountry = passmissing(ifelse).(df.migrateplan .== "Country", true, false)
+    end
+
+    if "relig_import" ∈ ns
         replace!(df[!, "relig_import"], [rx => missing for rx in HondurasTools.rms]...)
 
         df[!, :relig_import] = categorical(df[!, :relig_import]; ordered = true);
@@ -158,8 +185,8 @@ function code_variables!(df)
         levels!(
             df.watersource,
             [
-                "Rainwater"
                 "Surface water"
+                "Rainwater"
                 "bottle water"
                 "Water from spring (unprotected)"
                 "Cart with small tank"
@@ -167,6 +194,7 @@ function code_variables!(df)
                 "Dug well (unprotected)"
                 "Dug well (protected)"
                 "Well with tube"
+                "Tanker truck"
                 "Other"
             ]
         );
@@ -183,6 +211,7 @@ function code_variables!(df)
             "Bucket toilet"
             "Composting toilet"
             "Flush toilet"
+            "Other"
         ])
     end
 
@@ -191,18 +220,22 @@ function code_variables!(df)
     end
 
     if "toilet" ∈ ns
+        HondurasTools.irrelreplace!(df, :toilet)
         df.toilet = categorical(df.toilet; ordered = true)
         levels!(df.toilet, ["No toilet", "Shared", "Yes"])
     end
 
     # this probably is ordered
     if "toiletkind" ∈ ns
+        HondurasTools.irrelreplace!(df, :toiletkind)
         df.toiletkind = categorical(df.toiletkind)
     end
 
-    v = "kitchen"
-    if string(v) ∈ ns
-        binarize!(df, v)
+    vs = [:kitchen, :cleaningagent]
+    for v in vs
+        if string(v) ∈ ns
+            binarize!(df, v)
+        end
     end
 
     if "cooktype" ∈ ns
@@ -267,6 +300,12 @@ function code_variables!(df)
     end
 
     ## village-level
+
+    for v in [:community_center]
+        if string(v) ∈ ns
+            HondurasTools.binarize!(df, v)
+        end
+    end
 
     if "hotel_hostel" ∈ ns
         df.hotel_hostel = passmissing(ifelse).(df.hotel_hostel .== 1, true, false);

@@ -53,7 +53,7 @@ Missing values are retained as `missing`.
 """
 function binarize!(cr, v; yes = "Yes")
     if (eltype(cr[!, v]) == Union{Missing, Bool}) | (eltype(cr[!, v]) == Bool)
-        println("already converted")
+        println(string(v) * " already converted")
     else
         irrelreplace!(cr, v)
         cr[!, v] = passmissing(ifelse).(cr[!, v] .== yes, true, false);
