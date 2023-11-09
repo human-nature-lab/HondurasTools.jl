@@ -19,7 +19,7 @@ function toiletify(ts, tt)
             "Yes", tt
         # Judgement for a few cases -> they don't share
         elseif (ts == "Don't Know") & (tt ∈ ["Flush toilet", "Bucket toilet"])
-            "No", tt
+            "Yes", tt
         end
     end
 end
