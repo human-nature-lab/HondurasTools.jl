@@ -438,6 +438,8 @@ function clean_respondent(
             rf[!, Symbol(b)] = ifelse.(
                 ismissing.(rf[!, Symbol(b)]), false, true
             )
+            allowmissing!(rf[!, Symbol(b)])
+            rf[rf.wave .< 4, Symbol(b)] .= missing
         end
     end
 

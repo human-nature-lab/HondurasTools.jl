@@ -44,6 +44,10 @@ include("sortedges!.jl")
 include("EModel.jl")
 include("effects_utilities.jl")
 
+include("grabmissing!.jl")
+include("leveljoins!.jl")
+include("groupdescribe.jl")
+
 export 
     # cleaning
     clean_respondent, clean_microbiome, clean_household, clean_village,
@@ -136,7 +140,8 @@ export
         cop = "cooperation/",
         rel = "religion/",
         net = "network/",
-        css = "CSS/"
+        css = "CSS/",
+        apx = "appendix/"
     )
 
     # data date
