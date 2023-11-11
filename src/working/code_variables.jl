@@ -18,36 +18,31 @@ function code_variables!(df)
         end
     end
 
-    for v in [:educated, :invillage, :incomesuff, :school]
-        if string(v) ∈ ns
-            HondurasTools.irrelreplace!(df, v)
-        end
+    v = :religion
+    if string(v) ∈ ns
+        df.protestant = passmissing(ifelse).(df.religion .== "Protestant", true, false);
     end
     
-    for v in [:foodworry, :foodskipadult, :foodskipchild, :partnered, :mentallyhealthy, :healthy]
-        if string(v) ∈ ns
-            HondurasTools.binarize!(df, v)
+    let vbls = [:health, :mentalhealth]
+        for v in vbls
+            if string(v) ∈ ns
+                rf[!, v] = categorical(rf[!, v]; ordered = true);
+
+                levels!(
+                    rf[!, v],
+                    ["Poor", "Fair", "Good", "Very good", "Excellent"]);
+            end
         end
     end
 
-    # add binary versions
-    if "educated" ∈ ns
-        df.iseducated = passmissing(ifelse).(df.educated .== "No", false, true);
+    v = :agecat
+    if string(v) ∈ names(ns)
+        rf[!, v] = categorical(rf[!, v]; ordered = true)
+        levels!(rf[!, v], ["<= 65", "> 65", "> 70", "> 75", "> 80"])
     end
-
-    if "invillage" ∈ ns
-        df.sincebirth = passmissing(ifelse).(df.invillage .== "Since birth", true, false);
-    end
-
-    if "migrateplan" ∈ ns
-        cpn = ["Outside", "Country"]
-        df.leavecopan = passmissing(ifelse).(df.migrateplan .∈ Ref(cpn), true, false)
-        df.leavecountry = passmissing(ifelse).(df.migrateplan .== "Country", true, false)
-    end
-
+    
     if "relig_import" ∈ ns
-        replace!(df[!, "relig_import"], [rx => missing for rx in HondurasTools.rms]...)
-
+        
         df[!, :relig_import] = categorical(df[!, :relig_import]; ordered = true);
 
         levels!(
@@ -61,8 +56,6 @@ function code_variables!(df)
 
     v = "relig_freq"
     if v ∈ ns
-        replace!(df[!, v], [rx => missing for rx in HondurasTools.rms]...)
-
         df[!, Symbol(v)] = categorical(df[!, Symbol(v)]; ordered = true);
 
         levels!(
@@ -76,8 +69,6 @@ function code_variables!(df)
 
     v = "relig_attend"
     if v ∈ ns
-        replace!(df[!, v], [rx => missing for rx in HondurasTools.rms]...)
-
         df[!, Symbol(v)] = categorical(df[!, Symbol(v)]; ordered = true);
 
         levels!(
@@ -93,12 +84,8 @@ function code_variables!(df)
     # ordered
     v = :safety
     if string(v) ∈ ns
-        replace!(df[!, v], [rm => missing for rm in rms]...);
-        df.safety = categorical(df[!, v]; ordered = true);
-        levels!(
-            df[!, v],
-            ["Refused", "Don't know", "Unsafe", "A little unsafe", "Safe"]
-        );
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], ["Unsafe", "A little unsafe", "Safe"]);
     end
 
     if "occupation" ∈ ns
@@ -106,9 +93,7 @@ function code_variables!(df)
     end
 
     if "incomesuff" ∈ ns
-        replace!(df[!, :incomesuff], [rm => missing for rm in rms]...);
         df.incomesuff = categorical(df.incomesuff; ordered = true);
-        
         # N.B. names are simplified from original
         levels!(
             df.incomesuff,
@@ -117,7 +102,6 @@ function code_variables!(df)
     end
     
     if "school" ∈ ns
-        replace!(df[!, :school], [rm => missing for rm in rms]...);
         df.school = categorical(df.school; ordered = true);
 
         levels!(
@@ -137,86 +121,89 @@ function code_variables!(df)
         );
     end
 
-    if "invillage" ∈ ns
-        replace!(df[!, :invillage], [rm => missing for rm in rms]...);
-        df.invillage = categorical(df.invillage; ordered = true);
-        levels!(
-            df.invillage, ["Less than a year", "More than a year", "Since birth"]
-        );
-    end
-
-    if "migrateplan" ∈ ns
-        replace!(df[!, :migrateplan], [rm => missing for rm in rms]...);
-        df.migrateplan = categorical(df.migrateplan; ordered = true)
-        levels!(
-            df.migrateplan, ["No", "Inside", "Outside", "Country"];
-            allowmissing = true
-        )
-    end
-
     if "educated" ∈ ns
-        replace!(df[!, :educated], [rm => missing for rm in rms]...);
         df.educated = categorical(df.educated)
         levels!(
             df.educated, ["No", "Some", "Yes"]; allowmissing = true
         )
     end
 
-    if "indigenous" ∈ ns
-        replace!(df[!, :indigenous], [rm => missing for rm in rms]...);
-        df.indigenous = categorical(df.indigenous);
-        levels!(df.indigenous, ["No", "Other", "Lenca", "Chorti"]);
+    if "invillage" ∈ ns
+        df.invillage = categorical(df.invillage; ordered = true);
+        levels!(
+            df.invillage, ["Less than a year", "More than a year", "Since birth"]
+        );
+
+        df.sincebirth = passmissing(ifelse).(df.invillage .== "Since birth", true, false);
+    end
+
+    if "migrateplan" ∈ ns
+        df.migrateplan = categorical(df.migrateplan; ordered = true)
+        levels!(
+            df.migrateplan, ["No", "Inside", "Outside", "Country"];
+            allowmissing = true
+        )
+
+        cpn = ["Outside", "Country"]
+        df.leavecopan = passmissing(ifelse).(df.migrateplan .∈ Ref(cpn), true, false)
+        df.leavecountry = passmissing(ifelse).(df.migrateplan .== "Country", true, false)
+    end
+
+    v = :indigenous
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]);
+        levels!(df[!, v], ["No", "Other", "Lenca", "Chorti"]);
     end
 
     ## household variables
-    if "handwash" ∈ ns
-        replace!(df[!, :handwash], [rm => missing for rm in rms]...);
-        df.handwash = categorical(df.handwash; ordered = true);
-        levels!(df.handwash, ["Not observed", "Observed, water not available", "Observed, water available"])
+
+    v = :hh_wealth_orig
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true)
+        levels!(df[!, v], [1,2,3,4,5])
     end
 
-    if "watersource" ∈ ns
-        replace!(df[!, :watersource], [rm => missing for rm in rms]...);
+    v = :handwash
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true);
+        levels!(df[!, v], ["None", "No water", "Water"])
+    end
 
-        replace!(df.watersource, "Dug well (proctected)" => "Dug well (protected)", "Water from spring (unproctected)" => "Water from spring (unprotected)");
-        replace!(df.watersource, "Surface water (river/dam/lake/pond/stream/canal/irrigation channel)" => "Surface water")
-        
-        df.watersource = categorical(df.watersource)
+    v = :watersource
+    if string(v) ∈ ns        
+        df[!, v] = categorical(df[!, v]; ordered = true)
+        # NEED BETTER ORDER
         levels!(
-            df.watersource,
+            df[!, v],
             [
                 "Surface water"
-                "Rainwater"
-                "bottle water"
-                "Water from spring (unprotected)"
-                "Cart with small tank"
-                "Water from spring (protected)"
-                "Dug well (unprotected)"
-                "Dug well (protected)"
+                "Spring (unprot.)"
                 "Well with tube"
-                "Tanker truck"
+                "Dug well (unprot.)"
+                "Rainwater"
                 "Other"
+                "Dug well (prot.)"
+                "Spring (prot.)"
+                "Cart with tank"
+                "Bottle water"
+                "Tanker truck"
             ]
         );
     end
 
-    if "toilettype" ∈ ns
-        replace!(df[!, :toilettype], [rm => missing for rm in rms]...);
+    v = :toilettype
+    if string(v) ∈ ns
         df.toilettype = categorical(df.toilettype; ordered=true);
         levels!(df.toilettype, [
-            "No facility (other home/establishment)"
-            "No facility (other location)"
             "No facility (outdoors)"
-            "Septic latrine"   
+            "No facility (other location)"
+            "No facility (other home/establishment)"
+            "Other"
             "Bucket toilet"
+            "Septic latrine"   
             "Composting toilet"
             "Flush toilet"
-            "Other"
         ])
-    end
-
-    if "toiletshared" ∈ ns
-        binarize!(df, :toiletshared)
     end
 
     if "toilet" ∈ ns
@@ -228,7 +215,17 @@ function code_variables!(df)
     # this probably is ordered
     if "toiletkind" ∈ ns
         HondurasTools.irrelreplace!(df, :toiletkind)
-        df.toiletkind = categorical(df.toiletkind)
+        df.toiletkind = categorical(df.toiletkind; ordered =true)
+        levels!(df.toiletkind, [
+            "No facility (outdoors)"
+            "No facility (other location)"
+            "No facility (other home/establishment)"
+            "Other"
+            "Bucket toilet"
+            "Septic latrine"   
+            "Composting toilet"
+            "Flush toilet"
+        ])
     end
 
     vs = [:kitchen, :cleaningagent]
@@ -239,7 +236,6 @@ function code_variables!(df)
     end
 
     if "cooktype" ∈ ns
-        replace!(df[!, :cooktype], [rm => missing for rm in rms]...);
         df.cooktype = categorical(df.cooktype)
         replace!(df.cooktype, "Other" => missing)
         levels!(df.cooktype, [
@@ -251,7 +247,6 @@ function code_variables!(df)
     end
 
     if "cookfueltype" ∈ ns
-        replace!(df[!, :cookfueltype], [rm => missing for rm in rms]...);
         df.cookfueltype = categorical(df.cookfueltype);
         replace!(df.cookfueltype, "Keronsene" => "Kerosene")
         levels!(df.cookfueltype, [
@@ -265,9 +260,7 @@ function code_variables!(df)
     end
 
     if "windows" ∈ ns
-        replace!(df[!, :windows], [rm => missing for rm in rms]...);
         df.windows = categorical(df.windows);
-        replace!(df.windows, "Don't Know" => missing);
         levels!(
             df.windows,
             ["There aren't windows", "Other", "Yes, unfinished windows", "Yes, wooden windows", "Yes, metal windows", "Yes, glass windows"
@@ -275,9 +268,7 @@ function code_variables!(df)
     end
 
     if "walltype" ∈ ns
-        replace!(df[!, :walltype], [rm => missing for rm in rms]...);
         df.walltype = categorical(df.walltype);
-        replace!(df.walltype, "Other" => missing, "Don't Know" => missing);
         levels!(
             df.walltype,
             ["There are no walls", "Discarded materials", "Clay/uncovered adobe/mud", "Cane/palm/trunks", "Clay bricks", "Cement blocks", "Wood (polished)", "Wood (unpolished)"]
@@ -285,9 +276,7 @@ function code_variables!(df)
     end
 
     if "roofing" ∈ ns
-        replace!(df[!, :roofing], [rm => missing for rm in rms]...);
         df.roofing = categorical(df.roofing)
-        replace!(df.roofing, "Other" => missing, "Don't Know" => missing);
         levels!(df.roofing, [
             "No roof"
             "Thatch/palm leaf"
