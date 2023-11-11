@@ -228,30 +228,21 @@ function code_variables!(df)
         ])
     end
 
-    vs = [:kitchen, :cleaningagent]
-    for v in vs
-        if string(v) ∈ ns
-            binarize!(df, v)
-        end
-    end
-
     if "cooktype" ∈ ns
-        df.cooktype = categorical(df.cooktype)
-        replace!(df.cooktype, "Other" => missing)
+        df.cooktype = categorical(df.cooktype; ordered = true)
         levels!(df.cooktype, [
-            "None (there is no stove/firebox)"
-            "Furnace/firebox without a chimney"
-            "Furnace/firebox with a chimney"
+            "None"
+            "Furnace no chimney"
+            "Furnace chimney"
             "Stove"
         ])
     end
 
     if "cookfueltype" ∈ ns
-        df.cookfueltype = categorical(df.cookfueltype);
-        replace!(df.cookfueltype, "Keronsene" => "Kerosene")
+        df.cookfueltype = categorical(df.cookfueltype; ordered = true);
+
         levels!(df.cookfueltype, [
             "None"
-            "Other"
             "Wood"
             "Kerosene"
             "Gas (cylinder)"
