@@ -26,19 +26,19 @@ function code_variables!(df)
     let vbls = [:health, :mentalhealth]
         for v in vbls
             if string(v) ∈ ns
-                rf[!, v] = categorical(rf[!, v]; ordered = true);
+                df[!, v] = categorical(df[!, v]; ordered = true);
 
                 levels!(
-                    rf[!, v],
+                    df[!, v],
                     ["Poor", "Fair", "Good", "Very good", "Excellent"]);
             end
         end
     end
 
     v = :agecat
-    if string(v) ∈ names(ns)
-        rf[!, v] = categorical(rf[!, v]; ordered = true)
-        levels!(rf[!, v], ["<= 65", "> 65", "> 70", "> 75", "> 80"])
+    if string(v) ∈ ns
+        df[!, v] = categorical(df[!, v]; ordered = true)
+        levels!(df[!, v], ["<= 65", "> 65", "> 70", "> 75", "> 80"])
     end
     
     if "relig_import" ∈ ns
@@ -217,13 +217,10 @@ function code_variables!(df)
         HondurasTools.irrelreplace!(df, :toiletkind)
         df.toiletkind = categorical(df.toiletkind; ordered =true)
         levels!(df.toiletkind, [
-            "No facility (outdoors)"
-            "No facility (other location)"
-            "No facility (other home/establishment)"
-            "Other"
+            "No toilet"
             "Bucket toilet"
-            "Septic latrine"   
             "Composting toilet"
+            "Septic latrine"
             "Flush toilet"
         ])
     end

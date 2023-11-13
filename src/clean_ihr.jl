@@ -348,6 +348,17 @@ function clean_ihr(cop, ihr)
 
     select!(ihr, Not(notvariables))
 
+
+    # duplicates of main survey
+    dupe_variables = [
+        :village_name_ih, :municipality_ih, :office_ih,
+        :building_latitude_ih, :building_longitude_ih,
+        :gender, :date_of_birth,
+        :completed_at, :surveyor_id
+    ];
+
+    select!(ihr, Not(dupe_variables));
+
     return cop, ihr
 end
 

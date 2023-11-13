@@ -23,8 +23,13 @@ function clean_respondent(
     resp::Vector{DataFrame},
     waves;
     nokeymiss = false,
-    onlycomplete = false
+    onlycomplete = false,
+    namedict = nothing
 )
+
+    if isnothing(namedict)
+        namedict = Dict{Symbol, Symbol}()
+    end
 
     if 1 ∈ waves
         widx = findfirst(waves .== 1)
@@ -33,7 +38,7 @@ function clean_respondent(
         wnme11 = nm1[occursin.("_w1", nm1)]
         strip_wave!(resp[widx], wnme11, "_w1")
         resp[widx][!, :wave] .= 1;
-    end
+    end;
 
     if 2 ∈ waves
         widx = findfirst(waves .== 2)
@@ -45,7 +50,7 @@ function clean_respondent(
         wnme22 = nm2[occursin.("_w2", nm2)]
         strip_wave!(resp[widx], wnme22, "_w2")
         resp[widx][!, :wave] .= 2;
-    end
+    end;
 
     if 3 ∈ waves
         widx = findfirst(waves .== 3)
@@ -60,7 +65,7 @@ function clean_respondent(
         wnme33 = nm3[occursin.("_w3", nm3)]
         strip_wave!(resp[widx], wnme33, "_w3")
         resp[widx][!, :wave] .= 3;
-    end
+    end;
 
     if 4 ∈ waves
         widx = findfirst(waves .== 4)
@@ -79,14 +84,16 @@ function clean_respondent(
         strip_wave!(resp[widx], wnme44, "_w4")
 
         resp[widx][!, :wave] .= 4;
-    end
+    end;
     
     regularizecols!(resp)
 
-    rf = reduce(vcat, resp)
-    resp = nothing
+    rf = reduce(vcat, resp);
+    
+    ###### resp = nothing
 
     rename!(rf, :respondent_master_id => :name);
+    namedict[:name] = :respondent_master_id;
 
     if onlycomplete
         subset!(rf, :complete => x -> x .== 1; skipmissing = true)
@@ -98,23 +105,21 @@ function clean_respondent(
         rf[!, vbl] = passmissing(string).(rf[!, vbl])
     end
 
-    rf.survey_start = todate_split.(rf.survey_start)
-    rf.date_of_birth = trydate.(rf.date_of_birth)
-
-    rf[!, :age] = age.(rf.survey_start, rf.date_of_birth)
-
-    rf.village_code = categorical(rf.village_code);
-    rf.building_id = categorical(rf.building_id);
-    rf.gender = categorical(rf.gender);
+    rf.survey_start = todate_split.(rf.survey_start);
+    rf.date_of_birth = trydate.(rf.date_of_birth);
 
     # fix gender coding
-    replace!(rf.gender, "male" => "man")
-    replace!(rf.gender, "female" => "woman")
-
-    ##
+    replace!(rf.gender, "male" => "man");
+    replace!(rf.gender, "female" => "woman");
 
     # raw data description contains variable list and types
+    # used to determine which variables are included
     rf_desc = describe(rf);
+
+    if (:survey_start ∈ rf_desc.variable) & (:date_of_birth ∈ rf_desc.variable)
+        rf[!, :age] = age.(rf.survey_start, rf.date_of_birth);
+    else @warn "survey start or date of birth not in the data"
+    end;
 
     for r in eachrow(rf_desc)
         if r[:nmissing] == 0
@@ -122,49 +127,32 @@ function clean_respondent(
         end
     end
 
+    ov = :f0100; v = :child;
     if :f0100 ∈ rf_desc.variable
-        rename!(rf, :f0100 => :child)
-        rf[!, :child] = passmissing(String).(rf[!, :child]);
-    end
+        namedict[v] = ov;
+        rename!(rf, ov => v)
+        
+        rf[!, v] = passmissing(String).(rf[!, v]);
+    end;
 
-    if :f0200 ∈ rf_desc.variable
-        rename!(rf, :f0200 => :childcount);
-    end
+    numclean!(:f0200, :childcount, rf, rf_desc, namedict)
 
     # what grade did you complete in school?
-    if :b0100 ∈ rf_desc.variable
+    ov = :b0100; v = :school;
+    if ov ∈ rf_desc.variable
+        namedict[v] = ov;
+        rename!(rf, :b0100 => v);
         
-        # convert "Dont_Know" and "Refused" to missing
-        # missingize!(rf, :b0100);
-        rf.b0100 = categorical(rf.b0100; ordered = true);
-        recode!(
-            rf.b0100,
-            "Dont_Know" => "Don't know",
+        irrelreplace!(rf, v)
+        rf[!, v] = categorical(rf[!, v]; ordered = true);
+        replace!(
+            rf[!, v],
             "Have not completed any type of school" => "None"
-        )
-
-        levels!(
-            rf.b0100,
-            [
-                "Refused",
-                "Don't know",
-                "None",
-                "1st grade",
-                "2nd grade",
-                "3rd grade",
-                "4th grade",
-                "5th grade",
-                "6th grade",
-                "Some secondary",
-                "Secondary",
-                "More than secondary"
-            ]
         );
         
-        rename!(rf, :b0100 => :school);
-        rf[!, :educated] = copy(rf[!, :school]);
+        rf[!, :educated] = copy(rf[!, v]);
         
-        recode!(
+        replace!(
             rf[!, :educated],
             "None" => "No",
             "1st grade" => "Some",
@@ -177,277 +165,181 @@ function clean_respondent(
             "Secondary" => "Yes",
             "More than secondary" => "Yes"
         );
-    end
+    end;
 
     # belong to indigenous community
+    v = :indigenous
     if :b0200 ∈ rf_desc.variable
-        rename!(rf, :b0200 => :indigenous)
-        # rf.indigenous_simple = deepcopy(rf.indigenous)
-        for (i, e) in enumerate(rf.indigenous)
-            if !ismissing(e)
-                if e .== "Si, Maya Chorti"
-                    rf.indigenous[i] = "Yes, Maya Chorti"
-                end
-            end
-        end
+        rename!(rf, :b0200 => v)
+        namedict[v] = :b0200;
+        irrelreplace!(rf, v)
         replace!(
-            rf.indigenous,
+            rf[!, v],
+            "Si, Maya Chorti" => "Chorti",
             "Yes, Maya Chorti" => "Chorti", "Yes, Lenca" => "Lenca"
         )
-    end
 
-
-    rf.indigenous = categorical(rf.indigenous)
-    rf.indigenous = recode(
-        rf.indigenous, "Refused" => missing, "Dont_Know" => missing
-    )
-
-    # What is your religion?
-    if :b0600 ∈ rf_desc.variable
-        rename!(rf, :b0600 => :religion);
-        rf.religion = categorical(passmissing(string).(rf.religion));
-
-    end
-
-    if :b0510 ∈ rf_desc.variable
-        rename!(resp, "b0510" => "relig_import")
-
-        resp[!, :relig_import] = categorical(resp[!, :relig_import]; ordered = true);
-
-        levels!(
-            resp[!, :relig_import],
-            ["Not at all important",
-            "Not very important",
-            "Somewhat important",
-            "Very important"], allowmissing = true
+        rf[!, :isindigenous] = copy(rf[!, v]);
+        replace!(
+            rf[!, v],
+            "Yes, Maya Chorti" => "Yes", "Yes, Lenca" => "Yes"
         );
-    end
+        binarize!(rf, :isindigenous)
+    end;
 
-    v = "relig_freq"
-    if Symbol(v) ∈ rf_desc.variable
-        rename!(resp, "b0520" => v)
-
-        resp[!, Symbol(v)] = categorical(resp[!, Symbol(v)]; ordered = true);
-
-        levels!(
-            resp[!, Symbol(v)],
-            ["Never"
-            "Sometimes"
-            "About once a day"
-            "More than once a day"], allowmissing = true
-        );
-    end
-
-    v = "relig_attend"
-    if Symbol(v) ∈ rf_desc.variable
-        rename!(resp, "b0530" => v)
-
-        sunique(resp[!, v])
-
-        resp[!, Symbol(v)] = categorical(resp[!, Symbol(v)]; ordered = true);
-
-        levels!(
-            resp[!, Symbol(v)],
-            ["Never or almost never"
-            "Once or twice a year"
-            "Once a month"
-            "Once per week"
-            "More than once per week"], allowmissing = true
-        );
-    end
-
+    # religion
+    vs = [:b0600, :b0510, :b0520, :b0530];
+    nvs = [:religion, :relig_import, :relig_freq, :relig_attend];
+    @assert length(vs) == length(nvs)
+    for (v, nv) in zip(vs, nvs)
+        if v ∈ rf_desc.variable
+            rename!(rf, v => nv);
+            namedict[nv] = v;
+            irrelreplace!(rf, nv)
+        end
+    end;
+    
     # Do you plan to leave this village in the next 12 months (staying somewhere else for 3 months or longer)?
+    v = :migrateplan
     if :b0700 ∈ rf_desc.variable
-        # "Dont_Know" is important here
-        rename!(rf, :b0700 => :migrateplan);
-        rf.migrateplan = categorical(rf.migrateplan);
+        # "Dont_Know" could be important here
+        # ignore for now anyway
+        rename!(rf, :b0700 => v);
+        namedict[v] = :b0700;
+        irrelreplace!(rf, v)
 
-        recode!(
-            rf.migrateplan,
-            "Dont_Know" => "Don't know",
+        replace!(
+            rf[!, v],
             "No, no plans to leave" => "No",
             "Yes, to another village inside the department of Copan" => "Inside",
             "Yes, to another village outside of the department of Copan" => "Outside",
             "Yes, to another country" => "Country"
         );
-    end
+    end;
 
     # How long have you lived in this village?
-    if :b0800 ∈ rf_desc.variable
-        rename!(rf, :b0800 => :invillage);
-        rf.invillage = categorical(rf.invillage; ordered = true);
-        recode!(rf.invillage, "Dont_Know" => "Don't know");
-    
-        levels!(
-            rf.invillage,
-            [
-                "Refused",
-                "Don't know",
-                "Less than a year",
-                "More than a year",
-                "Since birth"
-            ]
-        );
-    end
+    strclean!(:b0800, :invillage, rf, rf_desc, namedict)
+    strclean!(:b0900, :invillage_yrs, rf, rf_desc, namedict)
     
     # Generally, you would say that your health is:
+    v = :health
     if :c0100 ∈ rf_desc.variable    
-
-        rename!(rf, :c0100 => :health);
+        rename!(rf, :c0100 => v);
+        namedict[v] = :c0100;
+        irrelreplace!(rf, v)
         
-        recode!(rf.health, "Dont_Know" => "Don't know");
-        rf[!, :health] = categorical(rf[!, :health]; ordered = true);
+        replace!(rf[!, v],
+        "poor" => "Poor",
+        "fair" => "Fair",
+        "good" => "Good",
+        "very good" => "Very good",
+        "excellent" => "Excellent")
 
-        levels!(
-            rf[!, :health],
-            [
-                "Refused",
-                "Don't know",
-                "poor",
-                "fair",
-                "good",
-                "very good",
-                "excellent"
-            ]
-        );
-
-        rf[!, :healthy] = copy(rf[!, :health]);
-        recode!(
+        rf[!, :healthy] = copy(rf[!, v]);
+        replace!(
             rf[!, :healthy],
-            "poor" => "No",
-            "fair" => "No",
-            "good" => "Yes",
-            "very good" => "Yes",
-            "excellent" => "Yes",
+            "Poor" => "No",
+            "Fair" => "No",
+            "Good" => "Yes",
+            "Very good" => "Yes",
+            "Excellent" => "Yes",
         );
-    end
+        binarize!(rf, :healthy)
+    end;
 
     # Now, thinking of your mental health, including stress, depression and emotional problems, how would you rate your overall mental health?
+    v = :mentalhealth
     if :c0200 ∈ rf_desc.variable
         rename!(rf, :c0200 => :mentalhealth);
-        rf[!, :mentalhealth] = categorical(
-            rf[!, :mentalhealth]; ordered = true
-        );
-        rf[!, :mentalhealth] = recode(
-            rf[!, :mentalhealth], "Dont_Know" => "Don't know"
-        );
+        namedict[v] = :c0200;
+        irrelreplace!(rf, v)
 
-        levels!(
-            rf[!, :mentalhealth],
-            [
-                "Don't know",
-                "Refused",
-                "poor",
-                "fair",
-                "good",
-                "very good",
-                "excellent"
-            ]
-        );
+        replace!(
+            rf[!, v],
+            "poor" => "Poor",
+            "fair" => "Fair",
+            "good" => "Good",
+            "very good" => "Very good",
+            "excellent" => "Excellent"
+        )
 
-        rf[!, :mentallyhealthy] = copy(rf[!, :mentalhealth]);
+        rf[!, :mentallyhealthy] = copy(rf[!, v]);
         recode!(
             rf[!, :mentallyhealthy],
-            "poor" => "No",
-            "fair" => "No",
-            "good" => "Yes",
-            "very good" => "Yes",
-            "excellent" => "Yes",
+            "Poor" => "No",
+            "Fair" => "No",
+            "Good" => "Yes",
+            "Very good" => "Yes",
+            "Excellent" => "Yes",
         );
-    end
+        binarize!(rf, :mentallyhealthy)
+    end;
 
     # How safe do you feel walking alone in your village at night?
+    v = :safety;
     if :c1820 ∈ rf_desc.variable
-        rename!(rf, :c1820 => :safety);
-        rf.safety = categorical(rf.safety; ordered = true);
-        recode!(rf.safety, "Dont_Know" => "Don't know");
+        rename!(rf, :c1820 => v);
+        namedict[v] = :c1820;
+        irrelreplace!(rf, v)
+    end;
 
-        levels!(
-            rf.safety,
-            ["Refused", "Don't know", "Unsafe", "A little unsafe", "Safe"]
-        );
+    # food availability questions
+    # what about d0500, d0600?
+    # partnered
+    vs = [:d0100, :d0200, :d0300, :d0400, :e0200];
+    nvs = [:foodworry, :foodlack, :foodskipadult, :foodskipchild, :partnered];
+    @assert length(vs) == length(nvs)
+    for (v, nv) in zip(vs, nvs)
+        if v ∈ rf_desc.variable
+            rename!(rf, v => nv);
+            namedict[nv] = v;
+            irrelreplace!(rf, nv)
+            binarize!(rf, nv)
+        end
     end
 
-    # In the past 3 months, for lack of money or other resources, did you ever worry that your household would run out of food?
-    if :d0100 ∈ rf_desc.variable
-        rename!(rf, :d0100 => :foodworry);
-        rf.foodworry = categorical(rf.foodworry; ordered = true);
-        recode!(rf.foodworry, "Dont_Know" => "Don't know");
-        levels!(rf.foodworry, ["Refused", "Don't know", "No", "Yes"]);
-    end
-
-    # In the past 3 months, for lack of money or other resources, did your household ever run out of food?
-    if :d0200 ∈ rf_desc.variable
-        rename!(rf, :d0200 => :foodlack);
-        rf.foodlack = categorical(rf.foodlack; ordered = true);
-        recode!(rf.foodlack, "Dont_Know" => "Don't know");
-        levels!(rf.foodlack, ["Refused", "Don't know", "No", "Yes"]);
-    end
-
-    # add variable question
-    if :d0300 ∈ rf_desc.variable
-        rename!(rf, :d0300 => :foodskipadult);
-        rf.foodskipadult = categorical(rf.foodskipadult; ordered = true);
-        recode!(rf.foodskipadult, "Dont_Know" => "Don't know");
-        levels!(rf.foodskipadult, ["Refused", "Don't know", "No", "Yes"]);
-    end
-
-    if :d0400 ∈ rf_desc.variable
-        rename!(rf, :d0400 => :foodskipchild);
-        rf.foodskipchild = categorical(rf.foodskipchild; ordered = true);
-        recode!(rf.foodskipchild, "Dont_Know" => "Don't know");
-        levels!(rf.foodskipchild, ["Refused", "Don't know", "No", "Yes"]);
-    end
-
+    v = :incomesuff
     if :d0700 ∈ rf_desc.variable
-        rename!(rf, :d0700 => :incomesuff);
-        rf.incomesuff = categorical(rf.incomesuff; ordered = true);
+        rename!(rf, :d0700 => v);
+        namedict[v] = :d0700;
+        irrelreplace!(rf, v);
 
-        recode!(
-            rf.incomesuff,
-            "Refused" => "Refused",
-            "Dont_Know" => "Don't know",
+        replace!(
+            rf[!, v],
             "It is not sufficient and there are major difficulties" => "major hardship",
             "It is not sufficient and there are difficulties" => "hardship",
             "It is sufficient, without major difficulties" => "sufficient",
             "There is enough to live on and save" => "live and save"
         );
-    end
-
-    if :e0200 ∈ rf_desc.variable
-        rename!(rf, :e0200 => :partnered);
-        rf.partnered = categorical(rf.partnered; ordered = true);
-        recode!(rf.partnered, "Dont_Know" => "Don't know");
-        levels!(rf.partnered, ["Refused", "Don't know", "No", "Yes"]);
-    end
-
-    if :e0700 ∈ rf_desc.variable
-        rename!(rf, :e0700 => :pregnant);
-        rf.pregnant = categorical(rf.pregnant; ordered = true);
-        recode!(rf.pregnant, "Dont_Know" => "Don't know");
-        levels!(rf.pregnant, ["Refused", "Don't know", "No", "Yes"]);
-    end
+    end;
 
     # occupational data
-    b0116s = ["b0116" * lt for lt in 'b':'i'];
-        
+    b0116s = ["b0116" * lt for lt in 'b':'i']; 
     for (a, b) in zip(b0116s, string.(ext_occs))
         if Symbol(a) ∈ rf_desc.variable
             rename!(rf, a => b)
+            namedict[Symbol(b)] = Symbol(a);
+            irrelreplace!(rf, b)
             # if is not missing, then it is true
-            rf[!, Symbol(b)] = ifelse.(
-                ismissing.(rf[!, Symbol(b)]), false, true
-            )
-            allowmissing!(rf[!, Symbol(b)])
-            rf[rf.wave .< 4, Symbol(b)] .= missing
+            # but only collected in wave 4
+            oldvals = copy(rf[!, Symbol(b)])
+            rf[!, Symbol(b)] = missings(Bool, nrow(rf))
+            for (i, e) in enumerate(oldvals)
+                w = rf[i, :wave]
+                if ismissing(e) & (w == 4)
+                    rf[i, Symbol(b)] = false
+                else (w == 4)
+                    rf[i, Symbol(b)] = true
+                end
+            end
         end
     end
 
+    v = :occupation
     if :b0111 ∈ rf_desc.variable
-        rename!(resp, "b0111" => "occupation");
-        replace!(resp[!, :occupation], [rx => missing for rx in HondurasTools.rms]...);
-        
-    
+        rename!(rf, :b0111 => v);
+        namedict[v] = :b0111;
+
         oldnames = [
             "Armed or police forces"
             "Employee of a service or goods sales company (for example stores, food merchant, clothing, etc.)"
@@ -483,19 +375,13 @@ function clean_respondent(
         ];
     
         for (oldname, newname) in zip(oldnames, newnames)
-            replace!(resp.occupation, oldname => newname)
-        end;
-    end
+            replace!(rf[!, v], oldname => newname)
+        end
+    end;
 
     # ignore i- variables
     # select!(rf, Not([:i0200, :i0300, :i0400, :i0500, :i0600, :i0700]));
 
-    # do not allow entries with missing variables on the following:
-    if nokeymiss
-        nomiss = [:village_code, :gender, :date_of_birth, :building_id];
-        dropmissing!(rf, nomiss)
-    end
-    
     # leadership variables
     if :b1000i ∈ rf_desc.variable
         select!(rf, Not(:b1000i)) # this variable seems meaningless
@@ -503,6 +389,10 @@ function clean_respondent(
 
     ldrvars = [
         :b1000a, :b1000b, :b1000c, :b1000d, :b1000e, :b1000f, :b1000g, :b1000h
+    ];
+    nldrvars = [
+        :hlthprom, :commuityhlthvol, :communityboard, :patron, :midwife,
+        :religlead, :council, :polorglead
     ];
     
     # names for leadership categories
@@ -523,7 +413,25 @@ function clean_respondent(
         if e ∈ rf_desc.variable
             rf[!, e] = HondurasTools.replmis.(rf[!, e])
             rename!(rf, e => ldict[e]);
+            namedict[ldict[e]] = e;
         end
+    end
+    
+    rf[!, :leader] = fill(false, nrow(rf))
+    for c in nldrvars
+        for (i, b) in enumerate(rf[!, c])
+            if !ismissing(b)
+                if b
+                    rf[i, :leader] = true
+                end
+            end
+        end
+    end
+
+    # do not allow entries with missing variables on the following:
+    if nokeymiss
+        nomiss = [:village_code, :gender, :date_of_birth, :building_id];
+        dropmissing!(rf, nomiss)
     end
 
     # remove irrelevant variables
@@ -552,6 +460,90 @@ function clean_respondent(
                 end
             end
         end
+    end
+
+    # others
+
+    let
+        nvs  = [:motherliveinvillage, :fatherliveinvillage];
+        vs = [:a0200, :a0400];
+        for (nv, v) in zip(nvs, vs)
+            if v ∈ rf_desc.variable
+                bstrclean!(v, nv, rf, rf_desc, namedict)
+            end
+        end
+    end
+
+    numclean!(:a0600, :siblings, rf, rf_desc, namedict);
+    numclean!(:a0700, :brothers, rf, rf_desc, namedict)
+    numclean!(:a0800, :sisters, rf, rf_desc, namedict)
+    numclean!(:a0900, :siblings_over12, rf, rf_desc, namedict)
+    
+    bstrclean!(:a1100, :notinvillage_children_over12, rf, rf_desc, namedict)
+    bstrclean!(:a1300, :married, rf, rf_desc, namedict)
+
+    bstrclean!(:a2400, :havepatron, rf, rf_desc, namedict)
+    numclean!(:a2600, :othervillage_friends_rel, rf, rf_desc, namedict)
+
+    numclean!(:a2700, :othervillage_loc, rf, rf_desc, namedict) # village codes
+
+    # isn't this hh level?
+    bstrclean!(:b0400, :eatfromkitchen, rf, rf_desc, namedict)
+
+    # Over the last 2 weeks, how often have you been bothered by any of the following problems? Little interest or pleasure in doing things
+    
+    # little pleasure
+    strclean!(:c0300, :littlepleas, rf, rf_desc, namedict)
+    # feeling down
+    strclean!(:c0400, :downdep, rf, rf_desc, namedict)
+    
+    # diarrhea (other vars here ignored)
+    # bstrclean!(:c0500, :diarr, rf, rf_desc, namedict)
+
+    bstrclean!(:e0300, :livewithpart, rf, rf_desc, namedict)
+    numclean!(:e0400, :livewithpart_yrs, rf, rf_desc, namedict; tpe = Float64)
+    numclean!(:e0500, :partnercount, rf, rf_desc, namedict)
+    numclean!(:e0600, :partnerliveage, rf, rf_desc, namedict)
+
+    bstrclean!(:e0700, :preg_now, rf, rf_desc, namedict)
+    # bstrclean!(:e0900, :preg_delayavoid, rf, rf_desc, namedict)
+
+    # methods to delay or avoid pregnancy
+    # assume false if not asnwered
+    let e1000s = ["e1000" * d for d in 'a':'h']
+        pmeth = ["pill", "condom", "f_condom", "preg_iud", "preg_inject_implant", "preg_rhythm", "preg_surg_steril.", "preg_other"]
+        for (a, b) in zip(e1000s, string.(pmeth))
+            if Symbol(a) ∈ rf_desc.variable
+                rename!(rf, a => b)
+                namedict[Symbol(b)] = Symbol(a);
+                irrelreplace!(rf, b)
+                # if is not missing, then it is true
+                # but only collected in wave 4
+                oldvals = copy(rf[!, Symbol(b)])
+                rf[!, Symbol(b)] = missings(Bool, nrow(rf))
+                for (i, e) in enumerate(oldvals)
+                    w = rf[i, :wave]
+                    if ismissing(e) & (w < 4)
+                        rf[i, Symbol(b)] = false
+                    else (w < 4)
+                        rf[i, Symbol(b)] = true
+                    end
+                end
+            end
+        end
+    end
+
+    # bstrclean!(:e1100, :preg_delayavoid_now, rf, rf_desc, namedict)
+    # ignore e1200 -- now version of e1000
+
+    # at hh level
+    let nosel = [:b0300, ]
+        select!(rf, Not(nosel))
+    end
+
+    # irrel
+    let nosel = [:b1000]
+        select!(rf, Not(nosel))
     end
 
     return rf

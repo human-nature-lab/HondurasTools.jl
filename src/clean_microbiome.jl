@@ -12,7 +12,11 @@ ARGS
 - mb2: cohort 2 raw data
 
 """
-function clean_microbiome(mb1, mb2; nokeymiss = true)
+function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
+
+    if isnothing(namedict)
+        namedict = Dict{Symbol, Symbol}()
+    end
 
     mb = let
         mb1[!, :cohort] .= 1;
@@ -21,7 +25,6 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
         commonnames = intersect(names(mb1), names(mb2))
         mb = vcat(mb1[!, commonnames], mb2[!, commonnames]);
         rename!(mb, :respondent_master_id => :name)
-        
         mb
     end;
 
@@ -56,19 +59,23 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
     if :mb_a0100 ∈ mb_desc.variable
         mb.mb_a0100 = categorical(mb.mb_a0100)
         rename!(mb, :mb_a0100 => :whereborn)
+        namedict[:whereborn] = :mb_a0100
     end
     
     if :mb_a0200 ∈ mb_desc.variable
         mb.mb_a0200 = categorical(mb.mb_a0200)
         rename!(mb, :mb_a0200 => :dept)
+        namedict[:dept] = :mb_a0200
     end
     
     if :mb_a0300 ∈ mb_desc.variable
         rename!(mb, :mb_a0300 => :mb_municipality)
+        namedict[:mb_municipality] = :mb_a0300
     end
     
     if :mb_a0400 ∈ mb_desc.variable
         rename!(mb, :mb_a0400 => :country)
+        namedict[:country] = :mb_a0400
     end
 
     if :mb_a0500a ∈ mb_desc.variable
@@ -85,27 +92,33 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
             # :mb_a0500i => :eth_None_of_the_above,
             # :mb_a0700 => :eu_citizen
         )
+        namedict[:eth_Lenca] = :mb_a0500a
     end
 
     if :mb_ab0100 ∈ mb_desc.variable
         rename!(mb, :mb_ab0100 => :spend)
         mb.spend = convertspend.(mb.spend)
+        namedict[:spend] = :mb_ab0100
     end
 
     if :mb_a0200 ∈ mb_desc.variable
         rename!(mb, :mb_ab0200 => :leavevillage)
+        namedict[:leavevillage] = :mb_ab0200
     end
 
     if :mb_b0100 ∈ mb_desc.variable
         rename!(mb, :mb_b0100 => :mb_health)
+        namedict[:mb_health] = :mb_b0100
     end
 
     if :mb_b1700 ∈ mb_desc.variable
         rename!(mb, :mb_b1700 => :mb_chronic)
+        namedict[:mb_chronic] = :mb_b1700
     end
 
     if :mb_c0000 ∈ mb_desc.variable
         rename!(mb, :mb_c0000 => :getmoney)
+        namedict[:getmoney] = :mb_c0000
     end
     mb[!, :getmoney] = passmissing(tryparse).(Int, mb[!, :getmoney])
 
@@ -161,6 +174,7 @@ function clean_microbiome(mb1, mb2; nokeymiss = true)
     for mbpair in mbpairs
         if mbpair ∈ mb_desc.variable
             rename!(mb, mbpair)
+            namedict[mbpair[2]] = mbpair[1]
         end
     end
     

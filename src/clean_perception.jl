@@ -1,102 +1,109 @@
 # clean_perception.jl
 
-function rename_perception!(resp)
+function renametrack!(df, namedict, rns)
+    rename!(df, rns...)
+    for (a,b) in rns
+        namedict[b] = a
+    end
+end
 
-    rename!(resp, :j0100 => :girl_partner_moralperc);
-    rename!(resp, :i0800 => :girl_partner_good_age);
+function rename_perception!(resp, namedict)
 
-    rename!(resp, :j0200 => :girl_baby_moralperc);
-    rename!(resp, :i1000 => :girl_baby_good_age);
+    renametrack!(resp, namedict, [:j0100 => :girl_partner_moralperc]);
+    renametrack!(resp, namedict, [:i0800 => :girl_partner_good_age]);
+
+    renametrack!(resp, namedict, [:j0200 => :girl_baby_moralperc]);
+    renametrack!(resp, namedict, [:i1000 => :girl_baby_good_age]);
 
 
-    rename!(resp, :j0300 => :avoid_preg_perc);
-    rename!(resp, :e0900 => :avoid_preg_ever, :e1100 => :avoid_preg_now);
+    renametrack!(resp, namedict, [:j0300 => :avoid_preg_perc]);
+    renametrack!(resp, namedict, [:e0900 => :avoid_preg_ever, :e1100 => :avoid_preg_now]);
 
-    rename!(resp, :j0400 => :avoid_preg_moralperc);
+    renametrack!(resp, namedict, [:j0400 => :avoid_preg_moralperc]);
 
-    rename!(
-        resp,
-        :j0500 => :folic_perc,
+    renametrack!(
+        resp, namedict,
+        [:j0500 => :folic_perc,
         :e1400 => :folic_now,
         :e1500 => :folic_1wk,
-        :i1200 => :folic_good_when
+        :i1200 => :folic_good_when]
     );
 
-    rename!(
-        resp,
-        :j0600 => :prenatal_care_perc,
+    renametrack!(
+        resp, namedict,
+        [:j0600 => :prenatal_care_perc,
         :f1900r01 => :prenatal_care_any,
-        :f2000 => :prenatal_care_when
+        :f2000 => :prenatal_care_when]
     )
 
-    rename!(
-        resp,
-        :j0700 => :prenatal_care_moralperc, :i1300 => :prenatal_care_good_when
+    renametrack!(
+        resp, namedict,
+        [:j0700 => :prenatal_care_moralperc, :i1300 => :prenatal_care_good_when]
     );
 
-    rename!(
-        resp,
-        :j0800 => :homebirth_perc,
+    renametrack!(
+        resp, namedict,
+        [:j0800 => :homebirth_perc,
         :f2700r01 => :wherebirth,
         :i1500 => :birth_good_where,
-        :j0900 => :homebirth_moralperc,
+        :j0900 => :homebirth_moralperc]
     )
 
-    rename!(
-        resp,
-        :j1000 => :birthdecision_perc, :f2800 => :birthdecision,
+    renametrack!(
+        resp, namedict,
+        [:j1000 => :birthdecision_perc, :f2800 => :birthdecision]
     )
 
-    rename!(
-        resp,
-        :j1100 => :postnatal_care_perc,
+    renametrack!(
+        resp, namedict,
+        [:j1100 => :postnatal_care_perc,
         :f3600 => :postnatal_care_any,
         :f3700 => :postnatal_care_when,
-        :i1900d => :postnatal_good
+        :i1900d => :postnatal_good]
     );
 
-    rename!(
-        resp,
-        :j1200 => :baby_bath_perc,
+    renametrack!(
+        resp, namedict,
+        [:j1200 => :baby_bath_perc,
         :j1300 => :baby_bath_moralperc,
-        :f4800p1 => :baby_bath
+        :f4800p1 => :baby_bath]
     );
 
-    rename!(
-        resp,
-        :j1400 => :baby_skin_perc, 
-        :j1500 => :baby_skin_moralperc
+    renametrack!(
+        resp, namedict,
+        [:j1400 => :baby_skin_perc, 
+        :j1500 => :baby_skin_moralperc]
     );
 
-    rename!(resp, :i1900a => :baby_skin_good)
+    renametrack!(resp, namedict, [:i1900a => :baby_skin_good])
 
-    rename!(
-        resp,
-        :j1600 => :fajero_perc,
+    renametrack!(
+        resp, namedict,
+        [:j1600 => :fajero_perc,
         :f5000 => :fajero,
         :i1900c => :fajero_good_1,
-        :i2200g => :fajero_good_2
+        :i2200g => :fajero_good_2]
     );
 
-    rename!(
-        resp,
-        :j1700 => :chupon_perc,
+    renametrack!(
+        resp, namedict,
+        [:j1700 => :chupon_perc,
         :j1800 => :chupon_moralperc,
-        :f7000 => :chupon
+        :f7000 => :chupon]
     );
     # i2500a-k
 
-    rename!(
-        resp,
-        :j1900 => :laxatives_perc,
-        :i1900b => :laxatives_good,
+    renametrack!(
+        resp, namedict,
+        [:j1900 => :laxatives_perc,
+        :i1900b => :laxatives_good]
     );
 
-    rename!(resp, :c0500 => :diarrhea_3wk);
+    renametrack!(resp, namedict, [:c0500 => :diarrhea_3wk]);
 
-    rename!(
-        resp,
-        :j2000a=>:diarrhea_antibiotic_perc,
+    renametrack!(
+        resp, namedict,
+        [:j2000a=>:diarrhea_antibiotic_perc,
         :j2000b=>:diarrhea_zinc_perc,
         :j2000c=>:diarrhea_specialfluid_perc,
         :j2000d=>:diarrhea_antidiarrhea_perc,
@@ -127,42 +134,41 @@ function rename_perception!(resp)
         :c0900m=>:diarrhea_extraliquid,
         :c0700b=>:diarrhea_govtfluid,
         :c0700c=>:diarrhea_comliquid,
-        :c0900n=>:diarrhea_other
+        :c0900n=>:diarrhea_other]
     );
 
-    rename!(resp, :j2100 => :wash_perc, :i2900b => :wash_good);
+    renametrack!(resp, namedict, [:j2100 => :wash_perc, :i2900b => :wash_good]);
 
-    rename!(resp, :j2200 => :avoid_smoke_perc, :i2900d => :avoid_smoke);
+    renametrack!(resp, namedict, [:j2200 => :avoid_smoke_perc, :i2900d => :avoid_smoke]);
 
-    rename!(
-        resp, :j2300 => :father_check_perc,
-        :f2600 => :father_check
+    renametrack!(
+        resp, namedict, [:j2300 => :father_check_perc, :f2600 => :father_check]
     )
 
-    rename!(resp, :j2400 => :father_check_moralperc, :i3200 => :father_check_good);
+    renametrack!(resp, namedict, [:j2400 => :father_check_moralperc, :i3200 => :father_check_good]);
 
-    rename!(resp, :j2500 => :father_wait_perc, :f2900 => :father_wait);
+    renametrack!(resp, namedict, [:j2500 => :father_wait_perc, :f2900 => :father_wait]);
 
-    rename!(resp, :j2600 => :father_wait_moralperc, :i3300 => :father_wait_good);
+    renametrack!(resp, namedict, [:j2600 => :father_wait_moralperc, :i3300 => :father_wait_good]);
 
     # there appears to be no direct concordance
-    rename!(resp, :j2700 => :father_care_sick_perc)
+    renametrack!(resp, namedict, [:j2700 => :father_care_sick_perc])
 
-    rename!(
-        resp,
-        :j2800 => :father_care_sick_moralperc, :i3400 => :father_care_sick_good
+    renametrack!(
+        resp, namedict,
+        [:j2800 => :father_care_sick_moralperc, :i3400 => :father_care_sick_good]
     );
 
-    rename!(resp, :j2900 => :men_hit_perc);
+    renametrack!(resp, namedict, [:j2900 => :men_hit_perc]);
 
-    rename!(
-        resp,
-        :j3000 => :men_hit_moralperc,
+    renametrack!(
+        resp, namedict,
+        [:j3000 => :men_hit_moralperc,
         :i0300 => :men_hit_neglect_good,
         :i0400 => :men_hit_house_good,
         :i0500 => :men_hit_argue_good,
         :i0600 => :men_hit_food_good,
-        :i0700 => :men_hit_sex_good
+        :i0700 => :men_hit_sex_good]
     );
 end
 
@@ -171,9 +177,13 @@ end
 
 Clean the behavior/norm perception variables in the respondent data.
 """
-function clean_perception!(resp)
+function clean_perception!(resp; namedict = nothing)
 
-    rename_perception!(resp)
+    if isnothing(namedict)
+        namedict = Dict{Symbol, Symbol}()
+    end
+
+    rename_perception!(resp, namedict)
 
     # responses with children
     ch = resp[!, :child]
@@ -825,13 +835,5 @@ function clean_perception!(resp)
         :men_hit_sex_good,
         :men_hit_good, 
     ];
-
-    # update variables: this will basically copy wave 3 values to wave 4
-    # most of these were not likely collected in wave 4
-    let wx = 4
-        # update perception variables
-        for pvar in pvars
-            updatevalues!(resp, wx, pvar)
-        end
-    end
+    
 end

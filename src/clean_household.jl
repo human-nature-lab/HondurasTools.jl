@@ -8,19 +8,23 @@ Create a combined variable that makes more sense.
 N.B. this outputs a `Tuple`.
 """
 function toiletify(ts, tt)
-    return if ismissing(ts) & ismissing(tt)
+    c1 = ismissing(ts)
+    c2 = ismissing(tt)
+    c3 = (tt == "No facility (other location)") | (tt == "No facility (outdoors)") | (tt == "No facility (other home/establishment)")
+    return if c1 & c2
         missing, missing
-    elseif (tt == "No facility (other location)") | (tt == "No facility (outdoors)") | (tt == "No facility (other home/establishment)")
+    elseif coalesce(c3, false)
         "No toilet", "No toilet"
-    elseif !ismissing(ts)
-        if ts == "Yes"
+    elseif !c1
+        if ts
             "Shared", tt
-        elseif ts == "No"
-            "Yes", tt
-        # Judgement for a few cases -> they don't share
-        elseif (ts == "Don't Know") & (tt ∈ ["Flush toilet", "Bucket toilet"])
+        elseif !ts
             "Yes", tt
         end
+    # Judgement for a few cases -> assume they don't share
+    # if they report a toilet
+    elseif c1 & !c2
+        "Yes", tt
     end
 end
 
@@ -37,7 +41,12 @@ ARGS
 - nokeymiss = true : whether to filter to not missing on key variables: village code and building id
 
 """
-function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
+function clean_household(
+    hh::Vector{DataFrame}, waves; nokeymiss = true, namedict = nothing)
+
+    if isnothing(namedict)
+        namedict = Dict{Symbol, Symbol}()
+    end
 
     # check presence of each wave
     # remove `_wx` suffix
@@ -84,15 +93,17 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
     regularizecols!(hh)
 
     # combine waves
-    hh = reduce(vcat, hh)
+    hh = reduce(vcat, hh);
 
     # raw data description contains variable list and types
     hh_desc = describe(hh);
 
     # remove irrelevant variables
-    for e in [:household_id, :skip_glitch]
-        if e ∈ hh_desc.variable
-            select!(hh, Not(e))
+    for x in [
+        :l0900, :l1800, :l1900, :l8888, :l9999,
+        :household_id, :skip_glitch]
+        if x ∈ hh_desc.variable
+            select!(hh, Not(x))
         end
     end
 
@@ -100,260 +111,145 @@ function clean_household(hh::Vector{DataFrame}, waves; nokeymiss = true)
     rename!(hh, :survey_start => :hh_survey_start);
     rename!(hh, :new_building => :hh_new_building);
 
-    # must be in data
-    hh.building_id = categorical(hh.building_id);
-
-    if :household_wealth_index ∈ hh_desc.variable
-        hh.household_wealth_index = categorical(
-            hh.household_wealth_index; ordered = true
-        );
-        rename!(hh, :household_wealth_index => :hh_wealth);
+    v = :household_wealth_index
+    if v ∈ hh_desc.variable
+        rename!(hh, v => :hh_wealth_orig);
+        namedict[:hh_wealth_orig] = :household_wealth_index
     end
 
-    xs = [
-        (:l0100 => :children_under12, false, missing),
-        (:l0200 => :girls_under12, false, missing),
-        (:l0300 => :boys_under12, false, missing),
-        (:l0400 => :watersource, true, ["Dont_Know" => "Don't Know"]),
-        (:l0600 => :cleaningagent, true, ["Dont_Know" => "Don't Know"]),
-        (:l0700 => :toilettype, true, ["Dont_Know" => "Don't Know"]),
-        (:l0800 => :toiletshared, true, ["Dont_Know" => "Don't Know"]),
-        (
-            :l0900a => :electricity, true,
-            ["Electricity" => "Yes", missing => "No"]
-        ),
-        (
-            :l0900b => :radio, true,
-            ["Radio" => "Yes", missing => "No"]
-        ),
-        (
-            :l0900c => :tv, true,
-            ["Television" => "Yes", missing => "No"]
-        ),
-        (
-            :l0900d => :cell, true,
-            ["Cell/mobile phone" => "Yes", missing => "No"]
-        ),
-        (
-            :l0900e => :landline, true,
-            ["Non-mobile phone" => "Yes", missing => "No"]
-        ),
-        (:l0900f => :fridge, true, ["Refrigerator" => "Yes", missing => "No"]),
-        (:l1000 => :cooktype, true, ["Dont_Know" => "Don't Know"]),
-        (:l1100 => :cookfueltype, true, ["Dont_Know" => "Don't Know"]),
-        (:l1200 => :kitchen, true, ["Dont_Know" => "Don't Know"]),
-        (:l1300 => :flooring, true, ["Dont_Know" => "Don't Know"]),
-        (:l1400 => :windows, true, ["Dont_Know" => "Don't Know"]),
-        (:l1500 => :walltype, true, ["Dont_Know" => "Don't Know"]),
-        (:l1600 => :roofing, true, ["Dont_Know" => "Don't Know"]),
-        (
-            :l0900g => :noneof, true,
-            ["None of the above" => "Yes", missing => "No"]
-        )
-    ];
-    
-    for (pr, t, c) in xs
-        (xold, x) = pr
-        if xold ∈ hh_desc.variable
-            rename!(hh, pr)
-            if t
-                hh[!, x] = categorical(hh[!, x]);
-                if !ismissing(c)
-                    recode!(hh[!, x],  c...)
-                end
+    strclean!(:l0700, :toilettype, hh, hh_desc, namedict);
+    bstrclean!(:l0800, :toiletshared, hh, hh_desc, namedict);
 
-                # if really binary make boolean
-                tst = sort(collect(skipmissing(unique(hh[!, x]))))
-                if tst == ["No", "Yes"]
-                    xv = Vector{Union{Missing, Bool}}(missing, length(hh[!, x]))
-                    for (i, e) in enumerate(hh[!, x])
-                        if !ismissing(e)
-                            xv[i] = if e == "Yes"
-                                true
-                            elseif e == "No"
-                                false
-                            end
-                        end
-                    end
-                    hh[!, x] = xv
-                end
-            end
-
-            if !any(ismissing.(hh[!, x]))
-                disallowmissing!(hh, x)
-            end
-        end
-    end
-
-    vs = [(:l0100, :children_under12), (:l0200, :boys_under12), (:l0300, :girls_under12)]
-
-    for (vold, v) in vs
-        if vold ∈ hh_desc.variable
-            vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
-            for (i, e) in enumerate(hh[!, v])
-                if !ismissing(e)
-                    x = tryparse(Int, e)
-                    if !isnothing(x)
-                        vx[i] = x
-                    end
-                end
-            end
-            hh[!, v] = vx
-            if !any(ismissing.(hh[!, v]))
-                disallowmissing!(hh, v)
-            end
-        end
-    end
-
-    # decisions related to role of women
-    xs = [
-        (
-            :i0200 => :how_husband_earnings_spent, true,
-            ["Dont_Know" => "Don't Know"]
-        ),
-        (
-            :i0300 => :beating_wife_neglect_children, true,
-            ["Dont_Know" => "Don't Know"]
-        ),
-        (
-            :i0400 => :beating_wife_leaves_house, true,
-            ["Dont_Know" => "Don't Know"]
-        ),
-        (
-            :i0500 => :beating_wife_argues, true,
-            ["Dont_Know" => "Don't Know"]
-        ),
-        (
-            :i0600 => :beating_burns_food, true,
-            ["Dont_Know" => "Don't Know"]
-        ),
-        (
-            :i0700 => :beating_refuse_sex, true,
-            ["Dont_Know" => "Don't Know"]
-        ),
-        (
-            :i0800 => :girl_join_partner_age, false,
-            missing
-        ),
-        (
-            :i0900 => :girl_join_partner_parents_decide, true,
-            ["Dont_Know" => "Don't Know"]
-        ),
-        (
-            :i1000 => :girl_first_baby_age, false, 
-            missing
-        ),
-        (
-            :i1100 => :woman_health_decision, true,
-            ["Dont_Know" => "Don't Know"]
-        ),
-        (
-            :i1200 => :woman_when_folic_acid, true,
-            ["Dont_Know" => "Don't Know"]
-        ),
-        (
-            :i1300 => :women_pregnancy_checkups, true,
-            ["Dont_Know" => "Don't Know"]
-        ),
-        (
-            :i1300 => :women_pregnancy_checkups, false,
-            missing
-        )
-    ];
-
-    for (pr, t, c) in xs
-        (xold, x) = pr
-        if xold ∈ hh_desc.variable
-            rename!(hh, pr)
-            if t
-                hh[!, x] = categorical(hh[!, x]);
-                if !ismissing(c)
-                    recode!(hh[!, x], c...)
-                end
-
-                # if really binary make boolean
-                tst = sort(collect(skipmissing(unique(hh[!, x]))))
-                if tst == ["No", "Yes"]
-                    xv = Vector{Union{Missing, Bool}}(missing, length(hh[!, x]))
-                    for (i, e) in enumerate(hh[!, x])
-                        if !ismissing(e)
-                            xv[i] = if e == "Yes"
-                                true
-                            elseif e == "No"
-                                false
-                            end
-                        end
-                    end
-                    hh[!, x] = xv
-                end
-            end
-            
-            if !any(ismissing.(hh[!, x]))
-                disallowmissing!(hh, x)
-            end
-        end
-    end
-    
-    # handle integer variables
-    vs = [
-        (:i0800, :girl_join_partner_age), (:i1000, :girl_first_baby_age),
-        (:i1300, :women_pregnancy_checkups)
-    ];
-    
-    for (vold, v) in vs
-        if vold ∈ hh_desc.variable
-            vx = Vector{Union{Missing, Int}}(missing, length(hh[!, v]))
-            for (i, e) in enumerate(hh[!, v])
-                if !ismissing(e)
-                    x = tryparse(Int, e)
-                    if !isnothing(x)
-                        vx[i] = x
-                    end
-                end
-            end
-            hh[!, v] = vx
-            if !any(ismissing.(hh[!, v]))
-                disallowmissing!(hh, v)
-            end
-        end
-    end
-
-    for x in [:l0900, :l1800, :l1900, :l8888, :l9999]
-        if x ∈ hh_desc.variable
-            select!(hh, Not(x))
-        end
-    end
-
-    for x in [:l1700, :l0010]
-        if x ∈ hh_desc.variable
-            replace!(hh[!, x], [rm => missing for rm in rms]...);
-            hh[!, x] = passmissing(parse).(Int, hh[!, x]);
-        end
-    end
-    
-    for x in ["l0500" => "handwash", "l1700" => "sleepingrooms", "l0010" => "over12live"]
-        if Symbol(x[1]) ∈ hh_desc.variable
-            rename!( hh, x)
-        end
-    end
-
-    rename!(hh, "respondent_master_id" => "hh_resp_name")
-
-    if :hh_wealth ∈ hh_desc.variable
-        rename!(hh, "hh_wealth" => "hh_wealth_orig")
-    end
-
-    if (:toiletshared ∈ hh_desc.variable) & (:toilettype ∈ hh_desc.variable)
+    # add `toilet` and `toiletkind`
+    if (:l0800 ∈ hh_desc.variable) & (:l0700 ∈ hh_desc.variable)
         hh.toilet = missings(String, nrow(hh));
         hh.toiletkind = missings(String, nrow(hh));
 
         for (i, (ts, tt)) in (enumerate∘zip)(hh.toiletshared, hh.toilettype)
             hh.toilet[i], hh.toiletkind[i] = toiletify(ts, tt)
         end
+
+        replace!(hh.toiletkind, "Other" => missing)
     end
+
+    let st = [
+            (:l0100, :children_under12),
+            (:l0200, :girls_under12),
+            (:l0300, :boys_under12)
+        ]
+        for (v, nv) in st
+            numclean!(v, nv, hh, hh_desc, namedict)
+        end
+    end
+    
+    let xs = [
+            (:l0900a, :electricity),
+            (:l0900b, :radio),
+            (:l0900c, :tv),
+            (:l0900d, :cell),
+            (:l0900e, :landline),
+            (:l0900f, :fridge),
+            (:l0900g, :noneof)
+        ];
+
+        for (a, b) in xs
+            if Symbol(a) ∈ hh_desc.variable
+                rename!(hh, a => b)
+                namedict[b] = a
+                irrelreplace!(hh, b)
+                # if is not missing, then it is true
+                # collected in all waves
+                oldvals = copy(hh[!, Symbol(b)])
+                hh[!, Symbol(b)] = missings(Bool, nrow(hh))
+                for (i, e) in enumerate(oldvals)
+                    # w = hh[i, :wave]
+                    if ismissing(e)
+                        hh[i, Symbol(b)] = false
+                    else
+                        hh[i, Symbol(b)] = true
+                    end
+                end
+            end
+        end
+    end
+    
+    strclean!(:l0400, :watersource, hh, hh_desc, namedict)
+
+    replace!(
+        hh.watersource,
+        "Cart with small tank" => "Cart with tank",
+        "Dug well (proctected)" => "Dug well (prot.)",
+        "Dug well (unprotected)" => "Dug well (unprot.)",
+        # "Other", "Rainwater"
+        "Surface water (river/dam/lake/pond/stream/canal/irrigation channel)" => "Surface water",
+        # "Tanker truck"
+        "Water from spring (protected)" => "Spring (prot.)",
+        "Water from spring (unproctected)" => "Spring (unprot.)",
+        # "Well with tube",
+        "bottle water" => "Bottle water",
+        "Other" => missing
+    );
+
+    bstrclean!(:l0600, :cleaningagent, hh, hh_desc, namedict);
+    bstrclean!(:l1200, :kitchen, hh, hh_desc, namedict);
+
+    let xs = [
+            (:l1000, :cooktype),
+            (:l1100, :cookfueltype),
+            (:l1300, :flooring),
+            (:l1400, :windows),
+            (:l1500, :walltype),
+            (:l1600, :roofing),
+        ];
+
+        for (v, nv) in xs
+            strclean!(v, nv, hh, hh_desc, namedict)
+        end
+    end
+
+    allowmissing!(hh, :cooktype)
+    replace!(hh.cooktype, "Other" => missing)
+    replace!(hh.cooktype, 
+        "None (there is no stove/firebox)" => "None",
+        "Furnace/firebox without a chimney" => "Furnace no chimney",
+        "Furnace/firebox with a chimney" => "Furnace chimney"
+    );
+
+    replace!(hh.walltype, "Other" => missing)
+    replace!(hh.roofing, "Other" => missing)
+
+    allowmissing!(hh, :cookfueltype);
+    replace!(hh.cookfueltype, "Keronsene" => "Kerosene");
+    replace!(hh.cookfueltype, "Other" => missing);
+
+    vs = [:l1700, :l0010]
+    nvs = [:sleepingrooms, :over12live]
+    for (nv, v) in zip(nvs, vs)
+        numclean!(v, nv, hh, hh_desc, namedict)
+    end
+
+    strclean!(:l0500, :handwash, hh, hh_desc, namedict)
+    replace!(
+        hh.handwash,
+        "Not observed" => "None",
+        "Observed, water not available" => "No water",
+        "Observed, water available" => "Water"
+    )
+
+    # hh respondent master id? is this the person who
+    # reported the `hh` values?
+    rename!(hh, "respondent_master_id" => "hh_resp_name")
+    namedict[:hh_resp_name] = :respondent_master_id
 
     # filters
 
+    let
+        # remove columns in hh  (they are in village-level)
+        dups = [:building_latitude, :building_longitude, :village_name, :municipality, :office];
+        select!(hh, Not(dups))
+        # not sure how there are wave 4 variables that are all missing
+    end
+    
     if nokeymiss
         dropmissing!(hh, :village_code);
         dropmissing!(hh, :building_id);
