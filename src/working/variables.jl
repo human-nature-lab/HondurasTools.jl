@@ -68,6 +68,11 @@ respvars = [
     :safety, 
 ];
 
+export respvars
+
+apps = [:electricity, :radio, :tv, :cell, :landline, :fridge, :noneof];
+export apps
+
 # diarrhea skipped
 percvars = [
     :girl_partner_moralperc, :girl_partner_good_age,
@@ -99,7 +104,7 @@ percvars = [
     :men_hit_good, 
 ];
 
-export respvars, percvars
+export percvars
 
 ext_occs = [
     :ext_occ_farm, :ext_occ_food, :ext_occ_const, :ext_occ_tourism,

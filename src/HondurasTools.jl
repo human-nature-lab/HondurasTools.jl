@@ -47,6 +47,7 @@ include("effects_utilities.jl")
 include("grabmissing!.jl")
 include("leveljoins!.jl")
 include("groupdescribe.jl")
+include("cleaningtools.jl")
 
 export 
     # cleaning
@@ -123,7 +124,7 @@ export
 
     # exports are in the files
     for x in [
-        "analysis_utilities.jl", "variables.jl", "standardize.jl", "code_variables.jl"
+        "analysis_utilities.jl", "variables.jl", "standardize.jl", "code_variables.jl", "variable_update.jl"
     ]
         include("working/" * x)
     end
