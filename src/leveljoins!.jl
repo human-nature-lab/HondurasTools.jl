@@ -5,6 +5,10 @@ function leveljoins(resp, hh, vill; rwave = 4, hhwave = 3, vwave = 3)
     vill3 = @subset vill :wave .== hhwave;
     hh4 = @subset hh :wave .== vwave;
 
+    dropmissing!(resp4, [:name, :building_id, :village_code])
+    dropmissing!(hh4, [:building_id, :village_code])
+    dropmissing!(vill3, :village_code)
+
     [select!(df, Not(:wave)) for df in [resp4, vill3, hh4]];
     
     # make joinable
