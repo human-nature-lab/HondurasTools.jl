@@ -1,15 +1,25 @@
 
 """
-        updatevalues!(resp, wave, variable)
+        updatevalues!(resp, wave, variable, when = :allprior)
 
 Update missing values for selected wave from the response data with
 those from the next most recent wave.
+
+`when` = `:allprior` or `:justprior`. For the latter, only values from the just previous wave will be used.
 """
-function updatevalues!(resp, wave, variable; unit = :name)
+function updatevalues!(resp, wave, variable; unit = :name, when = :allprior)
     vrs = [unit, :wave, variable]
 
     sdf = @views resp[resp.wave .== wave, vrs];
-    rdf = @views resp[resp.wave .< wave, :];
+    
+    wavecond = if when == :allprior
+        resp.wave .< wave
+    elseif when == :justprior
+        resp.wave .== (wave - 1)
+    else
+        error("bad specification")
+    end
+    rdf = @views resp[wavecond, :];
     _updatevalues!(sdf, rdf, vrs, wave, unit)
 end
 

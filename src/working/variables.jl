@@ -56,7 +56,6 @@ respvars = [
     :occupation,
     :ext_occ_farm, :ext_occ_food, :ext_occ_const, :ext_occ_tourism,
     :ext_occ_trans, :ext_occ_handi, :ext_occ_fam, :ext_occ_oth,
-    :wealth_w1, :wealth_w3, :wealth5_w1, :wealth5_w3, :wealth_d,
     :migrateplan, :invillage,
     :hlthprom, :commuityhlthvol, :communityboard, :council,
     :patron, :midwife, :religlead, :polorglead, :inter_village_leader,
