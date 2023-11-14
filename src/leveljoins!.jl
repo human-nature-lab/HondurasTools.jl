@@ -1,6 +1,6 @@
 # leveljoins
 
-function leveljoins(resp, hh, vill; rwave = 4, hhwave = 3, vwave = 3)
+function leveljoins(resp, hh, vill; rwave = 4, hhwave = 4, vwave = 3)
     resp4 = @subset resp :wave .== rwave;
     vill3 = @subset vill :wave .== hhwave;
     hh4 = @subset hh :wave .== vwave;
