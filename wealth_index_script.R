@@ -1,6 +1,7 @@
 # SCRIPT TO CALCULATE WEALTH INDEX FOR HONDURAS RCT
 # modified: 2020-10-07 by Selena Lee
 # modified further: 2023-09-25 by Eric Feltham
+# suprceded by `wealth-mca.R`
 
 # this version
 # (1) calculates both quintized and non-binned indices
