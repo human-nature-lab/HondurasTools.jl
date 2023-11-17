@@ -58,10 +58,8 @@ export
     
     # networks
     clean_connections,
-    process_edgelist, process_edgelist!,
-    graph, egoreduction, egoreductions,
     handle_socio, reciprocated,
-    initialize_networks_info, networksinfo!, nodedistances!,
+    nodedistances!,
     addsymmetric!, shiftkin!, jointnetwork,
     
     # css
@@ -124,7 +122,7 @@ export
 
     # exports are in the files
     for x in [
-        "analysis_utilities.jl", "variables.jl", "standardize.jl", "code_variables.jl", "variable_update.jl"
+        "analysis_utilities.jl", "variables.jl", "standardize.jl", "code_variables.jl", "variable_update.jl", "socionew.jl"
     ]
         include("working/" * x)
     end
@@ -146,6 +144,6 @@ export
     )
 
     # data date
-    dte = "2023-11-13"
+    dte = "2023-11-15"
     export prj, npath, ppath, dte
 end

@@ -3,6 +3,7 @@
 # network functions to call by default
 node_fund = Dict{Symbol, Function}();
 g_fund = Dict{Symbol, Tuple{Function, DataType}}();
+
 let
     # node-level stats
     node_fund[:betweenness_centrality] = g -> betweenness_centrality(g, normalize = true)
@@ -26,74 +27,211 @@ let
     g_fund[:local_clustering] = (g -> local_clustering(g), Tuple{Vector{Int64}, Vector{Int64}})
 end
 
-function network_info!(
-    ndf, cx, relvals, villes;
-    moddict = nothing, relnames = nothing
-    #, symmetric = true
+export node_fund, g_fund
+
+function initialize_ndf(cx, cxx, node_fund, g_fund, mods)
+
+    uc2 = unique(cxx[!, [:wave, :village_code, :relationship]])
+
+    uc2[!, :names] = Vector{Vector{String}}(undef, nrow(uc2))
+    uc2[!, :names_all] = Vector{Vector{String}}(undef, nrow(uc2))
+
+    for (i, (w, vc)) in (enumerate∘zip)(uc2[!, :wave], uc2[!, :village_code])
+        # cx contains all edges in that village
+        # need this for full unique set
+        c1 = cx[!, :wave] .== w;
+        c2 = cx[!, :village_code] .== vc
+        n1 = @views cx[c1 .& c2, :ego]
+        n2 = @views cx[c1 .& c2, :alter]
+        uc2[i, :names_all] = (sort∘unique∘vcat)(n1, n2)
+    end
+
+    for (k, _) in node_fund
+        uc2[!, k] = Vector{Vector{Float64}}(undef, nrow(uc2))
+    end
+
+    for (k, v) in g_fund
+        uc2[!, k] = Vector{v[2]}(undef, nrow(uc2))
+    end
+    
+    uc2[!, :graph] = Vector{MetaGraph}(undef, nrow(uc2))
+    
+    for v in mods
+        k = Symbol("modularity_" * string(v))
+        uc2[!, k] = Vector{Float64}(undef, nrow(uc2))
+    end
+    
+    rename!(uc2, :relationship => :relation)
+    return uc2
+end
+
+export initialize_ndf
+
+function network_info(
+    cx, cr;
+    waves = [1,3,4],
+    relnames = ["free_time", "personal_private", "kin", "union", "any"]
 )
 
-    relnames = if isnothing(relnames)
-        relvals
-    else
-        relnames
+    cxf = @subset cx :alter_source .== "Census" :wave .∈ Ref(waves);
+    select!(cxf, [:wave, :village_code, :relationship, :ego, :alter])
+
+    # set up connections data with relationships
+    # for combinations
+    let
+        relset = sunique(cxf.relationship)
+        cxcomb = @subset cxf :relationship .∈ Ref(relset)
+        cxcomb.relationship .= "any"
+        append!(cxf, cxcomb)
     end
 
-    cnt = 0
+    let
+        relset = ["free_time", "personal_private", "kin"]
+        cxcomb = @subset cxf :relationship .∈ Ref(relset)
+        cxcomb.relationship .= "union"
+        append!(cxf, cxcomb)
+    end
 
-    for (rel, relname) in zip(relvals, relnames)
-        # preallocate for graphs and distances
-        # dmats = Vector{Matrix{Float64}}(undef, length(gs));
+    @subset! cxf :relationship .∈ Ref(relnames)
+    
+    mods = [:protestant, :isindigenous]
+    @time ndf = initialize_ndf(cx, cxf, node_fund, g_fund, mods);
+    @show "initialized"
 
-        cxr = if typeof(rel) <: Vector
-            @views cx[cx.relationship .∈ Ref(rel), :];
-        else
-            @views cx[cx.relationship .== rel, :];
-        end
+    gcx = groupby(cxf, [:village_code, :relationship, :wave]);
+    @time addgraphs!(ndf, gcx)
+    @show "graphs added"
+
+    # modularity partition vectors
+    # religion
+    let v = :protestant;
+        grouppartition!(ndf, cr, v)
+        # treat missing as another category
+        ndf[!, v] = [replace(x, missing => 1, false => 2, true => 3) for x in ndf[!, v]];
+    end;
+
+    # indigeneity
+    let v = :isindigenous;
+        grouppartition!(ndf, cr, v)
+        # treat missing as another category
+        ndf[!, v] = [replace(x, missing => 1, false => 2, true => 3) for x in ndf[!, v]];
+    end;
+
+    @show "setup complete"
+
+    @time network_info!(ndf, mods);
+
+    return ndf
+end
+
+export network_info
+
+function addgraphs!(ndf, gcx)
+    Threads.@threads for arw in eachrow(ndf)
+        tpl = (village_code = arw[:village_code], relationship = arw[:relation], wave = arw[:wave])
+
+        subnet = gcx[tpl]
         
-        cxr = unique(cxr[!, [:ego, :alter, :village_code]])
-        gcx = groupby(cxr, :village_code);
+        g = arw[:graph] = MetaGraph(subnet, :ego, :alter)
+        set_indexing_prop!(g, :name)
+        arw[:names] = [get_prop(g, v, :name) for v in vertices(g)]
+    end
+end
 
-        for (i, ville) in enumerate(villes)
-            cnt += 1
-            
-            cxrv = get(gcx, (village_code = ville,), missing)
-            g = MetaGraph(cxrv, :ego, :alter)
-            set_indexing_prop!(g, :name)
-            
-            ndf[cnt, :village_code] = ville
-            ndf[cnt, :relation] = relname
-            ndf[cnt, :names] = [get_prop(g, i, :name) for i in 1:nv(g)];
+export addgraphs!
 
-            for (k, v) in node_fund
-                ndf[cnt, k] = v(g)
-            end
+"""
+        network_info!(ndf, gcx, mods)
 
-            for (k, (v, _)) in g_fund
-                ndf[cnt, k] = v(g)
-            end
+Populate `ndf` with network information.
+"""
+function network_info!(ndf, mods)
+    Threads.@threads for arw in eachrow(ndf)
+        # add node-level measures
+        for (k, v) in node_fund
+            arw[k] = v(arw[:graph])
+        end
 
-            if !isnothing(moddict)
-                ndfv = fill(0, length(ndf.names[cnt]))
-                for (k, e) in enumerate(ndf.names[cnt])
-                    ndfv[k] = get(moddict, e, 0)
-                end
-                #ndf[cnt, :modularity_religion] = modularity(g, ndfv)
-            end
+        # add graph-level measures
+        for (k, (v, _)) in g_fund
+            arw[k] = v(arw[:graph])
+        end
 
-            ndf[cnt, :graph] = g
+        # modularity
+        for v in mods
+            k = Symbol("modularity_" * string(v))
+            arw[k] = modularity(arw[:graph], arw[v])
         end
     end
 end
 
-# propertyvec for modularity
-function modudict(cr, v)
-    ucr = unique(select(cr, [:perceiver, :religion]));
-    replace!(ucr[!, v], missing => "Missing")
-    levels(ucr[!, v])
-    moddict = Dict(ucr.perceiver .=> levelcode.(ucr[!, v]));
-    misdx = findfirst(levels(ucr[!, v]) .== "Missing")
-    moddict, misdx
+export network_info!
+
+
+"""
+        network_info!(ndf, gcx)
+
+Populate `ndf` with network information.
+"""
+function network_info!(ndf, gcx)
+    Threads.@threads for arw in eachrow(ndf)
+        tpl = (village_code = arw[:village_code], relationship = arw[:relation], wave = arw[:wave])
+
+        subnet = gcx[tpl]
+        
+        g = arw[:graph] = MetaGraph(subnet, :ego, :alter)
+        set_indexing_prop!(g, :name)
+
+        for (k, v) in node_fund
+            arw[k] = v(g)
+        end
+
+        # add graph-level measures
+        for (k, (v, _)) in g_fund
+            arw[k] = v(g)
+        end
+
+        arw[:names] = [get_prop(g, v, :name) for v in vertices(g)]
+    end
 end
+
+export network_info!
+
+"""
+        grouppartition!(ndf, cr, v)
+
+
+## Details
+
+`ndf` is a networkinfo DataFrame, with `names` and `village_code` populated.
+
+Create a partition vector from `names` in `ndf` over characteristic `v`, using input information `cr`.
+
+For use with modularity calculation. N.B. further post processing likely required to coerce values into consecutive and distinct integers for groups.
+"""
+function grouppartition!(ndf, cr, v)
+    crv = unique(@views cr[!, [:village_code, :perceiver, v]]; view = true);
+    sort!(crv, [:village_code, :perceiver])
+    gcrv = groupby(crv, [:village_code]);
+    et = eltype(cr[!, v])
+    
+    ndf[!, v] = Vector{Vector{et}}(undef, nrow(ndf));
+    for (i, e) in enumerate(ndf.names)
+        ndf[i, v] = missings(Bool, length(e))
+    end
+    
+    for r in eachrow(ndf)
+        gdf = gcrv[(r.village_code,)]
+        for (j, n) in enumerate(r[:names])
+            x = findfirst(gdf.perceiver .== n)
+            if !isnothing(x)
+                r[v][j] = gdf[x, v]
+            end
+        end
+    end
+end
+
+export grouppartition!
 
 function join_ndf_cr!(cr, ndf; rels = ["free_time", "personal_private"])
     for r in rels
@@ -120,3 +258,5 @@ function join_ndf_cr!(cr, ndf; rels = ["free_time", "personal_private"])
         end
     end
 end
+
+export join_ndf_cr!
