@@ -19,7 +19,10 @@ function jointnetwork(
     con, net_name1, net_name2, new_name;
     add_symmetric = false
 )
+
+    con = dropmissing(con, [:ego, :alter, :relationship]);
     ndf = similar(con, 0); # store by push
+
     _jointnetwork!(ndf, con, net_name1, net_name2, new_name)
     if add_symmetric
         addsymmetric!(ndf) # move this to data processing
@@ -45,8 +48,8 @@ function _jointnetwork!(ndf, con, net_name1, net_name2, new_name)
             g1 = SimpleDiGraph(length(vtx));
             g2 = SimpleDiGraph(length(vtx));
 
-            samevillage = Bool[]
-            samebldg = Bool[]
+            samevillage =  missings(Bool, 0)
+            samebldg =  missings(Bool, 0)
             tie = Set{Int}[]
             # borrow
             for (i, (a, b)) in enumerate(zip(conrbi.ego, conrbi.alter))
@@ -88,15 +91,22 @@ function _jointnetwork!(ndf, con, net_name1, net_name2, new_name)
 
             for e in edges(g3)
                 idx = findfirst(isequal(Set([src(e), dst(e)])), tie)
-                push!(
-                    ndf,
-                    [
-                        vtx[src(e)],
-                        vtx[dst(e)],
-                        "none", new_name, samevillage[idx], samebldg[idx], vc, w, missing, false, false
-                    ]
-                    # 12
+                dfr = DataFrame(
+                    :wave => w,
+                    :village_code => vc,
+                    :ego => vtx[src(e)],
+                    :alter => vtx[dst(e)],
+                    :relationship => new_name,
+                    :alter_source => "",
+                    :same_village => samevillage[idx],
+                    :same_building => samebldg[idx],
+                    :seefreq => missing,
+                    :eatfreq => missing,
+                    :kintype => missing,
+                    :symmetric => false,
+                    :alter_as_ego => false
                 )
+                append!(ndf, dfr)
             end
         end
     end
