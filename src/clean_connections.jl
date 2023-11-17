@@ -34,13 +34,19 @@ function clean_connections(
     else
         #=
         if there are > 1 waves present
-        take the common set of variables and combine into a single dataframe
-        (this could also be done with regularize cols; but, it doesn'take
+        take the common set of variables and combine into a single DataFrame
+        (this could also be done with regularize cols; but, it doesn't
         seem necessary)
         =#
-        nminter = intersect([names(e) for e in conns]...)
-        reduce(vcat, [e[!, nminter] for e in conns]);
+        # nminter = intersect([names(e) for e in conns]...)
+        # reduce(vcat, [e[!, nminter] for e in conns]);
+
+        regularizecols!(conns)
+        reduce(vcat, conns)
     end
+
+    vnv = [:a2701 => :seefreq, :a2702 => :eatfreq]
+    rename!(conns, vnv)
     
     if alter_source
         rmidx = findall(conns[!, :alter_source] .!= 1)
@@ -68,6 +74,18 @@ function clean_connections(
             ]
         )
     end
+
+    select!(
+        conns,
+        :wave, :village_code, :ego, :alter, :relationship, :alter_source, :same_building, :same_village, :seefreq, :eatfreq
+    )
+
+    conns.alter_source = replace(
+        conns.alter_source,
+        0 => "Don't know", 1 => "Census",
+        2 => "Not in census"
+    )
+    conns.alter_source = convert(Vector{String}, conns.alter_source)
 
     return conns
 end
