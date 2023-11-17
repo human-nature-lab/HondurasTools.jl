@@ -23,20 +23,22 @@ function _fill_dmats!(dmats, gs, villes, gcx)
 end
 
 function perceiver_distances!(
+    gss, dmatss,
     cc, cx, relvals, villes, vg_n, ego_n, alters_n;
     relnames = nothing, symmetric = true
 )
+
+    # separately for each network type
     for (c, rel) in enumerate(relvals)
+
+        gs = @views gss[c]
+        dmats = @views dmatss[c]
 
         relname = if isnothing(relnames)
             rel * "_dists";
         else
             relnames[c]
         end
-
-        # preallocate for graphs and distances
-        gs = Vector{MetaGraph}(undef, length(villes));
-        dmats = Vector{Matrix{Float64}}(undef, length(gs));
 
         cxr = if typeof(rel) <: Vector
             @views cx[cx.relationship .∈ Ref(rel), :];
@@ -48,6 +50,7 @@ function perceiver_distances!(
 
         gcx = groupby(cxr, :village_code);
 
+        # iterates over villages (and nodes)
         _fill_dmats!(dmats, gs, villes, gcx)
 
         # preallocate for relationship
