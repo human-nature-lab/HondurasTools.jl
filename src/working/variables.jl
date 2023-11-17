@@ -19,6 +19,9 @@ export ids
 rl = (ft = "free_time", pp = "personal_private", u = "union", a = "any");
 rlmn = [rl.ft, rl.pp];
 
+cg = (p = :perceiver, a1 = :alter1, a2 = :alter2, r = :relation)
+export cg
+
 nets = (
     union = ["free_time", "personal_private", "kin"],
     core = ["free_time", "personal_private", "closest_friend"],
