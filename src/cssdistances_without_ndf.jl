@@ -1,42 +1,37 @@
-# cssdistances_alt.jl
+# cssdistances_without_ndf.jl
 
-DistMatDict = Dict{Tuple{Int, Int, String}, Matrix{Float64}}
-
-function cssdistances!(
-    css::T, ndf::T;
-    nets = nets, ids = ids, rl = rl) where T <: AbstractDataFrame
-    
+function cssdistances(
+    css, con, wave;
+    alter_source = "Census", nets = nets, ids = ids, rl = rl
+)
     alters_n = :alters;
     ego_n = :perceiver;
 
-    villes = sunique(css[!, ids.vc]);
-    nvc = sunique(ndf[!, ids.vc]);
-
-    @assert all([vl ∈ nvc for vl in vills])
+    villes = sunique(css.village_code);
+    cx = @subset con :village_code .∈ Ref(villes) :wave .== wave;
+    replace!(cx.relationship, "are_related" => "kin");
     
-    rels = sunique(ndf.relation)
-    relnames = rels .* "_dists";
+    if !isnothing(alter_source)
+        @subset! cx :alter_source .== "Census"
+    end
+
+    relvals = [
+        rl.ft, rl.pp, "kin",
+        nets.union, unique(cx.relationship)
+    ];
+
+    relnames = [rl.ft, rl.pp, "kin", "union", "any"] .* "_dists";
 
     cc = select(css, :perceiver, :village_code, :village_name, :relation);
     cc[!, alters_n] = [[e1, e2] for (e1, e2) in zip(css.alter1, css.alter2)];
 
-    ndf_ = ndf[!, [:wave, ids.vc, :relation, :graph]];
-    
-    # preallocate distance matrices
-    dd = DistMatDict();
-        
-    for (w, vc, rel, g) in zip(
-        ndf_.wave, ndf_[!, ids.vc], ndf_[!, :relation], ndf_[!, :graph]
-    )
-        # mutating gdistances!() function does not seem to assign typemax
-        # so had to preallocate with Inf
-        dd[(w, vc, rel)] = fill(Inf, nv(g), nv(g))
-    end
-
+    # preallocate for graphs and distances
+    gss = [Vector{MetaGraph}(undef, length(villes)) for _ in relvals];
+    dmatss = [Vector{Matrix{Float64}}(undef, length(villes)) for _ in relvals];
 
     perceiver_distances!(
-        dmatss,
-        cc, rels, ndf_, villes, ids.vc, ego_n, alters_n;
+        gss, dmatss,
+        cc, cx, relvals, villes, ids.vc, ego_n, alters_n;
         relnames = relnames
     )
 
@@ -122,33 +117,58 @@ end
 
 export cssdistances
 
-function _fill_dmats!(dm)
-    # populate distance matrix
-    for j in 1:nv(g)
-        gdistances!(g, j, @views(dm[:, j])) # unweighted only
-        # dm[:, j] = dijkstra_shortest_paths(g, j).dists
+function _fill_dmats!(dmats, gs, villes, gcx)
+    # construct the village graph, use name as index property
+    for (i, ville) in enumerate(villes)
+        cxrv = get(gcx, (village_code = ville,), missing)
+        g = MetaGraph(cxrv, :ego, :alter)
+        set_indexing_prop!(g, :name)
+        gs[i] = g
+        
+        # preallocate distance matrix for graph i
+        dm = dmats[i] = fill(Inf, nv(g), nv(g))
+    
+        # populate distance matrix
+        for j in 1:nv(g)
+            # mutating function does not seem to assign typemax
+            # so had to preallocate with Inf
+            gdistances!(g, j, @views(dm[:, j])) # unweighted only
+            # dm[:, j] = dijkstra_shortest_paths(g, j).dists
+            # dijkstra_shortest_paths(g, 1).dists == gdistances(g, 1)
+        end
     end
 end
 
 function perceiver_distances!(
-    dd::DistMatDict,
-    cc, ndf, villes, vg_n, ego_n, alters_n;
+    gss, dmatss,
+    cc, cx, relvals, villes, vg_n, ego_n, alters_n;
+    relnames = nothing, symmetric = true
 )
 
-(w, vc, rel, g) = (collect∘zip)(
-        ndf.wave, ndf[!, ids.vc], ndf[!, :relation], ndf[!, :graph]
-    )[1]
-
     # separately for each network type
-    for (w, vc, rel, g) in zip(
-        ndf.wave, ndf[!, ids.vc], ndf[!, :relation], ndf[!, :graph]
-    )
-    
-        relname = rel * "_dists";
-        dm = dd[(w, vc, rel)]
+    for (c, rel) in enumerate(relvals)
+
+        gs = @views gss[c]
+        dmats = @views dmatss[c]
+
+        relname = if isnothing(relnames)
+            rel * "_dists";
+        else
+            relnames[c]
+        end
+
+        cxr = if typeof(rel) <: Vector
+            @views cx[cx.relationship .∈ Ref(rel), :];
+        else
+            @views cx[cx.relationship .== rel, :];
+        end
         
-        _fill_dmats!(dm)
-        
+        cxr = unique(cxr[!, [:ego, :alter, :village_code]])
+
+        gcx = groupby(cxr, :village_code);
+
+        # iterates over villages (and nodes)
+        _fill_dmats!(dmats, gs, villes, gcx)
 
         # preallocate for relationship
         rnp = relname * "_p"

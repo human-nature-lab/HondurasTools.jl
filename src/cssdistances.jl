@@ -1,47 +1,69 @@
 # cssdistances.jl
 
+DistMatDict = Dict{Tuple{Int, Int, String}, Matrix{Float64}}
+
+# add variables denoting whether variable isinf, isnan, or both
+@inline usable(x) = !(isnan)(x) & !(isnan)(x)
+
+"""
+        cssdistances(
+            css::T, ndf::T;
+            nets = nets, ids = ids, rl = rl,
+            ego_n = :perceiver, alters_n = :alters,
+            post = true) where T <: AbstractDataFrame
+
+## Description
+
+Use `ndf` to construct distances between alters, and perceiver to alters in css.
+
+`post` implies that the data will be further reduced (mean of alters to perceiver).
+"""
 function cssdistances(
-    css, con, wave;
-    alter_source = "Census", nets = nets, ids = ids, rl = rl
-)
-    alters_n = :alters;
-    ego_n = :perceiver;
-
-    villes = sunique(css.village_code);
-    cx = @subset con :village_code .∈ Ref(villes) :wave .== wave;
-    replace!(cx.relationship, "are_related" => "kin");
+    css::T, ndf::T;
+    nets = nets, ids = ids, rl = rl,
+    ego_n = :perceiver, alters_n = :alters,
+    post = true) where T <: AbstractDataFrame
     
-    if !isnothing(alter_source)
-        @subset! cx :alter_source .== "Census"
-    end
+    villes = sunique(css[!, ids.vc]);
+    nvc = sunique(ndf[!, ids.vc]);
 
-    relvals = [
-        rl.ft, rl.pp, "kin",
-        nets.union, unique(cx.relationship)
-    ];
-
-    relnames = [rl.ft, rl.pp, "kin", "union", "any"] .* "_dists";
+    @assert all([vl ∈ nvc for vl in villes])
+    
+    rels = sunique(ndf.relation)
+    relnames = rels .* "_dists";
 
     cc = select(css, :perceiver, :village_code, :village_name, :relation);
     cc[!, alters_n] = [[e1, e2] for (e1, e2) in zip(css.alter1, css.alter2)];
 
-    # preallocate for graphs and distances
-    gss = [Vector{MetaGraph}(undef, length(villes)) for _ in relvals];
-    dmatss = [Vector{Matrix{Float64}}(undef, length(villes)) for _ in relvals];
+    ndf_ = ndf[!, [:wave, ids.vc, :relation, :graph, :names]];
 
-    perceiver_distances!(
-        gss, dmatss,
-        cc, cx, relvals, villes, ids.vc, ego_n, alters_n;
-        relnames = relnames
+    # preallocate distances
+    dd = DistMatDict();
+    _preallocate_distances!(
+        dd, cc, ndf_, alters_n, !any(is_directed.(ndf_.graph))
     )
 
+    gcc = groupby(cc, [ids.vc]);
+    
     # zero not possible so code that way
     # to drop NaN and Inf
-    # reduce(vcat, cc.personal_private_dists_p) |> sunique
+    _distances!(dd::DistMatDict, gcc, ndf, ego_n, alters_n; ids = ids)
+
+    if !post
+        return cc
+    else
+        return _distances_post(cc, css, relnames)
+    end
+end
+
+export cssdistances
+
+function _distances_post(cc, css, relnames)
+    # post processing
 
     # tag each distance as to perceiver to between alters
     rnsp = relnames .* "_p";
-    rnsa = relnames .* "_a";
+    # rnsa = relnames .* "_a"; # don't need to transform, scalar already
 
     cc1 = transform(
         cc, [x => ByRow(x -> mean(x)) for x in rnsp], renamecols = false
@@ -56,11 +78,12 @@ function cssdistances(
 
     # assign distance for that relationship
     # e.g., `dists_p` gives free time when `relation` == rl.ft
-    for (i, e) in enumerate(cc1.relation)
+    Threads.@threads for i in eachindex(cc1.relation)
+        e = cc1.relation[i]
         r = if e == "know_each_other"
             "any"
-        elseif e == "are_related"
-            "kin"
+        # elseif e == "are_related"
+        #     "kin"
         else
             e
         end
@@ -74,9 +97,6 @@ function cssdistances(
     # perfect match
     # cc1.socio4 = cc1.dists_a .== 1.0;
     # css.socio4 == cc1.socio4
-
-    # add variables denoting whether variable isinf, isnan, or both
-    @inline usable(x) = !(isnan)(x) & !(isnan)(x)
 
     rnsp2 = vcat(rnsp, ["dists_p", "dists_a"])
 
@@ -111,108 +131,101 @@ function cssdistances(
 
     distance_interaction!(css, :dists_p)
     distance_interaction!(css, :dists_a)
-    
+
     return css
 end
 
-export cssdistances
-
-function _fill_dmats!(dmats, gs, villes, gcx)
-    # construct the village graph, use name as index property
-    for (i, ville) in enumerate(villes)
-        cxrv = get(gcx, (village_code = ville,), missing)
-        g = MetaGraph(cxrv, :ego, :alter)
-        set_indexing_prop!(g, :name)
-        gs[i] = g
-        
-        # preallocate distance matrix for graph i
-        dm = dmats[i] = fill(Inf, nv(g), nv(g))
-    
-        # populate distance matrix
-        for j in 1:nv(g)
-            # mutating function does not seem to assign typemax
-            # so had to preallocate with Inf
-            gdistances!(g, j, @views(dm[:, j])) # unweighted only
-            # dm[:, j] = dijkstra_shortest_paths(g, j).dists
-            # dijkstra_shortest_paths(g, 1).dists == gdistances(g, 1)
-        end
+function _fill_dmats!(dm, g)
+    # populate distance matrix
+    for j in 1:nv(g)
+        gdistances!(g, j, @views(dm[:, j])) # unweighted only
+        # dm[:, j] = dijkstra_shortest_paths(g, j).dists
     end
 end
 
-function perceiver_distances!(
-    gss, dmatss,
-    cc, cx, relvals, villes, vg_n, ego_n, alters_n;
-    relnames = nothing, symmetric = true
-)
-
-    # separately for each network type
-    for (c, rel) in enumerate(relvals)
-
-        gs = @views gss[c]
-        dmats = @views dmatss[c]
-
-        relname = if isnothing(relnames)
-            rel * "_dists";
+function _preallocate_distances!(dd, cc, ndf_, alters_n, symmetric)
+    for rel in unique(ndf_[!, :relation])
+        # preallocate for relationship, distance columns in css
+        rnp = rel * "_dists" * "_p"
+        rna = rel * "_dists" * "_a"
+        cc[!, rnp] = if symmetric
+            [fill(0.0, length(v)) for v in cc[!, alters_n]]
         else
-            relnames[c]
+            error("not done yet")
         end
-
-        cxr = if typeof(rel) <: Vector
-            @views cx[cx.relationship .∈ Ref(rel), :];
-        else
-            @views cx[cx.relationship .== rel, :];
-        end
-        
-        cxr = unique(cxr[!, [:ego, :alter, :village_code]])
-
-        gcx = groupby(cxr, :village_code);
-
-        # iterates over villages (and nodes)
-        _fill_dmats!(dmats, gs, villes, gcx)
-
-        # preallocate for relationship
-        rnp = relname * "_p"
-        rna = relname * "_a"
-        cc[!, rnp] = [fill(0.0, length(v)) for v in cc[!, alters_n]];
-        
         cc[!, rna] = if symmetric
             fill(0.0, nrow(cc))
         else
-            [fill(0.0, length(v)) for v in cc[!, alters_n]];
+            error("not done")
         end
-        #
+    end
 
-        gcc = groupby(cc, :village_code)
-        for (k, gdi) in pairs(gcc)
-            gidx = findfirst(k[vg_n] .== villes); # safety on order
-            dm = dmats[gidx];
-            g = gs[gidx]
+    # (i, (w, vc, rel, g)) = (collect∘enumerate∘zip)(
+    #     ndf_.wave, ndf_[!, ids.vc], ndf_[!, :relation], ndf_[!, :graph]
+    # )[1]
 
-            for (i, (a, b)) in (enumerate∘zip)(gdi[!, ego_n], gdi[!, alters_n])
-                # there may be cases where a villager in css does not appear
-                # in the graph (connections)
-                
-                ii = tryindex(g, a, :name)
-                
-                # perceiver to alter
-                for (j, bi) in enumerate(b)
-                    jj = tryindex(g, bi, :name)
-                    # if both villagers exist assign distance, NaN otherwise
-                    gdi[i, rnp][j] = if !(isnan(ii) | isnan(jj))
-                        dm[ii, jj]
-                    else NaN
-                    end
-                end
+    for (w, vc, rel, g) in zip(
+        ndf_.wave, ndf_[!, ids.vc], ndf_[!, :relation], ndf_[!, :graph]
+    )
 
-                # distance between alters (symmetric == true)
-                a1 = tryindex(g, b[1], :name)
-                a2 = tryindex(g, b[2], :name)
-                gdi[i, rna] = if !(isnan(a1) | isnan(a2))
-                    dm[a1, a2]
-                else NaN
-                end
+        # mutating gdistances!() function does not seem to assign typemax
+        # so had to preallocate with Inf
+        dd[(w, vc, rel)] = fill(Inf, nv(g), nv(g))
+    end
+end
 
+function _distances!(dd::DistMatDict, gcc, ndf, ego_n, alters_n; ids = ids)
+
+    for (w, vc, rel, g) in zip(
+        ndf.wave, ndf[!, ids.vc], ndf[!, :relation], ndf[!, :graph]
+    )
+    
+        # add distances
+        dm = dd[(w, vc, rel)]
+
+        _fill_dmats!(dm, g)
+
+        # cc does not handle wave -> could be added later
+        gdi = gcc[(village_code = vc,)]
+
+        rnp = rel * "_dists" * "_p"
+        rna = rel * "_dists" * "_a"
+        
+        _matchdistances!(gdi, dm, g, ego_n, alters_n, rnp, rna; unit = :name)
+    end
+end
+
+"""
+        _matchdistances!(gdi, dm, g, ego_n, alters_n, rnp, rna; unit = :name)
+
+## Description
+
+Match calculated distances into rows of the `css` edgelist. Assign `NaN` when distance is not defined.
+
+"""
+function _matchdistances!(gdi, dm, g, ego_n, alters_n, rnp, rna; unit = :name)
+    for (i, (a, b)) in (enumerate∘zip)(gdi[!, ego_n], gdi[!, alters_n])
+        # there may be cases where a villager in css does not appear
+        # in the graph (connections)
+        
+        ii = tryindex(g, a, unit)
+        
+        # perceiver to alter
+        for (j, bi) in enumerate(b)
+            jj = tryindex(g, bi, unit)
+            # if both villagers exist assign distance, NaN otherwise
+            gdi[i, rnp][j] = if !(isnan(ii) | isnan(jj))
+                dm[ii, jj]
+            else NaN
             end
+        end
+
+        # distance between alters (symmetric == true)
+        a1 = tryindex(g, b[1], unit)
+        a2 = tryindex(g, b[2], unit)
+        gdi[i, rna] = if !(isnan(a1) | isnan(a2))
+            dm[a1, a2]
+        else NaN
         end
     end
 end

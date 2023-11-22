@@ -54,7 +54,8 @@ module HondurasTools
     # network processing
     include("groundtruth.jl")
     include("networkinfo.jl")
-    include("cssdistances_alt.jl")
+    include("cssdistances_without_ndf.jl")
+    include("cssdistances.jl")
 
     # effects analysis
     include("EModel.jl")
@@ -87,6 +88,6 @@ module HondurasTools
 
     # data date
     dte = "2023-11-20"
-    
+
     export prj, npath, ppath, dte
 end
