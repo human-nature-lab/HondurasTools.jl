@@ -16,6 +16,8 @@
 ids = (vc = :village_code, b = :building_id, n = :name)
 export ids
 
+# relationships
+
 rl = (ft = "free_time", pp = "personal_private", u = "union", a = "any");
 rlmn = [rl.ft, rl.pp];
 
@@ -49,7 +51,9 @@ ldr = [:hlthprom, :commuityhlthvol, :communityboard, :patron, :midwife, :religle
 export b5, ldr
 
 respvars = [
-    :wave, :village_name, :resp_target, :complete, :data_source,
+    :wave, :complete, :data_source,
+    :survey_start, :survey_end, :municipality, :office,
+    :motherliveinvillage, :fatherliveinvillage, :siblings, :brothers, :sisters, :siblings_over12, :notinvillage_children_over12, :married, :havepatron, :othervillage_friends_rel, :othervillage_loc, :eatfromkitchen, :invillage_yrs, :littlepleas, :downdep,
     :gender, :age, :agecat, :partnered,
     :other_alter_count, :lives_in_village, :works_in_village, # data source = 4
     :indigenous, :isindigenous,

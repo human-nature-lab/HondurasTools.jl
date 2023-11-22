@@ -77,3 +77,16 @@ function assign_kin!(css, con)
     disallowmissing!(css, :kin)
 
 end
+
+function arrangecss(css)
+    css2 = select(css, Not(["knows_alter1", "knows_alter2"]))
+
+    css2 = DataFrames.stack(
+        css2,
+        ["know_each_other", "free_time", "personal_private", "are_related"];
+        variable_name = :relation, value_name = :response
+    )
+    return css2
+end
+
+export arrangecss

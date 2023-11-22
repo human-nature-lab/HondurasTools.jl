@@ -67,13 +67,32 @@ end
 
 export initialize_ndf
 
-function network_info(
+"""
+networkinfo(
     cx, cr;
     waves = [1,3,4],
-    relnames = ["free_time", "personal_private", "kin", "union", "any"]
+    relnames = ["free_time", "personal_private", "kin", "union", "any"],
+    alter_source = "Census"
 )
 
-    cxf = @subset cx :alter_source .== "Census" :wave .∈ Ref(waves);
+## Description
+
+Construct a DataFrame that contains network statistics and graph objects
+from an input edgelist. N.B. that the edgelist should include all possible edges, which is filtered to the desired number of relationships. The larger set is needed to capture nodes that exist but do not have any ties in a particular network. Full sets are stored in `names_all`.
+
+N.B. that combination networks (and therefore `relnames`) is basically only usable as-is.
+"""
+function networkinfo(
+    cx, rr;
+    waves = [1,3,4],
+    relnames = ["free_time", "personal_private", "kin", "union", "any"],
+    alter_source = "Census"
+)
+
+    cxf = @subset cx :wave .∈ Ref(waves);
+    if !isnothing(alter_source)
+        @subset! cx :alter_source .== alter_source;
+    end
     select!(cxf, [:wave, :village_code, :relationship, :ego, :alter])
 
     # set up connections data with relationships
@@ -105,14 +124,14 @@ function network_info(
     # modularity partition vectors
     # religion
     let v = :protestant;
-        grouppartition!(ndf, cr, v)
+        grouppartition!(ndf, rr, v)
         # treat missing as another category
         ndf[!, v] = [replace(x, missing => 1, false => 2, true => 3) for x in ndf[!, v]];
     end;
 
     # indigeneity
     let v = :isindigenous;
-        grouppartition!(ndf, cr, v)
+        grouppartition!(ndf, rr, v)
         # treat missing as another category
         ndf[!, v] = [replace(x, missing => 1, false => 2, true => 3) for x in ndf[!, v]];
     end;
@@ -124,7 +143,7 @@ function network_info(
     return ndf
 end
 
-export network_info
+export networkinfo
 
 function addgraphs!(ndf, gcx)
     Threads.@threads for arw in eachrow(ndf)
@@ -167,38 +186,8 @@ end
 
 export network_info!
 
-
 """
-        network_info!(ndf, gcx)
-
-Populate `ndf` with network information.
-"""
-function network_info!(ndf, gcx)
-    Threads.@threads for arw in eachrow(ndf)
-        tpl = (village_code = arw[:village_code], relationship = arw[:relation], wave = arw[:wave])
-
-        subnet = gcx[tpl]
-        
-        g = arw[:graph] = MetaGraph(subnet, :ego, :alter)
-        set_indexing_prop!(g, :name)
-
-        for (k, v) in node_fund
-            arw[k] = v(g)
-        end
-
-        # add graph-level measures
-        for (k, (v, _)) in g_fund
-            arw[k] = v(g)
-        end
-
-        arw[:names] = [get_prop(g, v, :name) for v in vertices(g)]
-    end
-end
-
-export network_info!
-
-"""
-        grouppartition!(ndf, cr, v)
+        grouppartition!(ndf, rr, v)
 
 
 ## Details
@@ -209,11 +198,12 @@ Create a partition vector from `names` in `ndf` over characteristic `v`, using i
 
 For use with modularity calculation. N.B. further post processing likely required to coerce values into consecutive and distinct integers for groups.
 """
-function grouppartition!(ndf, cr, v)
-    crv = unique(@views cr[!, [:village_code, :perceiver, v]]; view = true);
-    sort!(crv, [:village_code, :perceiver])
-    gcrv = groupby(crv, [:village_code]);
-    et = eltype(cr[!, v])
+function grouppartition!(ndf, rr, v)
+
+    crv = unique(rr[!, [:perceiver, v]]; view = true)
+    crv = Dict(crv.perceiver .=> crv[!, v])
+
+    et = eltype(rr[!, v])
     
     ndf[!, v] = Vector{Vector{et}}(undef, nrow(ndf));
     for (i, e) in enumerate(ndf.names)
@@ -221,12 +211,9 @@ function grouppartition!(ndf, cr, v)
     end
     
     for r in eachrow(ndf)
-        gdf = gcrv[(r.village_code,)]
         for (j, n) in enumerate(r[:names])
-            x = findfirst(gdf.perceiver .== n)
-            if !isnothing(x)
-                r[v][j] = gdf[x, v]
-            end
+            x = get(crv, n, missing)
+            r[v][j] = x
         end
     end
 end

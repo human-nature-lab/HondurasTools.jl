@@ -180,3 +180,5 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
     
     return mb
 end
+
+export clean_microbiome, load_mbvillages

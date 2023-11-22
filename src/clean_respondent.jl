@@ -144,7 +144,6 @@ function clean_respondent(
         rename!(rf, :b0100 => v);
         
         irrelreplace!(rf, v)
-        rf[!, v] = categorical(rf[!, v]; ordered = true);
         replace!(
             rf[!, v],
             "Have not completed any type of school" => "None"
@@ -233,6 +232,7 @@ function clean_respondent(
         "fair" => "Fair",
         "good" => "Good",
         "very good" => "Very good",
+        "Very Good" => "Very good",
         "excellent" => "Excellent")
 
         rf[!, :healthy] = copy(rf[!, v]);
@@ -536,6 +536,22 @@ function clean_respondent(
     # bstrclean!(:e1100, :preg_delayavoid_now, rf, rf_desc, namedict)
     # ignore e1200 -- now version of e1000
 
+    let # correct `data_source`
+        rwds1 = rf.data_source[rf.wave .== 1];
+        rwds1n = replace(
+            rwds1, 1 => "Census, survey", 2 => "Census, no survey", 3 => "Alter"
+        );
+    
+        rwds2 = rf.data_source[rf.wave .> 1];
+        rwds2n = replace(
+            rwds2, 1 => "Census, survey", 2 => "Census, survey",
+            3 => "Census, no survey", 4 => "Alter");
+    
+        rf.data_source = fill("", nrow(rf));
+        rf.data_source[rf.wave .== 1] .= rwds1n;
+        rf.data_source[rf.wave .> 1] .= rwds2n;
+    end
+
     # at hh level
     let nosel = [:b0300, ]
         select!(rf, Not(nosel))
@@ -548,3 +564,5 @@ function clean_respondent(
 
     return rf
 end
+
+export clean_respondent

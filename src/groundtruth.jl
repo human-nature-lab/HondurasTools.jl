@@ -1,238 +1,220 @@
 # groundtruth.jl
 
-function widecon(con; sort = false)
-    _con = deepcopy(con)
+Tx = Tuple{Union{String, Vector{String}}, Union{String, Vector{String}}}
 
-    if sort
-        sortedges!(_con.ego, _con.alter)
-    end
-
-    kin_values = ["father", "mother", "sibling", "partner"]
-    kin_dict = Dict(
-        "father" => "Parent/child",
-        "mother" => "Parent/child",
-        "sibling" => "Siblings",
-        "partner" => "Partners"
-    )
-    
-    _con[!, :answer] = _con.relationship;
-    kin_con = @views _con[_con.relationship .∈ Ref(kin_values), :];
-    kin_con.answer = [
-        get(kin_dict, e, "None of the above") for e in kin_con.relationship
-    ];
-
-    __con = @chain _con begin
-        select([:ego, :alter, :answer, :kintype, :wave, :village_code])
-        unique()
-        groupby([:ego, :alter, :village_code, :wave])
-        combine(
-            :answer => Ref∘unique => :answers, 
-            :kintype => Ref∘collect∘skipmissing∘unique => :kintypes
-        )
-    end;
-    __con.answers = convert(Vector{Vector{String}}, vcat.(__con.answers, __con.kintypes));
-    select!(__con, Not(:kintypes))
-    
-    return __con
+struct GroundTruth
+    col::Symbol
+    rel::Vector{NamedTuple{(:con, :css), Tx}}
+    waves::Vector{Int}
+    alter_source::Union{Nothing, String}
+    cx::DataFrame
 end
 
-function groundtruth(css, con, resp)
+export GroundTruth
 
-    known = select(
-        css,
-        [
-            "perceiver",
-            "alter1", "alter2", 
-            "knows_alter1",
-            "knows_alter2",
-            "village_code"
-            # "village_name", "timing", "order"
-        ]
-    ) |> unique;
+function mkgroundtruth(
+    col::Symbol,
+    relset,
+    waves::Vector{Int},
+    cs::T, cx::T;
+    alter_source = "Census"
+) where T<:AbstractDataFrame
 
-    css2 = select(css, Not(["knows_alter1", "knows_alter2"]))
-
-    css2 = DataFrames.stack(
-        css2,
-        ["know_each_other", "free_time", "personal_private", "are_related"];
-        variable_name = :relation, value_name = :response
-    )
-
-    dropmissing!(css2)
-
-    __con = widecon(con; sort = false)
+    rname = Symbol(string(col) * string(waves...))
     
-    namedict = make_namedict(resp, __con);
-
-    ___con = Dict{Tuple{String, String}, Vector{String}}();
-    sizehint!(___con, 500000);
-
-    # we need an additional check for prior waves to ensure that both elements of the pair exist in the data -- whether they are related or not
-
-    for (i, (w, wx)) in enumerate(zip([4, 3, 1], [:w4, :w3, :w1]))
-        empty!(___con)
-        # note the ground truth status of the tie for the relation
-        css2[!, wx] = Vector{Union{Missing, String}}(missing, nrow(css2));
-        # separately track whether a tie is truly kin
-        kinvar = Symbol("kin_" * string(wx))
-        css2[!, kinvar] = Vector{Union{Missing, Bool}}(missing, nrow(css2));
-
-        # connections data at wave w
-        i__con = @views __con[__con.wave .== w, :]
-        
-        # use connections data at wave w to
-        # fill dictionary for quick access to the relationships
-        # between pairs (pairs without any relationships have no entries...)
-        for (eg, al, an) in zip(i__con.ego, i__con.alter, i__con.answers)
-            ___con[(eg, al)] = an
-        end
-
-        for (l, (a1, a2, rel, answ)) in enumerate(
-                zip(css2.alter1, css2.alter2, css2.relation, css2.response)
-            ) # N.B. not tracking village code
-            
-            # get the relations between those two at wave
-            out1 = get(___con, (a1, a2), String[])
-            out2 = get(___con, (a2, a1), String[])
-
-            # check existence for each alter
-            ca1 = get(namedict, a1, missing)
-            ca2 = get(namedict, a2, missing)
-            
-            #=  check if i and j are present in respondent data at wave x
-                for now, only check the wave, don't check whether the villages
-                are the same
-            =#
-
-            # this conditional parses "No" does not exist vs. 
-            # the tie could not possibly exist because at least one individual
-            # is not even present at wave
-            css2[l, wx] = tieverity(rel, answ, out1, out2, ca1, ca2, w)
-            css2[l, kinvar] = kinstatus(out1, out2)
-        end
+    # add column, cs
+    cs[!, rname] = missings(String, nrow(cs));
+    
+    # handle, cx
+    if !isnothing(alter_source)
+        xr = [alter_source, ""] # for combinations with "" value
+        cx_ = @subset cx :wave .∈ Ref(waves) :alter_source .∈ Ref(xr);
     end
+    select!(cx_, [:wave, :village_code, :ego, :alter, :relationship]);
+    cx_.tie = [(a,b) for (a,b) in zip(cx_.alter, cx_.ego)];
+    addcombination!(cx_, relset, string(col))
 
-    css2.kin = Vector{Union{Missing, Bool}}(missing, nrow(css2))
-    for i in 1:length(css2.kin)
-        css2[i, :kin] = passmissing(any)(
-            [css2.kin_w4[i], css2.kin_w3[i], css2.kin_w3[i]]
-        )
-    end
-
-    return css2, known
+    # trm cx to included relationsh
+    # don't bother
+    # xs = sunique([x.con for x in relset])
+    # setdiff(unique(con.relationship), xs[1])
+    
+    # return object with relevant data
+    return GroundTruth(
+        col,
+        relset,
+        waves,
+        alter_source,
+        cx_
+    );
 end
 
-function make_namedict(resp, con)
-    # __con
-    # get the unique set of individuals, their waves and their villages at each wave
-    # why are there more entries when we have the combination of
-    # respondents and connections?
-    # add village code if we want to track movement or limit to within village networks
+export mkgroundtruth
 
-    uresp = unique(resp[!, [:wave, :name, :village_code]]);
-    xx = unique(con[!, [:wave, :ego, :alter, :village_code]]);
-    ucon = unique(DataFrame(:wave => vcat(xx.wave, xx.wave), :name => vcat(xx.ego, xx.alter), :village_code => vcat(xx.village_code, xx.village_code)));
-    ur = unique(vcat(uresp, ucon))
-    sort!(ur, [:name, :wave, :village_code])
-    ur = groupby(ur, [:name])
-    ur = combine(ur, :wave => Ref => :waves, :village_code => Ref => :village_codes)
-    
-    return Dict(ur.name .=> tuple.(ur.waves, ur.village_codes))
-end;
+function addcombination!(cx, relset, rname)
+    xs = sunique([x.con for x in relset])
+    if eltype(xs) <: AbstractVector
+        for x in xs
+            nw = @subset cx :relationship .∈ Ref(x)
+            nw.relationship .= rname
+            append!(cx, nw)
+        end
+    end
+end
 
-"""
-        tieverity(rel, answ, out1, out2, ca1, ca2, w)
+export addcombination!
 
-### Description
+function groundtruth!(cs, gts::GroundTruth)
 
-Determines the truth of a CSS response, noting the directionality of the tie.
+    cx = gts.cx;
 
-### Arguments
+    # output target
+    nom = gts.col
+    crs = [x.con for x in gts.rel]
+    nomvar = Symbol(string(gts.col) * string(gts.waves...))
 
-- `rel` : relationship string
-- `answ` : true relationship string
-- `w` : wave
+    if string(nomvar) ∉ names(cs)
+        error("target variable does not exist in cs")
+    end
 
-"""
-function tieverity(rel, answ, out1, out2, ca1, ca2, w)
-    return if ismissing(ca1) | ismissing(ca2)
-        # if not both are present
-        "Not both present"
-    elseif !((w ∈ ca1[1]) & (w ∈ ca2[1]))
-        # if not both present at wave
-        "Not both present at wave"
-        # if there is a relationship but an alter does not exist at wave
-        # c1 = (w ∈ ca1[1]) & (w ∈ ca2[1]);
-        # if !c1 & (length(out) != 0)
-        #     error("problem " * string(l) * ":" * string(w))
-        # end
+    # if con relationship is given as is a vector
+    # the target relationship in cx is gts.col
+    con_relations = if eltype(unique(crs)) <: AbstractVector
+        fill(string(nom), length(crs))
     else
-        # if both are present at wave, evaluate the relationship
-
-        # three cases
-        # 1. know each other -> count if there is some relationship
-        # 2. are related -> count if either nominates kin
-        # 3. free time or personal private -> count if that tie is present in list
-
-        if (rel == "know_each_other")
-            p1 = (length(out1) > 0)
-            p2 = (length(out2) > 0)
-            tiedirection(p1, p2)
-
-        elseif (rel == "are_related")
-            p1 = answ ∈ out1
-            p2 = answ ∈ out2
-
-            # if either reports it, count it
-            if p1 | p2
-                answ
-            else
-                "None of the above"
-            end
-
-        else
-            tiedirection(rel ∈ out1, rel ∈ out2)
-        end
+        crs
     end
-end
 
-function kinstatus(out1, out2)
-    p1 = (length(out1) > 0)
-    p2 = (length(out2) > 0)
-    if p1 | p2 
-        # if either nominates, count it
-        for ax in [out1, out2]
-            for e in ax
-                if e == "are_related" # ["Parent/child", "Siblings", "Partners"]
-                    return true
+    # basically, will be rl.ft and rl.pp
+    cs_relations = [x.css for x in gts.rel]
+
+    villages = sunique(cs[!, ids.vc])
+
+    # setup reference objects
+    gcs = groupby(cs, [ids.vc, :relation]); # basis
+    gcx = groupby(cx, [ids.vc]); # all relations in village
+    grcx = groupby(cx, [ids.vc, :relationship]); # filter to relation
+
+    # check connections data for nodes and tie that appears in css
+    Threads.@threads for i in villages # over villages
+        
+        # same for css and con, modify to pairs for more complex
+        for (conrel, cssrel) in zip(con_relations, cs_relations)
+            # node-universe for village
+            gci = gcx[(village_code = i,)];
+            # reference-network for village
+            # could be: same as css relationship, a different relationship, or
+            # a (wider-scope) combination of relationships
+            gcir = grcx[(village_code = i, relationship = conrel)];
+
+            # node reference for whole village
+            uall = (sunique∘vcat)(gci[!, :ego], gci[!, :alter]);
+            # (reference) ties in (defined) village network
+            erel = gcir.tie;
+            
+            g = gcs[(village_code = i, relation = cssrel)]; # css region
+            pix, _ = parentindices(g);
+
+            # for each row in group, find the tie in 
+            for (l, a1, a2) in zip(pix, g[!, :alter1], g[!, :alter2])
+                if (a1 ∈ uall) & (a2 ∈ uall)
+
+                    # ego-alter in con (ego nominates)
+                    a1nom = (a1, a2) ∈ erel; # a1 nominates
+                    a2nom = (a2, a1) ∈ erel; # a2 nominates
+
+                    # not really needed
+                    # just use `ifelse()` to make, as needed for analysis
+                    # cs[l, socio] = a1nom | a2nom # either nominates
+                    
+                    cs[l, nomvar] = if a1nom & a2nom
+                        "Yes"
+                    elseif a1nom & !a2nom
+                        "Alter 1"
+                    elseif !a1nom & a2nom
+                        "Alter 2"
+                    else
+                        "No"
+                    end
                 end
             end
         end
-        # if return is not triggered by presence
-        return false
-    else
-        false
     end
 end
 
-"""
-        tiedirection(p1, p2)
+export groundtruth!
 
-Determine the direction of the tie.
-- both nominate => "Yes"
-- alter 1 nominates => "Alter1"
-- alter 2 nominates => "Alter2"
-- neither nominates => "No"
+function groundtruth(css, con; alter_source = "Census", nets = nets)
 
-"""
-function tiedirection(p1, p2)
-    return if p1 & !p2
-        "Alter1"
-    elseif !p1 & p2
-        "Alter2"
-    elseif p1 & p2
-        "Yes"
-    else
-        "No"
+    waveset = [[4],[3],[1], [4, 3, 1], [4, 3], [4, 1], [3, 1]]
+
+    cs = select(css, [:village_code, :perceiver, :alter1, :alter2, :relation]);
+    @assert css.perceiver == cs.perceiver
+
+    unrls = nets.union
+    anyrls = String.(sunique(con.relationship))
+
+    _groundtruth(cs, con, waveset, unrls, anyrls; alter_source)
+
+    return cs
+end
+
+export groundtruth
+
+function _groundtruth(
+    cs, con, waveset,
+    # complex relationship
+    unrls, anyrls; alter_source
+)
+
+    for w in waveset
+
+        # connections
+        s_ = mkgroundtruth(
+            :socio,
+            [(con = rl.ft, css = rl.ft), (con = rl.pp, css = rl.pp)],
+            w,
+            cs, con;
+            alter_source
+        );  # match relationship for ground truth
+
+        u_ = mkgroundtruth(
+            :union,
+            [(con = unrls, css = rl.ft), (con = unrls, css = rl.pp)],
+            w,
+            cs, con;
+            alter_source
+        ); # union for ground truth
+
+        a_ = mkgroundtruth(
+            :any,
+            [(con = anyrls, css = rl.ft), (con = anyrls, css = rl.pp)],
+            w,
+            cs, con;
+            alter_source
+        ); # any for ground truth
+
+        k_ = mkgroundtruth(
+            :kin,
+            [(con = "are_related", css = rl.ft), (con = "are_related", css = rl.pp)],
+            w,
+            cs, con;
+            alter_source
+        ); # (any) kin (type) for ground truth
+
+        o_ = mkgroundtruth(
+            :other,
+            [(con = rl.pp, css = rl.ft), (con = rl.pp, css = rl.pp)],
+            w,
+            cs, con;
+            alter_source
+        ); # other relation (flipped from `s_`) for ground truth
+
+        # apply groundtruth
+        groundtruth!(cs, s_)
+        groundtruth!(cs, u_)
+        groundtruth!(cs, a_)
+        groundtruth!(cs, k_)
+        groundtruth!(cs, o_)
     end
 end

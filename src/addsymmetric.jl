@@ -30,6 +30,17 @@ function shiftkin!(con)
     con.relationship[con.relationship .∈ Ref(kin)] .= "are_related";
 end
 
+export shiftkin!
+
+"""
+        addsymmetric!(con)
+
+## Description
+
+Add a column to the `con` edgelist that indicates whether the ties are recipricated. (In constrast to using non-unique, this marks both directions.)
+
+Also adds column indicating whether the `alter` appears as an `ego`.
+"""
 function addsymmetric!(con)
 
     con.symmetric = fill(false, nrow(con))
@@ -57,3 +68,5 @@ function addsymmetric!(con)
         con.alter_as_ego[i] = get(interdict, e, false)
     end
 end
+
+export addsymmetric!

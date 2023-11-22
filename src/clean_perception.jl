@@ -199,12 +199,7 @@ function clean_perception!(resp; namedict = nothing)
         
         # type as regular string (basically fixed by changing CSV.read)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        
-        # change to an ordered categorical variable
-        resp[!, v] = categorical(resp[!, v]; ordered = true)
 
-        # assign levels to scale
-        levels!(resp[!, v], goodness)
     end;
 
     let
@@ -221,8 +216,6 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true)
-        levels!(resp[!, v], goodness)
 
         v = :girl_baby_good_age
 
@@ -238,8 +231,6 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
 
         v1 = :avoid_preg_ever; v2 = :avoid_preg_now;
 
@@ -258,8 +249,6 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], goodness);
 
         # no ground, e.g., "do you think that it is good to avoid preg?"
     end;
@@ -271,14 +260,11 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true)
-        levels!(resp[!, v], freqscale)
 
         v = :folic_good_when
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = false)
 
         # good under at least some circumstance
         resp[!, :folic_good] = passmissing(ifelse).(resp[!, v] .== "Never", false, true);
@@ -305,8 +291,6 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
 
         v2 = :prenatal_care_when
 
@@ -329,8 +313,6 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], goodness);
 
         v = :prenatal_care_good_when
         replace!(resp[!, v], [rx => missing for rx in rms]...)
@@ -345,22 +327,17 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
 
         # If a woman in your community gives birth at home, will people in the community think it is good, bad, or neither?
         v = :homebirth_moralperc
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], goodness);
 
         v = :birth_good_where
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = false);
 
         v = :wherebirth
         replace!(resp[!, v], [rx => missing for rx in rms]...)
@@ -376,13 +353,11 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = false);
 
         v = :birthdecision;
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = false);
 
         pidx = resp[!, :birthdecision] .== "Partner";
         pidx = coalesce.(pidx, false);
@@ -431,8 +406,6 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
 
         v = :postnatal_care_any;
 
@@ -463,16 +436,12 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
 
         # If a baby is not bathed as soon as possible after she/he is born, would people in this community see it as good, bad, neither?
         v = :baby_bath_moralperc;
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], goodness);
 
         v = :baby_bath;
         # all are in days
@@ -528,8 +497,6 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
         
         v = :fajero_good_1;
         
@@ -555,16 +522,12 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
 
         v = :chupon_moralperc
         
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], goodness);
 
         v = :chupon
         
@@ -708,8 +671,6 @@ function clean_perception!(resp; namedict = nothing)
         v = :father_check_perc
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
 
         v = :father_check
         replace!(resp[!, v], [rx => missing for rx in rms]...);
@@ -721,8 +682,6 @@ function clean_perception!(resp; namedict = nothing)
         v = :father_check_moralperc
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], goodness);
 
         v = :father_check_good
         replace!(resp[!, v], [rx => missing for rx in rms]...)
@@ -734,8 +693,6 @@ function clean_perception!(resp; namedict = nothing)
         v = :father_wait_perc
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
 
         v = :father_wait
         replace!(resp[!, v], [rx => missing for rx in rms]...)
@@ -745,8 +702,6 @@ function clean_perception!(resp; namedict = nothing)
         v = :father_wait_moralperc
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], goodness);
 
         v = :father_wait_good
         replace!(resp[!, v], [rx => missing for rx in rms]...)
@@ -759,8 +714,6 @@ function clean_perception!(resp; namedict = nothing)
         v = :father_care_sick_perc
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
 
         # If a father in your community does not help care for his sick children, will people in the community think it is good bad or neither?
         v = :father_care_sick_good
@@ -774,15 +727,11 @@ function clean_perception!(resp; namedict = nothing)
         v = :men_hit_perc
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], freqscale);
 
         # If a man in this community hits his wife/partner, will people in the community think it is good bad or neither?
         v = :men_hit_moralperc
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = categorical(resp[!, v]; ordered = true);
-        levels!(resp[!, v], goodness);
 
         vs = [:men_hit_neglect_good, :men_hit_house_good, :men_hit_argue_good, :men_hit_food_good, :men_hit_sex_good]
 
@@ -837,3 +786,5 @@ function clean_perception!(resp; namedict = nothing)
     ];
     
 end
+
+export clean_perception!

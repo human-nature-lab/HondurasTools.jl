@@ -12,6 +12,8 @@ function transformunitvalues(x)
     )
 end
 
+export transformunitvalues
+
 """
         applytransform!(transforms, vbl; tr = UnitRangeTransform)
 
@@ -35,7 +37,7 @@ function standards(df)
         :elevation,
         # network distances
         :dists_p, :dists_a, :union_dists_p, :union_dists_a,
-        :dists_p_i
+        :dists_p_i, :dists_a_i,
     ];
     
     for vbl in vbls
@@ -51,9 +53,10 @@ function standards(df)
         end
     end
     
-    for vbl in[:modularity_religion]
+    mrs = Symbol.("modularity_religion_" .* [rl.ft, rl.pp, "kin"])
+    for vbl in mrs
         if string(vbl) ∈ names(df)
-            applytransform!(transforms, vbl, df; tr = UnitRangeTransform)
+            applytransform!(transforms, vbl, df; tr = load)
         end
     end
 

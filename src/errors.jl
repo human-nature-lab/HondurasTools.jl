@@ -1,5 +1,13 @@
 # errors.jl
 
+"""
+errors(
+    css; truth = :socio4, grouping = [:kin_all, :relation, :perceiver]
+)
+
+Calculate the `type1` and `type2` error rates for the CSS data, based on
+ground truth `truth`, by `grouping` variables.
+"""
 function errors(
     css; truth = :socio4, grouping = [:kin_all, :relation, :perceiver]
 )
@@ -29,8 +37,14 @@ function errors(
             sort(grouping)
     end;
 
+    edf[!, :tnr] = 1 .- edf.fpr
+
+    # fpr / type1 er
     edf[!, :type1] = edf.fpr;
+    select!(edf, Not(:fpr))
+    # fnr / type2 er
     edf[!, :type2] = 1 .- edf.tpr;
+
 
     return edf
 end

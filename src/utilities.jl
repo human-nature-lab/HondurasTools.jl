@@ -1,21 +1,100 @@
 # utilities.jl
 
+"""
+        sunique(x)
+
+Return sorted unique object.
+"""
+sunique(x) = (sort∘unique)(x)
+export sunique
+
+"""
+        unilen(x)
+
+Return the number of unique elements.
+"""
+function unilen(x)
+    return x |> unique |> length
+end
+
+export unilen
+
+"""
+        interlen(x, y)
+
+Return the length of the intersecting elements.
+"""
+function interlen(x, y)
+    return intersect(x, y) |> length
+end
+
+function misstring(x)
+    return if ismissing(x)
+        missing
+    else
+        string(x)
+    end
+end
+
+export interlen
+
+"""
+upck(x)
+
+Return the last element of a vector or give missing if length < 1.
+"""
+function upck(x)
+    return if length(x) > 0
+        x[end]
+    else
+        missing
+    end
+end
+
+export upck
+
 import Base.names
+
 function names(g::T; name = :name) where T <: AbstractMetaGraph
     return [get_prop(g, i, name) for i in 1:nv(g)]
 end
 
+export names
+
+"""
+        prp(x; a=3, b=2)
+
+## Description
+
+sum(x .== a)/(sum(x .== b) + sum(x .== a))
+"""
+function prp(x; a=3, b=2)
+    return sum(x .== a)/(sum(x .== b) + sum(x .== a))
+end
+
+export prp
+
+"""
+        stround(x; digits = d)
+
+## Description
+
+Return `String` rounded to `d` digits for numeric/integer.
+"""
+function stround(x; digits = d)
+    return (string∘round)(x; digits)
+end
+
+export stround
+
 """
         sa(a)
 
-Skip missing and NaN.
-via Skipper.jl
+Skip missing and NaN. via Skipper.jl.
 """
 sa(a) = skip(x -> ismissing(x) || isnan(x), a) 
-export sa
 
-sunique(x) = (sort∘unique)(x)
-export sunique
+export sa
 
 struct OneHot{T}
     m::T
@@ -35,31 +114,12 @@ end
 export onehot, OneHot
 
 """
-        irrelreplace!(cr, v)
+        tryindex(g::T, a, prop; alt = NaN)
 
-values equal to any of
-["Don't know", "Don't Know", "Dont_Know", "Refused", "Removed"]
-become missing.
+## Description
+
+Try to return index from property for `MetaGraph`, return `NaN` otherwise.
 """
-function irrelreplace!(cr, v)
-    replace!(cr[!, v], [x => missing for x in HondurasTools.rms]...);
-end
-
-"""
-        binarize!(cr, v)
-
-Values == `yes` -> `true`; other values -> `false`.
-Missing values are retained as `missing`.
-"""
-function binarize!(cr, v; yes = "Yes")
-    if (eltype(cr[!, v]) == Union{Missing, Bool}) | (eltype(cr[!, v]) == Bool)
-        println(string(v) * " already converted")
-    else
-        irrelreplace!(cr, v)
-        cr[!, v] = passmissing(ifelse).(cr[!, v] .== yes, true, false);
-    end
-end
-
 function tryindex(g::T, a, prop; alt = NaN) where T <: AbstractMetaGraph
     return try
         g[a, prop]
@@ -68,52 +128,4 @@ function tryindex(g::T, a, prop; alt = NaN) where T <: AbstractMetaGraph
     end
 end
 
-## general
-
-"""
-        unilen(x)
-
-Return the number of unique elements.
-"""
-function unilen(x)
-    return x |> unique |> length
-end
-
-"""
-        interlen(x, y)
-
-Return the length of the intersecting elements.
-"""
-function interlen(x, y)
-    return intersect(x, y) |> length
-end
-
-function misstring(x)
-    return if ismissing(x)
-        missing
-    else
-        string(x)
-    end
-end
-
-replmis(x) = ismissing(x) ? false : true
-
-boolstring(x) = return if x == "Yes"
-    true
-elseif x == "No"
-    false
-else error("not Yes/No")
-end
-
-function boolvec(vector)
-    return if nonmissingtype(eltype(vector)) <: AbstractString
-        passmissing(boolstring).(vector)
-    elseif nonmissingtype(eltype(vector)) <: Signed
-        if sort(collect(skipmissing(unique(vector)))) == [1, 2]
-            passmissing(Bool).(vector .- 1)
-        elseif sort(collect(skipmissing(unique(vector)))) == [0, 1]
-            passmissing(Bool).(vector)
-        end
-    else error("check type")
-    end
-end
+export tryindex, sa, irrelreplace!, binarize!

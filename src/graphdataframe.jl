@@ -145,3 +145,5 @@ function DataFrame(gr::T; type = :node) where T <:AbstractMetaGraph
     end
     return dx
 end
+
+export names, MetaGraph, DataFrame

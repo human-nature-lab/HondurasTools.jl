@@ -390,3 +390,5 @@ function code_cop!(cop)
         cop[!, v] = categorical(cop[!, v]);
     end
 end
+
+export clean_ihr, code_cop!, code_ihr!, updatevalues!

@@ -1,6 +1,6 @@
 # effects_utilities.jl
 
-function bimargins(ms, vbls, crt, crf; invlink = logistic)
+function bimargins(ms, vbls, crt, crf; tnr = true, invlink = logistic)
 
     # create design
     udict = Dict{Symbol, Vector{Any}}();
@@ -22,9 +22,18 @@ function bimargins(ms, vbls, crt, crf; invlink = logistic)
     tpr = ms.tpr; # getfield(ms, :tpr);
     fpr = ms.fpr; # getfield(ms, :fpr);
     eff_tpr = effects(dsn, tpr, invlink = invlink);
-    eff_tpr.truth .= true;
+    eff_tpr.verity .= true;
     eff_fpr = effects(dsn, fpr, invlink = invlink);
-    eff_fpr.truth .= false;
+    eff_fpr.verity .= false;
+
+    lnkc = (invlink == logistic) | (invlink == ncdf)
+    vrs = [:response, :lower, :upper]
+
+    if tnr & lnkc
+        eff_fpr[!, vrs]  = 1 .- eff_fpr[!, vrs] 
+    elseif tnr & !lnkc
+        error("scale error")
+    end
 
     return vcat(eff_tpr, eff_fpr);
 end

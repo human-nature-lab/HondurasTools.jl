@@ -255,5 +255,16 @@ function clean_household(
         dropmissing!(hh, :building_id);
     end
 
+    let # recode `data_source_hh`
+        hh.data_source_hh = replace(
+            hh.data_source_hh,
+            1 => "Surveyed, Reported",
+            2 => "Surveyed, Not reported",
+            3 => "Not surveyed, not reported"
+        );
+    end
+
     return hh
 end
+
+export clean_household

@@ -90,6 +90,8 @@ function clean_connections(
     return conns
 end
 
+export clean_connections
+
 function handle_villagevars!(connsi, w, nme, village_vars)
     for (k, v) in village_vars
         kw = k * string(w)
