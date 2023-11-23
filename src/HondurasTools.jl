@@ -86,8 +86,10 @@ module HondurasTools
         apx = "appendix/"
     )
 
+    datapath = "clean_data/"
+
     # data date
     dte = "2023-11-20"
 
-    export prj, npath, ppath, dte
+    export prj, npath, ppath, datapath, dte
 end
