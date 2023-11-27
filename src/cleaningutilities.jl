@@ -95,10 +95,17 @@ trystring(x) = ismissing(x) ? missing : string(x)
 
 todate_split(x) = ismissing(x) ? missing : trydate(split(x)[1])
 
-function age(x, y)
-    return if ismissing(x) | ismissing(y)
+"""
+        age(endyear, startyear)
+
+## Description
+
+Calculate age based on date of birth and survey date. `endyear` and `startyear` must be formatted as `Date`.
+"""
+function age(endyear, startyear)
+    return if ismissing(endyear) | ismissing(startyear)
         missing
     else
-        year(x) - year(y)
+        year(endyear) - year(startyear)
     end
 end
