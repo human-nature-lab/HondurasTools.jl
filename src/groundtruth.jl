@@ -26,15 +26,18 @@ function mkgroundtruth(
     cs[!, rname] = missings(String, nrow(cs));
     
     # handle, cx
-    if !isnothing(alter_source)
+    cx_ = if !isnothing(alter_source)
         xr = [alter_source, ""] # for combinations with "" value
-        cx_ = @subset cx :wave .∈ Ref(waves) :alter_source .∈ Ref(xr);
+        @subset cx :wave .∈ Ref(waves) :alter_source .∈ Ref(xr);
+    else
+        @subset cx :wave .∈ Ref(waves)
     end
+    
     select!(cx_, [:wave, :village_code, :ego, :alter, :relationship]);
     cx_.tie = [(a,b) for (a,b) in zip(cx_.alter, cx_.ego)];
     addcombination!(cx_, relset, string(col))
 
-    # trm cx to included relationsh
+    # trm cx to included relations
     # don't bother
     # xs = sunique([x.con for x in relset])
     # setdiff(unique(con.relationship), xs[1])
@@ -218,3 +221,32 @@ function _groundtruth(
         groundtruth!(cs, o_)
     end
 end
+
+function binarize_gt(vbl; a1 = "Alter 1", a2 = "Alter 2", a = "Alter")
+    c1 = vbl .== "Yes"
+    c2 = (vbl .== a1) .| (vbl .== a2) | (gt[!, x] .== a)
+    return passmissing(ifelse).(c1 .| c2, true, false)
+end
+
+function binarize_gt(gt, x; a1 = "Alter 1", a2 = "Alter 2", a = "Alter")
+    c1 = gt[!, x] .== "Yes"
+    c2 = (gt[!, x] .== a1) .| (gt[!, x] .== a2) .| (gt[!, x] .== a)
+    return passmissing(ifelse).(c1 .| c2, true, false)
+end
+
+function binarize_gt!(gt, x; a1 = "Alter 1", a2 = "Alter 2", a = "Alter")
+    c1 = gt[!, x] .== "Yes"
+    c2 = (gt[!, x] .== a1) .| (gt[!, x] .== a2) | (gt[!, x] .== a)
+    gt[!, x] = passmissing(ifelse).(c1 .| c2, true, false)
+end
+
+function binarize_gt!(
+    gt, p::Pair{Symbol, Symbol}; a1 = "Alter 1", a2 = "Alter 2", a = "Alter"
+)
+    x, x2 = p
+    c1 = gt[!, x] .== "Yes"
+    c2 = (gt[!, x] .== a1) .| (gt[!, x] .== a2) | (gt[!, x] .== a)
+    gt[!, x2] = passmissing(ifelse).(c1 .| c2, true, false)
+end
+
+export binarize_gt, binarize_gt!
