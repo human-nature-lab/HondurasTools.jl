@@ -1,19 +1,20 @@
 # processing.jl
 
 """
-        populate_datacols!(r4, vs, rd, noupd)
+        populate_datacols!(r4, vs, rd, noupd, hh, unit)
 
 ## Description
 
 Add data from `rd` dictionary of `Respondent` objects, imputing with earlier waves as allowed by `noupd` list of variables to not update.
 
+`hh` only needed for variable types.
 """
-function populate_datacols!(r4, vs2, rd, noupd, hh, unit)
+function populate_datacols!(r4, vs2, rd, noupd, hh, unit, wv)
     
     _setup_populate!(r4, vs2, hh)
 
     for c in intersect(vs2, Symbol.(names(r4)))
-        _populate_datacol!(r4, c, rd, noupd, unit)
+        _populate_datacol!(r4, c, rd, noupd, unit, wv)
     end
 end
 
@@ -24,7 +25,7 @@ function _setup_populate!(r4, vs2, resp)
     r4[!, :impute] = [Dict{Symbol, Int}() for _ in 1:nrow(r4)];
 end
 
-function _populate_datacol!(r4, c, rd, noupd, unit)
+function _populate_datacol!(r4, c, rd, noupd, unit, wv)
     Threads.@threads for i in eachindex(r4[!, c])
         # if variable `c` is not in blacklist, impute
         r4[i, c] = if c ∉ noupd
@@ -32,14 +33,14 @@ function _populate_datacol!(r4, c, rd, noupd, unit)
                 rd[r4[i, unit]].properties[c];
                 waves = keys(rd[r4[i, unit]].properties[c])
             )
-            if (w < 4) & (w > 0)
+            if (w < wv) & (w > 0)
                 # track imputation
                 r4[i, :impute][c] = w
             end
             vl
         else
             # impute
-            rd[r4[i, unit]].properties[c][4]
+            rd[r4[i, unit]].properties[c][wv]
         end
     end
 end
@@ -84,3 +85,17 @@ function variableassign!(rd, rgnp, vs2, unit; wave = :wave)
         end
     end
 end
+
+function imputed_var!(r4, fv)
+    imp = r4[!, :impute_r]
+    v = Symbol(string(fv) * "_imputed_when")
+    r4[!, v] = missings(Int, nrow(r4));
+    for (i, e) in enumerate(imp)
+        r4[i, v] = get(e, fv, missing)
+    end
+    @show v
+    return v
+end
+
+export imputed_var!
+

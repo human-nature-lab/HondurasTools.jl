@@ -117,7 +117,10 @@ function respwave(resp, vs, rd, noupd; ids = ids, wave = 4)
     has4 = [x.wave[wave] for x in rsps]
     w4set = collect(rsps)[has4];
 
-    rx = select(resp, intersect(union(ids, respvars, percvars), Symbol.(names(resp))), :date_of_birth)
+    rx = select(
+        resp,
+        intersect(union(ids, respvars, percvars), Symbol.(names(resp))), :date_of_birth
+    )
 
     r4 = @chain rx begin
         similar(0)
@@ -151,12 +154,42 @@ function respwave(resp, vs, rd, noupd; ids = ids, wave = 4)
 
     # imputation occurs during r4 DataFrame construction
     vs2 = setdiff(vs, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
-    populate_datacols!(r4, vs2, rd, noupd, resp, unit)
+    populate_datacols!(r4, vs2, rd, noupd, resp, unit, wave)
 
     # nice sorting
     sort!(r4, [ids.vc, ids.b, ids.n])
 
+    # overwrite existing age variable based on `dob`
+
+    waveyears = Dict(
+        1 => Date("2015-09-15"), 2 => Date("2017-05-15"),
+        3 => Date("2019-06-15"), 4 => Date("2023-01-01")
+    )
+
+    ss = r4.survey_start
+    ss[ismissing.(ss)] .= waveyears[wave]
+
+    r4.age = age.(ss, r4[!, :date_of_birth])
     return r4
 end
 
 export respwave
+
+"""
+        invillage_adjust(x, wi)
+
+Adjust invillage based on imputation.
+"""
+function invillage_adjust(x, wi)
+    return if !ismissing(x)
+        if (x == "Less than a year") & !ismissing(wi)
+            "More than a year"
+        else
+            x
+        end
+    else
+        x
+    end
+end
+
+export invillage_adjust

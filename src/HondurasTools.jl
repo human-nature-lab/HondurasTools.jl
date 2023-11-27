@@ -34,6 +34,7 @@ module HondurasTools
     include("clean_household.jl")
     include("clean_microbiome.jl")
     include("clean_connections.jl")
+    include("clean_outcomes.jl")
     include("clean_village.jl")
     include("clean_ihr.jl")
     include("clean_css.jl")
@@ -83,6 +84,7 @@ module HondurasTools
         rel = "religion/",
         net = "network/",
         css = "CSS/",
+        int = "intervention/",
         apx = "appendix/"
     )
 
