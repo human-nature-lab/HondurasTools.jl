@@ -92,3 +92,5 @@ function clean_village(vdfs, waves; namedict = nothing)
 
     return vdf
 end
+
+export clean_village

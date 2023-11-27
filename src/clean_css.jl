@@ -1,7 +1,6 @@
 # clean_css.jl
 # clean the (Liza-processed) data
 
-
 function clean_css!(css)
 
     dropmissing!(css, [:completed_at, :edge_id, :ego_id, :alter_id]);
@@ -53,6 +52,8 @@ function clean_css!(css)
         )
     end    
 end
+
+export clean_css!
 
 """
         assign_kin!(css, con)

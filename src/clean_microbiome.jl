@@ -124,8 +124,28 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
 
 
     # 19 villages that are in the study
-    microbiome_villages = load_mbvillages();
-    mb[!, :mbset] = mb.village_code .∈ Ref(microbiome_villages.village_code)
+    microbiome_villages = [
+        5
+        14
+        17
+        21
+        26
+        41
+        58
+        73
+        89
+        110
+        116
+        118
+        140
+        144
+        145
+        162
+        163
+        169
+        174
+    ];
+    mb[!, :mbset] = mb.village_code .∈ Ref(microbiome_villages)
 
     if nokeymiss
         dropmissing!(mb, [:village_code, :name]);
@@ -181,4 +201,4 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
     return mb
 end
 
-export clean_microbiome, load_mbvillages
+export clean_microbiome, microbiome_villages

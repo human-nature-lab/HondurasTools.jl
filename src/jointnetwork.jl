@@ -30,6 +30,8 @@ function jointnetwork(
     return ndf
 end
 
+export jointnetwork
+
 function _jointnetwork!(ndf, con, net_name1, net_name2, new_name)
     for w in sort(unique(con.wave))
 

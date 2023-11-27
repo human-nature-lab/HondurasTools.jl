@@ -75,13 +75,13 @@ end
 export prp
 
 """
-        stround(x; digits = d)
+        stround(x; digits = 2)
 
 ## Description
 
 Return `String` rounded to `d` digits for numeric/integer.
 """
-function stround(x; digits = d)
+function stround(x; digits = 2)
     return (string∘round)(x; digits)
 end
 
@@ -90,11 +90,20 @@ export stround
 """
         sa(a)
 
-Skip missing and NaN. via Skipper.jl.
+Skip `missing` and `NaN`. via Skipper.jl.
 """
 sa(a) = skip(x -> ismissing(x) || isnan(x), a) 
 
 export sa
+
+"""
+        sai(a)
+
+Skip `Inf` and `NaN`. via Skipper.jl.
+"""
+sai(a) = skip(x -> isinf(x) || isnan(x), a)
+
+export sai
 
 struct OneHot{T}
     m::T
