@@ -50,6 +50,8 @@ function respprocess(
     resp, vs; unit = :name, ids = ids, respvars = respvars, percvars = percvars
 )
 
+    resp.man = passmissing(ifelse).(resp.gender .== "man", true, false);
+
     rgnu = @chain resp begin
         sort([unit, :wave])
         groupby(unit)
@@ -166,10 +168,20 @@ function respwave(resp, vs, rd, noupd; ids = ids, wave = 4)
         3 => Date("2019-06-15"), 4 => Date("2023-01-01")
     )
 
+    # use survey wave midpoint for missing survey start dates
     ss = r4.survey_start
     ss[ismissing.(ss)] .= waveyears[wave]
 
+    # fixes
     r4.age = age.(ss, r4[!, :date_of_birth])
+    
+    if "invillage" ∈ names(r4)
+        # adjust invillage values when imputed to be correct for survey lag
+        r4.invillage_wave_imputed = [get(x, :invillage, missing) for x in r4.impute_r];
+        r4.invillage = invillage_adjust.(r4.invillage, r4.invillage_wave_imputed)
+        r4.invillage = categorical(unwrap.(r4.invillage), ordered = true)
+    end
+
     return r4
 end
 

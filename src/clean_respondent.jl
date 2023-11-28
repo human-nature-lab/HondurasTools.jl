@@ -183,6 +183,8 @@ function clean_respondent(
             rf[!, v],
             "Yes, Maya Chorti" => "Yes", "Yes, Lenca" => "Yes"
         );
+
+        replace!(rf.indigenous, "Other" => missing)
         binarize!(rf, :isindigenous)
     end;
 
@@ -197,6 +199,11 @@ function clean_respondent(
             irrelreplace!(rf, nv)
         end
     end;
+
+    if :religion ∈ rf_desc.variable
+        rf.protestant = passmissing(ifelse).(rf.religion .== "Protestant", true, false);
+        rf.catholic = passmissing(ifelse).(rf.religion .== "Catholic", true, false);
+    end
     
     # Do you plan to leave this village in the next 12 months (staying somewhere else for 3 months or longer)?
     v = :migrateplan
@@ -551,6 +558,11 @@ function clean_respondent(
         rf.data_source[rf.wave .== 1] .= rwds1n;
         rf.data_source[rf.wave .> 1] .= rwds2n;
     end
+
+    @subset!(rf, :name .∉ Ref(["#NAME?", "#REF!"]));
+    replace!(rf.building_id, "ideres Comunitarios" => "Lideres Comunitarios");
+
+    rf.complete = passmissing(ifelse).(rf.complete .== 1, true, false);
 
     # at hh level
     let nosel = [:b0300, ]
