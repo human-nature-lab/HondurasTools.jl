@@ -1,3 +1,5 @@
+# HondurasTools.jl
+
 module HondurasTools
     # exports are in source files
 
@@ -12,13 +14,13 @@ module HondurasTools
     @reexport using StatsBase, Statistics, Distributions
     @reexport using Lasso, GLM, MixedModels
     @reexport using StatsModels
-    @reexport using Distributions
+    @reexport using Distributions, LinearAlgebra
     @reexport using StandardizedPredictors, Effects
 
     @reexport using Graphs, MetaGraphs, GraphDataFrameBridge
 
-    using StatsFuns:logistic
-    export logistic
+    using StatsFuns: logistic, logit
+    export logistic, logit
 
     # utilities
     include("utilities.jl")
@@ -58,10 +60,13 @@ module HondurasTools
     include("cssdistances_without_ndf.jl")
     include("cssdistances.jl")
 
+    include("neighbors.jl")
+
     # effects analysis
     include("EModel.jl")
-    include("effects_utilities.jl")
     include("errors.jl")
+    include("effects_utilities.jl")
+    include("bootmargins.jl")
 
     for x in [
         "analysis_utilities.jl",

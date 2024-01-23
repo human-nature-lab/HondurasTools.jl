@@ -3,6 +3,14 @@
 
 ##
 
+import Base.vec
+
+function vec(em::EModel)
+    return [em.tpr, em.fpr]
+end
+
+export vec
+
 ncdf(x; μ = 0, σ2 = 1) = cdf(Normal(μ, σ2), x)
 
 export ncdf
@@ -94,7 +102,10 @@ Fit two models: TPR and FPR.
 `model` one of GeneralizedLinearModel, MixedModel
 
 """
-function bifit(model, fx, dft, dff; fx2 = nothing, dstr = Binomial(), lnk = LogitLink())
+function bifit(
+    model, fx, dft, dff;
+    fx2 = nothing, dstr = Binomial(), lnk = LogitLink(), kwargs...
+)
 
     fx2 = if !isnothing(fx2)
         fx2
@@ -103,8 +114,8 @@ function bifit(model, fx, dft, dff; fx2 = nothing, dstr = Binomial(), lnk = Logi
     end
 
     return emodel(
-        fit(model, fx, dft, dstr, lnk),
-        fit(model, fx2, dff, dstr, lnk),
+        fit(model, fx, dft, dstr, lnk; kwargs...),
+        fit(model, fx2, dff, dstr, lnk; kwargs...)
     )
 end
 
@@ -120,3 +131,50 @@ function distance_interaction!(col, v)
 end
 
 export distance_interaction!
+
+##
+
+function interm(x, term::Term)
+    return x == term
+end
+
+function interm(x, term::InteractionTerm)
+    return x ∈ term.terms
+end
+
+"""
+        inform(x, fm::Vector{AbstractTerm})
+
+## Description
+
+Check whether `x` is in the formula (a vector that contains `Term` and/or `InteractionTerm` elements).
+
+(Mainly, this is used to ascertain whether a covariate dropped by the Lasso is still retained in the selected set of interactions.)
+"""
+function inform(x, fm::Vector{T}) where T <: AbstractTerm
+    for y in fm
+        if interm(x, y)
+            return true
+        end
+    end
+    return false
+end
+
+"""
+checkmains(mains, fm::Vector{AbstractTerm})
+
+## Description
+
+Check which main effects are dropped, and whether they are contained in any of
+the selected interactions.
+"""
+function checkmains(mains, fm::Vector{T}) where T <: AbstractTerm
+    m = setdiff(mains, fm)
+    xo = Bool[]
+    for x in m
+        push!(xo, inform(x, fm))
+    end
+    return Dict(m .=> xo)
+end
+
+export checkmains

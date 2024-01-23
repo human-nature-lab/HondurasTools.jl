@@ -38,6 +38,17 @@ function standards(df)
         # network distances
         :dists_p, :dists_a, :union_dists_p, :union_dists_a,
         :dists_p_i, :dists_a_i,
+        # alter properties
+        :degree_centrality_diff_a,
+        :degree_centrality_mean_a,
+        :betweenness_centrality_diff_a,
+        :betweenness_centrality_mean_a,
+        :local_clustering_coefficient_diff_a,
+        :local_clustering_coefficient_mean_a,
+        :age_diff_a,
+        :age_mean_a,
+        :age2_diff_a,
+        :age2_mean_a
     ];
     
     for vbl in vbls
@@ -90,7 +101,17 @@ function reversestandards!(df, transforms)
     end;
 end
 
-export standards, applystandards!, reversestandards!
+function reversestandard(df, v, transforms)
+    y = deepcopy(df[!, v])
+    dt = transforms[v]
+    idx = .!ismissing.(y)
+    vnm = df[idx, v]
+    vnm = disallowmissing(vnm)
+    y[idx] = StatsBase.reconstruct(dt, vnm)
+    return y
+end
+
+export standards, applystandards!, reversestandards!, reversestandard
 
 # use css perceiver values extrema to standardize
 function standardize_vars(df)

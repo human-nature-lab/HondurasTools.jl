@@ -133,3 +133,7 @@ vecon = (
 );
 
 export vecon
+
+riddles = [:zinc_rid, :cord_rid, :prenatal_rid];
+
+export riddles

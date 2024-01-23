@@ -13,7 +13,7 @@ function errors(
 )
 
     edf = @chain css begin
-        select([:village_code, :response, truth, grouping...])
+        select(unique([:village_code, :response, truth, grouping...]))
         @transform(
             :tp = (:response .& $truth), # TP
             :fp = (:response .& .!($truth)), # FP

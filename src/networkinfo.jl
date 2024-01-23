@@ -220,25 +220,30 @@ end
 
 export grouppartition!
 
-function join_ndf_cr!(cr, ndf; rels = ["free_time", "personal_private"])
+function join_ndf_cr!(
+    df, ndf; name = :perceiver, rels = ["free_time", "personal_private"]
+)
+
     for r in rels
         # or subset
         sndf = @views ndf[ndf.relation .== r, :];
-        scr = @views cr[cr.relation .== r, [:village_code, :perceiver, [k for k in keys(node_fund)]...]];
+        sdf = @views df[df.relation .== r, [:village_code, name, [k for k in keys(node_fund)]...]];
 
         # one person
-        Threads.@threads for i in 1:nrow(scr)
-            ville = scr.village_code[i]
-            vgr = scr.perceiver[i]
-            # r = scr.relation[i];
+        Threads.@threads for i in 1:nrow(sdf)
+            ville = sdf.village_code[i]
+            vgr = sdf[i, name]
+            # r = sdf.relation[i];
             
             # (sndf.relation .== r) .& 
             rw = findfirst(sndf.village_code .== ville);
-            srw = findfirst(sndf.names[rw] .== vgr);
+            if !isnothing(rw)
+                srw = findfirst(sndf.names[rw] .== vgr);
 
-            if !(isnothing(rw) | isnothing(srw))
-                for (k, _) in node_fund
-                    scr[i, k] = sndf[rw, k][srw]
+                if !isnothing(srw)
+                    for (k, _) in node_fund
+                        sdf[i, k] = sndf[rw, k][srw]
+                    end
                 end
             end
 
@@ -247,3 +252,31 @@ function join_ndf_cr!(cr, ndf; rels = ["free_time", "personal_private"])
 end
 
 export join_ndf_cr!
+
+function pairdiff!(crj, v)
+    voutname = Symbol(string(v) * "_diff")
+    crj[!, voutname] = missings(Float64, nrow(crj))
+    for (i, c) in enumerate(crj[!, v])
+        crj[i, voutname] = if ismissing(c)
+            missing
+        else
+            abs(c[1] - c[2])
+        end
+    end
+end
+
+export pairdiff!
+
+function pairmean!(crj, v)
+    voutname = Symbol(string(v) * "_mean")
+    crj[!, voutname] = missings(Float64, nrow(crj))
+    for (i, c) in enumerate(crj[!, v])
+        crj[i, voutname] = if ismissing(c)
+            missing
+        else
+            (c[1] + c[2]) * inv(2)
+        end
+    end
+end
+
+export pairmean!
