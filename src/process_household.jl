@@ -83,10 +83,11 @@ end
 export householdprocess
 
 """
+        hhwave(hd, noupd; ids = ids, wave = 4)
 
 Household data for a wave, with imputation except for `noupd` variables.
 """
-function hhwave(hh, vs, hd, noupd; ids = ids, wave = 4)
+function hhwave(hd, noupd; ids = ids, wave = 4)
 
     hhids = [ids.vc, ids.b]
     unit = ids.b
@@ -95,45 +96,47 @@ function hhwave(hh, vs, hd, noupd; ids = ids, wave = 4)
     has4 = [x.wave[wave] for x in rsps]
     w4set = collect(rsps)[has4];
 
-    rx = select(
-        hh,
-        intersect(union([ids.vc, ids.b, vs...]), Symbol.(names(hh)))
-    )
+    # extract variables from structs
+    vbls = Dict{Symbol, DataType}();
 
-    r4 = @chain rx begin
-        similar(0)
-        select(hhids)
-        similar(sum(has4))
-        allowmissing()
+    # specific to Household
+    for (x, v) in [:wave => Int, :village_code => Int, :building_id => String]
+        vbls[x] = v
     end
 
-    for x in hhids
-        r4[:, x] .= missing
+    _extractvariables!(vbls, hd)
+
+    # these were not correct
+    vbls[:girls_under12] = Int
+    vbls[:boys_under12] = Int
+
+    # no type should only be missing
+    @assert !any(collect(values(vbls)) .== Missing)
+
+    nf = DataFrame([(k => v[]) for (k, v) in vbls]...);
+    allowmissing!(nf)
+    # select!(nf, hhids)
+    nf = similar(nf, sum(has4))
+
+    ##
+
+    # make all columns missing (some may be left undefined via `similar`)
+    for x in names(nf)
+        nf[:, x] .= missing
     end
 
-    r4.waves = Vector{NTuple{4, Bool}}(undef, nrow(r4))
-    let df = r4
-        for (i, e) in enumerate(w4set)
-            for x in hhids
-                df[i, x] = if x == unit
-                    getfield(e, x)
-                else
-                    getfield(e, x)[wave]
-                end
-            end
-            df[i, :waves] = getfield(e, :wave)
-        end
-        sort!(df, hhids)
-    end
+    unitids = hhids
+    wavenote!(nf, w4set, unitids, wave, unit)
 
     # imputation occurs during r4 DataFrame construction
-    vs2 = setdiff(vs, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
-    populate_datacols!(r4, vs2, hd, noupd, hh, unit)
+    populate_datacols!(nf, hd, noupd, unit, wave)
 
     # nice sorting
-    sort!(r4, [ids.vc, ids.b])
+    sort!(nf, [ids.vc, ids.b])
 
-    return r4
+    nf.wave .= wave
+
+    return nf
 end
 
 export hhwave

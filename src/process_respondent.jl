@@ -47,7 +47,8 @@ export Respondent, respondent
 
 
 function respprocess(
-    resp, vs; unit = :name, ids = ids, respvars = respvars, percvars = percvars
+    resp, vs;
+    unit = :name, ids = ids, respvars = respvars, percvars = percvars
 )
 
     resp.man = passmissing(ifelse).(resp.gender .== "man", true, false);
@@ -111,7 +112,7 @@ export respprocess
 
 Respondent data for a wave, with imputation except for `noupd` variables.
 """
-function respwave(resp, vs, rd, noupd; ids = ids, wave = 4)
+function respwave(rd, noupd; ids = ids, wave = 4)
 
     unit = ids.n
 
@@ -119,47 +120,51 @@ function respwave(resp, vs, rd, noupd; ids = ids, wave = 4)
     has4 = [x.wave[wave] for x in rsps]
     w4set = collect(rsps)[has4];
 
-    rx = select(
-        resp,
-        intersect(union(ids, respvars, percvars), Symbol.(names(resp))), :date_of_birth
-    )
-
-    r4 = @chain rx begin
-        similar(0)
-        select([ids.n, ids.b, ids.vc, :date_of_birth])
-        similar(sum(has4))
-        allowmissing()
+    # extract variables from structs
+    vbls = Dict{Symbol, DataType}();
+    for (x, v) in [
+        :village_code => Int, :building_id => String,
+        :wave => Int, :name => String,
+        :date_of_birth => Date, :man => Bool
+    ]
+        vbls[x] = v
     end
 
-    r4.man = Vector{Union{Missing, Bool}}(undef, nrow(r4))
+    _extractvariables!(vbls, rd)
 
-    for x in ids
-        r4[:, x] .= missing
+    vbls[:invillage_yrs] = Float64
+
+    # no type should only be missing
+    @assert !any(collect(values(vbls)) .== Missing)
+
+    # r4.man = Vector{Union{Missing, Bool}}(undef, nrow(r4))
+
+    nf = DataFrame([(k => v[]) for (k, v) in vbls]...);
+    allowmissing!(nf)
+    nf = similar(nf, sum(has4))
+
+    # make all columns missing (some may be left undefined via `similar`)
+    for x in names(nf)
+        nf[:, x] .= missing
     end
 
-    r4.waves = Vector{NTuple{4, Bool}}(undef, nrow(r4))
-    let df = r4
-        for (i, e) in enumerate(w4set)
-            for x in ids
-                df[i, x] = if x == :name
-                    getfield(e, x)
-                else
-                    getfield(e, x)[wave]
-                end
-            end
-            df[i, :waves] = getfield(e, :wave)
-            df[i, :date_of_birth] = getfield(e, :dob)
-            df[i, :man] = getfield(e, :man)
+    unitids = [ids.vc, ids.b, ids.n];
+    wavenote!(nf, w4set, unitids, wave, unit)
+
+    # invariant non-id variables
+    ivars = [:man, :dob]
+    nvars = [:man, :date_of_birth]
+    for (iv, nv) in zip(ivars, nvars)
+        for (i, e) in enumerate(nf[!, unit])
+           nf[i, nv] = getfield(rd[e], iv)
         end
-        sort!(df, [ids.vc, ids.b, ids.n])
     end
 
     # imputation occurs during r4 DataFrame construction
-    vs2 = setdiff(vs, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
-    populate_datacols!(r4, vs2, rd, noupd, resp, unit, wave)
+    populate_datacols!(nf, rd, noupd, unit, wave)
 
     # nice sorting
-    sort!(r4, [ids.vc, ids.b, ids.n])
+    sort!(nf, unitids)
 
     # overwrite existing age variable based on `dob`
 
@@ -169,20 +174,22 @@ function respwave(resp, vs, rd, noupd; ids = ids, wave = 4)
     )
 
     # use survey wave midpoint for missing survey start dates
-    ss = r4.survey_start
+    ss = nf.survey_start
     ss[ismissing.(ss)] .= waveyears[wave]
 
     # fixes
-    r4.age = age.(ss, r4[!, :date_of_birth])
+    nf.age = age.(ss, nf[!, :date_of_birth])
     
-    if "invillage" ∈ names(r4)
+    if "invillage" ∈ names(nf)
         # adjust invillage values when imputed to be correct for survey lag
-        r4.invillage_wave_imputed = [get(x, :invillage, missing) for x in r4.impute_r];
-        r4.invillage = invillage_adjust.(r4.invillage, r4.invillage_wave_imputed)
-        r4.invillage = categorical(unwrap.(r4.invillage), ordered = true)
+        nf.invillage_wave_imputed = [get(x, :invillage, missing) for x in nf.impute];
+        nf.invillage = invillage_adjust.(nf.invillage, nf.invillage_wave_imputed)
+        nf.invillage = categorical(unwrap.(nf.invillage), ordered = true)
     end
 
-    return r4
+    nf.wave .= wave
+
+    return nf
 end
 
 export respwave

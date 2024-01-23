@@ -98,58 +98,72 @@ export villageprocess
 
 Village data for a wave, with imputation except for `noupd` variables.
 """
-function villwave(vill, vs, vd, noupd; ids = ids, wave = 3)
+function villwave(vd, noupd; ids = ids, wave = 3)
 
     unit = ids.vc
+    unitids = [ids.vc]
 
     rsps = values(vd)
     has4 = [x.wave[wave] for x in rsps]
     w4set = collect(rsps)[has4];
 
-    rx = select(
-        vill,
-        intersect(union([ids.vc, vs...]), Symbol.(names(vill)))
-    )
+    # extract variables from structs
+    vbls = Dict{Symbol, DataType}();
 
-    v4 = @chain rx begin
-        similar(0)
-        select([ids.vc, :village_name])
-        similar(sum(has4))
-        allowmissing()
+    _extractvariables!(vbls, vd)
+
+    # specific to Village
+    for (x, v) in [
+        :wave => Int,
+        :village_code => Int, :village_name => String,
+        :lat => Float64,
+        :lon => Float64,
+        :elevation => Float64
+    ]
+        vbls[x] = v
     end
 
-    for x in [:village_code, :village_name]
-        v4[:, x] .= missing
+    vbls[:price_charcoal] = Int
+
+    # no type should only be missing
+    @assert !any(collect(values(vbls)) .== Missing)
+
+    nf = DataFrame([(k => v[]) for (k, v) in vbls]...);
+    allowmissing!(nf)
+    # select!(nf, hhids)
+    nf = similar(nf, sum(has4))
+
+    ##
+
+    # make all columns missing (some may be left undefined via `similar`)
+    for x in names(nf)
+        nf[:, x] .= missing
     end
 
-    for x in [:elevation, :lat, :lon]
-        v4[!, x] = fill(NaN, nrow(v4))
-    end
+    wavenote!(nf, w4set, unitids, wave, unit)
 
-    v4.waves = Vector{NTuple{4, Bool}}(undef, nrow(v4))
-    let df = v4
-        for (i, e) in enumerate(w4set)
-            df[i, unit] = getfield(e, unit)
-            df[i, :village_name] = getfield(e, :village_name)
-            df[i, :elevation] = getfield(e, :elevation)
-            lat, lon = getfield(e, :latlon)
+    # imputation occurs during v4 DataFrame construction
+    populate_datacols!(nf, vd, noupd, unit, wave)
+
+    # invariant variables
+    let df = nf
+        for (i, e) in enumerate(nf[!, unit])
+            vil = vd[e]
+            df[i, :village_name] = getfield(vil, :village_name)
+            df[i, :elevation] = getfield(vil, :elevation)
+            lat, lon = getfield(vil, :latlon)
             df[i, :lat] = lat
             df[i, :lon] = lon
-            df[i, :waves] = getfield(e, :wave)
         end
         sort!(df, unit)
     end
 
-    # imputation occurs during v4 DataFrame construction
-    vs2 = setdiff(
-        vs, [:wave, :village_code, :village_name, :elevation, :lat, :lon, :aldea_latitude, :aldea_longitude]
-    )
-    populate_datacols!(v4, vs2, vd, noupd, vill, unit)
-
     # nice sorting
-    sort!(v4, ids.vc)
+    sort!(nf, ids.vc)
 
-    return v4
+    nf.wave .= wave
+
+    return nf
 end
 
 export villwave

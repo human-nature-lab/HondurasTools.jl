@@ -1,46 +1,107 @@
 # processing.jl
 
+
 """
-        populate_datacols!(r4, vs, rd, noupd, hh, unit)
+        _extractvariables!(vbls, ds)
 
 ## Description
 
-Add data from `rd` dictionary of `Respondent` objects, imputing with earlier waves as allowed by `noupd` list of variables to not update.
+Deduce the variable types from unit structs.
+"""
+function _extractvariables!(vbls, ds)
+    vars_ = unique(reduce(vcat, unique([(collect∘keys)(v.properties) for v in values(ds)])));
+    for v_ in vars_
+        vbls[v_] = Missing
+        for (_, v) in ds
+            vals = get(v.properties, v_, missing)
+            if !ismissing(vals)
+                for w in 1:4
+                    val = get(vals, w, missing)
+                    if !ismissing(val)
+                        vbls[v_] = typeof(val)
+                        break
+                    end
+                end
+                if vbls[v_] != Missing
+                    break
+                end
+            end
+        end
+    end
+end
+
+"""
+        wavenote!(df, w4set, unitids, wave, unit)
+
+## Description
+
+Report the presence of the unit at each wave and extract the unit ids for
+current wave.
+
+Extracts for invariant variables.
+"""
+function wavenote!(df, w4set, unitids, wave, unit)
+    df.waves = Vector{NTuple{4, Bool}}(undef, nrow(df))
+    for (i, e) in enumerate(w4set)
+        for x in unitids
+            df[i, x] = if x == unit
+                getfield(e, x)
+            else
+                getfield(e, x)[wave]
+            end
+        end
+        df[i, :waves] = getfield(e, :wave)
+    end
+    sort!(df, unitids)
+end
+
+"""
+        populate_datacols!(nf, vs, ds, noupd, hh, unit)
+
+## Description
+
+Add data from `ds` dictionary of `Respondent` objects, imputing with earlier waves as allowed by `noupd` list of variables to not update.
 
 `hh` only needed for variable types.
 """
-function populate_datacols!(r4, vs2, rd, noupd, hh, unit, wv)
+function populate_datacols!(nf, ds, noupd, unit, wv)
     
-    _setup_populate!(r4, vs2, hh)
+    # ignore invariant variables
+    vbls_ = setdiff(
+        Symbol.(names(nf)),
+        [:waves, :wave, :village_code, :name, :building_id, :date_of_birth, :man, :lat, :lon, :elevation, :village_name]
+    )
 
-    for c in intersect(vs2, Symbol.(names(r4)))
-        _populate_datacol!(r4, c, rd, noupd, unit, wv)
+    nf[!, :impute] = [Dict{Symbol, Int}() for _ in 1:nrow(nf)];
+    
+    for c in vbls_
+        _populate_datacol!(nf, c, ds, noupd, unit, wv)
     end
 end
 
-function _setup_populate!(r4, vs2, resp)
-    for v in vs2
-        r4[!, v] = Vector{eltype(resp[!, v])}(undef, nrow(r4))
-    end
-    r4[!, :impute] = [Dict{Symbol, Int}() for _ in 1:nrow(r4)];
-end
-
-function _populate_datacol!(r4, c, rd, noupd, unit, wv)
-    Threads.@threads for i in eachindex(r4[!, c])
+function _populate_datacol!(nf, c, ds, noupd, unit, wv)
+    # Threads.@threads 
+    for i in eachindex(nf[!, c])
+        # @show i
         # if variable `c` is not in blacklist, impute
-        r4[i, c] = if c ∉ noupd
+        nf[i, c] = if c ∉ noupd
             vl, w = firstval(
-                rd[r4[i, unit]].properties[c];
-                waves = keys(rd[r4[i, unit]].properties[c])
+                ds[nf[i, unit]].properties[c];
+                waves = keys(ds[nf[i, unit]].properties[c])
             )
+            if !ismissing(vl)
+                if typeof(vl) != nonmissingtype(eltype(nf[!, c]))
+                    vl = passmissing(parse)(nonmissingtype(eltype(nf[!, c])), vl)
+                end
+            end
             if (w < wv) & (w > 0)
                 # track imputation
-                r4[i, :impute][c] = w
+                nf[i, :impute][c] = w
             end
             vl
         else
-            # impute
-            rd[r4[i, unit]].properties[c][wv]
+            # otherwise, get current wave value
+            get(ds[nf[i, unit]].properties[c], wv, missing)
         end
     end
 end
@@ -61,18 +122,18 @@ function firstval(x; waves = [4,3,2,1])
     return missing, 0
 end
 
-function variableassign!(rd, rgnp, vs2, unit; wave = :wave)
+function variableassign!(ds, rgnp, vs2, unit; wave = :wave)
     Threads.@threads for ri in eachrow(rgnp)
         for q in setdiff(vs2, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
             for (w, vl) in zip(ri[wave], ri[q])
-                rd[ri[unit]].properties[q][w] = vl
+                ds[ri[unit]].properties[q][w] = vl
             end
             
             for j in 2:4
-                v1 = get(rd[ri[unit]].properties[q], j-1, missing)
-                v2 = get(rd[ri[unit]].properties[q], j, missing)
+                v1 = get(ds[ri[unit]].properties[q], j-1, missing)
+                v2 = get(ds[ri[unit]].properties[q], j, missing)
                 
-                rd[ri[unit]].change[q][j-1] = if ismissing(v1) & ismissing(v2)
+                ds[ri[unit]].change[q][j-1] = if ismissing(v1) & ismissing(v2)
                         false
                 elseif ismissing(v1) | ismissing(v2) # if only one missing -> change
                         true
@@ -86,16 +147,15 @@ function variableassign!(rd, rgnp, vs2, unit; wave = :wave)
     end
 end
 
-function imputed_var!(r4, fv)
-    imp = r4[!, :impute_r]
+function imputed_var!(nf, fv)
+    imp = nf[!, :impute_r]
     v = Symbol(string(fv) * "_imputed_when")
-    r4[!, v] = missings(Int, nrow(r4));
+    nf[!, v] = missings(Int, nrow(nf));
     for (i, e) in enumerate(imp)
-        r4[i, v] = get(e, fv, missing)
+        nf[i, v] = get(e, fv, missing)
     end
     @show v
     return v
 end
 
 export imputed_var!
-
