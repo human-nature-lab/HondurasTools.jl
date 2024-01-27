@@ -56,9 +56,11 @@ function initialize_ndf(cx, cxx, node_fund, g_fund, mods)
     
     uc2[!, :graph] = Vector{MetaGraph}(undef, nrow(uc2))
     
-    for v in mods
-        k = Symbol("modularity_" * string(v))
-        uc2[!, k] = Vector{Float64}(undef, nrow(uc2))
+    if !isnothing(mods)
+        for v in mods
+            k = Symbol("modularity_" * string(v))
+            uc2[!, k] = Vector{Float64}(undef, nrow(uc2))
+        end
     end
     
     rename!(uc2, :relationship => :relation)
@@ -77,16 +79,24 @@ networkinfo(
 
 ## Description
 
+- `cx`: connections data
+- `rr` = nothing: reference DataFrame for modularity calculations
+- `mods` = nothing: Vector of variables in `rr` to calculate modularity over. currently, only works for binary variables with missing values.
+
 Construct a DataFrame that contains network statistics and graph objects
 from an input edgelist. N.B. that the edgelist should include all possible edges, which is filtered to the desired number of relationships. The larger set is needed to capture nodes that exist but do not have any ties in a particular network. Full sets are stored in `names_all`.
 
 N.B. that combination networks (and therefore `relnames`) is basically only usable as-is.
+
 """
 function networkinfo(
-    cx, rr;
-    waves = [1,3,4],
+    cx;
+    waves = [1, 3, 4],
     relnames = ["free_time", "personal_private", "kin", "union", "any"],
-    alter_source = "Census"
+    alter_source = "Census",
+    rr = nothing,
+    mods = nothing,
+    unitname = :perceiver
 )
 
     cxf = @subset cx :wave .∈ Ref(waves);
@@ -113,7 +123,6 @@ function networkinfo(
 
     @subset! cxf :relationship .∈ Ref(relnames)
     
-    mods = [:protestant, :isindigenous]
     @time ndf = initialize_ndf(cx, cxf, node_fund, g_fund, mods);
     @show "initialized"
 
@@ -121,20 +130,21 @@ function networkinfo(
     @time addgraphs!(ndf, gcx)
     @show "graphs added"
 
-    # modularity partition vectors
-    # religion
-    let v = :protestant;
-        grouppartition!(ndf, rr, v)
-        # treat missing as another category
-        ndf[!, v] = [replace(x, missing => 1, false => 2, true => 3) for x in ndf[!, v]];
-    end;
-
-    # indigeneity
-    let v = :isindigenous;
-        grouppartition!(ndf, rr, v)
-        # treat missing as another category
-        ndf[!, v] = [replace(x, missing => 1, false => 2, true => 3) for x in ndf[!, v]];
-    end;
+    if !isnothing(mods) & !isnothing(rr)
+        for v in mods
+            @show "modularity: " * string(v)
+            # modularity partition vectors
+            grouppartition!(ndf, rr, v, unitname)
+            # treat missing as another category
+            # currently, only works for binary categories with missing!!!
+            ndf[!, v] = [
+                replace(
+                    x, missing => 1, false => 2, true => 3
+                ) for x in ndf[!, v]
+            ];
+        end
+        @show "modularity complete"
+    end
 
     @show "setup complete"
 
@@ -147,7 +157,11 @@ export networkinfo
 
 function addgraphs!(ndf, gcx)
     Threads.@threads for arw in eachrow(ndf)
-        tpl = (village_code = arw[:village_code], relationship = arw[:relation], wave = arw[:wave])
+        tpl = (
+            village_code = arw[:village_code],
+            relationship = arw[:relation],
+            wave = arw[:wave]
+        )
 
         subnet = gcx[tpl]
         
@@ -198,10 +212,10 @@ Create a partition vector from `names` in `ndf` over characteristic `v`, using i
 
 For use with modularity calculation. N.B. further post processing likely required to coerce values into consecutive and distinct integers for groups.
 """
-function grouppartition!(ndf, rr, v)
+function grouppartition!(ndf, rr, v, unitname)
 
-    crv = unique(rr[!, [:perceiver, v]]; view = true)
-    crv = Dict(crv.perceiver .=> crv[!, v])
+    crv = unique(rr[!, [unitname, v]]; view = true)
+    crv = Dict(crv[!, unitname] .=> crv[!, v])
 
     et = eltype(rr[!, v])
     
