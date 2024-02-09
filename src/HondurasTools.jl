@@ -12,15 +12,10 @@ module HondurasTools
     @reexport using JLD2
 
     @reexport using StatsBase, Statistics, Distributions
-    @reexport using Lasso, GLM, MixedModels
     @reexport using StatsModels
     @reexport using Distributions, LinearAlgebra
-    @reexport using StandardizedPredictors, Effects
 
     @reexport using Graphs, MetaGraphs, GraphDataFrameBridge
-
-    using StatsFuns: logistic, logit
-    export logistic, logit
 
     # utilities
     include("utilities.jl")
@@ -62,14 +57,7 @@ module HondurasTools
 
     include("neighbors.jl")
 
-    # effects analysis
-    include("EModel.jl")
-    include("errors.jl")
-    include("effects_utilities.jl")
-    include("bootmargins.jl")
-
     for x in [
-        "analysis_utilities.jl",
         "variables.jl", "standardize.jl",
         "code_variables.jl",
     ]
@@ -78,25 +66,11 @@ module HondurasTools
 
     # output paths
     npath = "new-analysis-report/objects/";
-    ppath = (b = "css-paper/", t = "tables/", f = "figures/");
-
-    # Reports paths
-    prj = (
-        pp = "./honduras-reports/",
-        dev = "development/",
-        ind = "indigeneity/",
-        cop = "cooperation/",
-        rel = "religion/",
-        net = "network/",
-        css = "CSS/",
-        int = "intervention/",
-        apx = "appendix/"
-    )
 
     datapath = "clean_data/"
 
     # data date
     dte = "2023-11-20"
 
-    export prj, npath, ppath, datapath, dte
+    export npath, datapath, dte
 end

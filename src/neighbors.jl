@@ -154,3 +154,45 @@ function addneighbors!(
 end
 
 export addneighbors!
+
+function process_nvariable(e::Union{Missing, Vector{Union{Missing, T}}}, stat) where T <: Real
+    return if ismissing(e)
+        1, missing
+    else
+        if typeof(e) <: AbstractFloat
+            0, e
+        else 
+            sum(ismissing.(e)), (stat∘skipmissing)(e)
+        end
+    end
+end
+
+function process_nvariable(x::T, stat) where T <: AbstractVector
+    l = length(x)
+    vcnt = missings(Int, l);
+    vbar = missings(Float64, l);
+
+    for (i, e) in enumerate(x)
+        vcnt[i], vbar[i] = process_nvariable(e, stat)
+    end
+    return vcnt, vbar
+end
+
+"""
+        process_nvariable!(
+            df::DataFrame, v::Union{Symbol, String}, stat::Function
+        )
+
+## Description
+
+Calculate number missing and a scalar statistic (e.g., the mean) over each entry of Vector{Union{Missing, Real}}
+"""
+function process_nvariable!(
+    df::DataFrame, v::Union{Symbol, String}, stat::Function
+)
+    v1 = string(v) * "_c" |> Symbol
+    v2 = string(v) * "_" * string(stat) |> Symbol
+    df[!, v1], df[!, v2] = process_nvariable(df[!, v], stat)
+end
+
+export process_nvariable, process_nvariable!
