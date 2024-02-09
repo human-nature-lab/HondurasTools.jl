@@ -57,12 +57,11 @@ module HondurasTools
 
     include("neighbors.jl")
 
-    for x in [
+    files_working = "working/" .* [
         "variables.jl", "standardize.jl",
         "code_variables.jl",
-    ]
-        include("working/" * x)
-    end
+    ];
+    for x in files_working; include(x) end
 
     # output paths
     npath = "new-analysis-report/objects/";
