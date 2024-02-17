@@ -234,6 +234,69 @@ end
 
 export grouppartition!
 
+"""
+join_ndf_df!(df, ndf; name = :name)
+
+## Description
+
+Join network info DataFrame `ndf` to respondent-level DataFrame `df`. This is not a simple join because `ndf` must be row-expanded as it is joined.
+
+`ndf` should be filtered appropriately to the same number of waves, and no more than one relationship.
+"""
+function join_ndf_df!(df, ndf; name = :name, node_fund = node_fund)
+    # preallocate in df
+    for (k, _) in node_fund
+        df[!, k] = missings(Float64, nrow(df))
+    end
+
+    for (k, _) in g_fund
+        df[!, k] = missings(Float64, nrow(df))
+    end
+
+    join_ndf_df!(df, ndf, name)
+end
+
+function join_ndf_df!(df, ndf, name)
+
+    if (length∘unique)(ndf.relation) > 1
+        error("only one relationship type allowed")
+    end
+
+    # or subset
+    sndf = ndf
+    sdf = @views df[!, [:village_code, name, [k for k in keys(node_fund)]...]];
+
+    # one person
+    Threads.@threads for i in 1:nrow(sdf)
+        ville = sdf.village_code[i]
+        vgr = sdf[i, name]
+        # r = sdf.relation[i];
+        
+        # (sndf.relation .== r) .& 
+        rw = findfirst(sndf.village_code .== ville);
+        if !isnothing(rw)
+            srw = findfirst(sndf.names[rw] .== vgr);
+
+            if !isnothing(srw)
+                for (k, _) in node_fund
+                    sdf[i, k] = sndf[rw, k][srw]
+                end
+            end
+        end
+    end
+end
+
+export join_ndf_df!
+
+"""
+join_ndf_cr!(
+    df, ndf; name = :perceiver, rels = ["free_time", "personal_private"]
+)
+
+## Description
+
+Join ndf network info DataFrame to `cr` CSS DataFrame.
+"""
 function join_ndf_cr!(
     df, ndf; name = :perceiver, rels = ["free_time", "personal_private"]
 )
