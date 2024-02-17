@@ -120,17 +120,24 @@ function DataFrame(gr::T; type = :node) where T <:AbstractMetaGraph
 
     dx = DataFrame(fl)
 
-    x = unique(reduce(vcat, values(prps)))
-    for y in x
-        for (k, v) in y
-            dx[!, k] = typeof(v)[]
-            allowmissing!(dx, k)
+    # this block only applies if there are defined properties
+    # on the MetaGraph object `gr`
+    if length(values(prps)) > 0
+        x = unique(reduce(vcat, values(prps)))
+        for y in x
+            for (k, v) in y
+                if typeof(v) != Missing # update if there are non-missing entries
+                    dx[!, k] = typeof(v)[]
+                end
+                allowmissing!(dx, k)
+            end
         end
     end
     
     dx = similar(dx, nu(gr))
 
     for (i, e) in (enumerate∘en)(gr)
+
         dx[i, type] = e
         pr = props(gr, e)
         for (nme, val) in pr
