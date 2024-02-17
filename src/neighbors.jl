@@ -38,7 +38,7 @@ function addneighbors(cr, ndf4, rhv4, sl; cg = cg)
     replace!(ucrl.neighbors, "No_One" => missing) # not sure what happened here: this means that that "No_One" shows up as a node in the networks...
     
     r4sel = rhv4[!, [ids.n, ids.vc, sl...]];
-    
+
     y = Symbol[]
     for x in sl
         nv = Symbol(string(x) * "_n")
@@ -62,7 +62,18 @@ function addneighbors(cr, ndf4, rhv4, sl; cg = cg)
     @assert nrow(ucrw) == nrow(ucr)
     @rtransform!(ucrw, :neighbornum = passmissing(length)(:neighbors))
 
+    # enforce consistent type
+    for v in sl
+        tp = eltype(rhv4[!, v])
+        nv = Symbol(string(x) * "_n")
+        ucrw[!, nv] = convert(
+            Vector{Union{Missing, Vector{tp}}},
+            ucrw[!, nv]
+        )
+    end
+
     sort!(ucrw, [:village_code, :relation, :perceiver])
+    
     return ucrw
 end
 
@@ -134,20 +145,24 @@ function addneighbors!(
         groupby([ids.vc, unitname, relname])
         combine([x => Ref => x for x in y]...)
     end
-
-    # allowmissing!(out, :neighbors)
-    # for i in 1:nrow(out)
-    #     if all(ismissing.(out[i, :neighbors]))
-    #         out[i, :neighbors] = missing
-    #     end
-    # end
-    # out.neighbors[coalesce.(passmissing(length).(out.neighbors), 0) .== 0] .= missing;
-    # out.neighbors = [passmissing(disallowmissing)(out.neighbors[i]) for i in 1:nrow(out)]
-
+    
     @assert nrow(out) == nrow(df_a)
     @rtransform!(out, :neighbornum = passmissing(length)(:neighbors))
 
     leftjoin!(df, out; on = [ids.vc, unitname, :relation])
+
+    # enforce consistent type
+    for v in sl
+        tp = eltype(r[!, v])
+        nv = Symbol(string(v) * "_n")
+        df[!, nv] = convert(
+            Vector{Union{Missing, Vector{tp}}},
+            df[!, nv]
+        )
+        # make cases with all missing (where there are neighbors) simply
+        # missing the count is stored in `neighbornum`
+        df[[all(ismissing.(x)) for x in df[!, nv]], nv] .= missing
+    end
 
     sort!(df, [ids.vc, relname, unitname])
     return df
@@ -161,7 +176,7 @@ function process_nvariable(e::Union{Missing, Vector{Union{Missing, T}}}, stat) w
     else
         if typeof(e) <: AbstractFloat
             0, e
-        else 
+        else
             sum(ismissing.(e)), (stat∘skipmissing)(e)
         end
     end
