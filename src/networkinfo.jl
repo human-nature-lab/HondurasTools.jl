@@ -7,7 +7,9 @@ g_fund = Dict{Symbol, Tuple{Function, DataType}}();
 let
     # node-level stats
     node_fund[:betweenness_centrality] = g -> betweenness_centrality(g, normalize = true)
+    node_fund[:betweenness] = g -> betweenness_centrality(g, normalize = false)
     node_fund[:degree_centrality] = g -> degree_centrality(g, normalize = true)
+    node_fund[:degree] = g -> degree_centrality(g, normalize = false)
     node_fund[:closeness_centrality] = g -> closeness_centrality(g, normalize = true)
     node_fund[:stress_centrality] = g -> stress_centrality(g)
     node_fund[:radiality_centrality] = g -> radiality_centrality(g)
@@ -177,6 +179,8 @@ export addgraphs!
         network_info!(ndf, gcx, mods)
 
 Populate `ndf` with network information.
+
+- `mods` requires complex input that isn't really set up yet
 """
 function network_info!(ndf, mods)
     Threads.@threads for arw in eachrow(ndf)
@@ -191,9 +195,11 @@ function network_info!(ndf, mods)
         end
 
         # modularity
-        for v in mods
-            k = Symbol("modularity_" * string(v))
-            arw[k] = modularity(arw[:graph], arw[v])
+        if !isnothing(mods) > 0
+            for v in mods
+                k = Symbol("modularity_" * string(v))
+                arw[k] = modularity(arw[:graph], arw[v])
+            end
         end
     end
 end
