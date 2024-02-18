@@ -5,14 +5,13 @@ struct Respondent
     dob::Union{Date, Missing}
     man::Union{Bool, Missing}
     properties::Dict{Symbol, Dict{Int, Any}}
-    change::Dict{Symbol, Vector{Bool}} # 1->2,1->3, 3->4
+    change::Dict{Symbol, Vector{Bool}} # 1->2, 1->3, 3->4
     building_id::Dict{Int, Union{String, Missing}}
     village_code::Dict{Int, Union{Int, Missing}}
     wave::NTuple{4, Bool}
 end
 
 function respondent(name, date_of_birth, man, waves, vs2)
-
     wv = fill(false, 4)
     for i in eachindex(wv)
         if i ∈ waves
