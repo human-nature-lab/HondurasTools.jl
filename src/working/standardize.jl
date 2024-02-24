@@ -88,11 +88,13 @@ end
 
 function applystandards!(df, transforms)
     for (v, dt) in transforms
-        df[!, v] = df[!, v] * 1.0;
-        idx = .!ismissing.(df[!, v])
-        vnm = df[idx, v]
-        vnm = disallowmissing(vnm)
-        df[idx, v] = StatsBase.transform(dt, vnm) 
+        if string(v) ∈ names(df)
+            df[!, v] = df[!, v] * 1.0;
+            idx = .!ismissing.(df[!, v])
+            vnm = df[idx, v]
+            vnm = disallowmissing(vnm)
+            df[idx, v] = StatsBase.transform(dt, vnm)
+        end
     end;
 end
 
