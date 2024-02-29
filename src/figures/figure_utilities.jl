@@ -1,0 +1,27 @@
+# figure_utilities.jl
+
+"""
+        chanceline!(ax)
+
+## Description
+
+Add line of chance to ROC-space plot, the line L"y = x".
+"""
+function chanceline!(ax)
+    lines!(ax, (1:-0.1:0.5), 0:0.1:0.5; linestyle = :solid, color = oi[6])
+end
+
+"""
+        improvementline!(ax)
+
+## Description
+
+Add direction of improvement to ROC-space plot. The line represents the
+direction along which acuracy improves without changing the ratio TPR:FPR.
+
+This is the line L"y = 1 - x".
+"""
+function improvementline!(ax)
+    # line of improvement
+    lines!(ax, (0.5:-0.1:0), 0.5:0.1:1; linestyle = :solid, color = oi[3])
+end
