@@ -1,5 +1,26 @@
 # utilities.jl
 
+plusminus(x::Number,y::Number) = (x-y,x+y)
+
+export plusminus
+
+±(x, y) = plusminus(x, y)
+
+export ±
+
+"""
+        tuple_addinv(c)
+
+## Description
+
+Replace tuple (v, v) with tuple (1-v, 1-v).
+"""
+function tuple_addinv(tpl)
+    return (1 - tpl[1], 1 - tpl[2])
+end
+
+export tuple_addinv
+
 """
         sunique(x)
 
