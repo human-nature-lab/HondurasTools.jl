@@ -1,11 +1,13 @@
 module HondurasCSS
 
+import Base.getindex
+
 import Pkg
 using Reexport
 
 # add ".." when running these here, "." for external usage
 Pkg.develop(path = "./HondurasTools.jl"); # general functions, definitions
-Pkg.develop(path = "./NiceDisplay.jl"); # tables, figures, quarto, typst
+Pkg.develop(path = "./NiceDisplay.jl"); # tables, figures, quarto
 
 @reexport using HondurasTools
 @reexport using NiceDisplay
@@ -44,7 +46,8 @@ files_fg = "figures/" .* [
     "roc-style.jl", "roc-pred.jl",
     "tiedist.jl", "pairdist.jl",
     "clustdiff.jl", "individualpredictions!.jl",
-    "bivariate_perceiver.jl"
+    "bivariate_perceiver.jl",
+    "coefplot.jl"
 
 ];
 for x in files_fg; include(x) end

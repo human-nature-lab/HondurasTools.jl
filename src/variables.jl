@@ -1,5 +1,10 @@
 # variables.jl
 
+kin = :kin431;
+socio = :socio4;
+
+export kin, socio
+
 # useful variables
 rates = [:tpr, :fpr];
 export rates

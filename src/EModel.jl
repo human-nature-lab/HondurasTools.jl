@@ -1,7 +1,5 @@
 # EModel.jl
 
-import Base.getindex
-
 struct EModel{T<:RegressionModel}
     tpr::T
     fpr::T
