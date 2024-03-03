@@ -25,13 +25,8 @@ function perceivercontour!(
         extrema(reduce(vcat, [x.density for x in sbar.dens]))...;
         length = nlevels
     );
-    
-    lo1 = lo[1, 1:2] = GridLayout()
-    lop = lo1[1, 1] = GridLayout()
-    lop2 = lop[1:2, 1:2] = GridLayout()
-    ll = lo1[1,2] = GridLayout()
-    
-    los = []; axs = []; axs_ = [];
+        
+    axs = []
 
     # positions for each type
     pdict = Dict(
@@ -44,24 +39,17 @@ function perceivercontour!(
     psx = Any[];
     for i in 1:nrow(sbar)
         ps = pdict[(sbar.relation[i], sbar[i, kin])]
-        li = GridLayout(lop2[ps...])
         ax = Axis(
-            li[1, 1];
+            lo[ps...];
             ylabel = "True positive rate",
             xlabel = "False positive rate",
             xgridvisible = false, ygridvisible = false,
-            title = replace(unwrap(sbar.relation[i]), "_" => " ")
+            title = replace(unwrap(sbar.relation[i]), "_" => " "),
+            yticks = [0, 0.25, 0.5, 0.75, 1],
+            xticks = [0, 0.25, 0.5, 0.75, 1]
         )
-        ax_ = Axis(
-            li[1, 1];
-            yaxisposition = :right,
-            ylabelrotation = -π/2
-        )
-        hidexdecorations!(ax_)
-        hideydecorations!(ax_; label = false)
-        push!(los, li)
+
         push!(axs, ax)
-        push!(axs_, ax_)
         push!(psx, ps)
     end
 
@@ -71,12 +59,22 @@ function perceivercontour!(
     axs[3].xlabel = ""
     axs[2].title = ""
     axs[4].title = ""
-    axs_[1].ylabel = ""
-    axs_[2].ylabel = ""
-    axs_[3].ylabel = "Kin"
-    axs_[4].ylabel = "Non-kin"
+
+    Label(
+        lo[1, 2, Right()], "kin",
+        rotation = -π/2,
+        font = :bold,
+        padding = (5, 0, 0, 0)
+    )
+
+    Label(
+        lo[2, 2, Right()], "non-kin",
+        rotation = -π/2,
+        font = :bold,
+        padding = (5, 0, 0, 0)
+    )
   
-    cos = []
+    cos = [];
 
     (r, ax) = collect(zip(eachrow(sbar), axs))[1];
 
@@ -94,27 +92,49 @@ function perceivercontour!(
         push!(cos, co)
 
         # marginal means
-        marker = ifelse(!r[kin], :rect, :cross)
-        scatter!(ax, r.accuracy; color = oi[end-1], marker)
-        scatter!(ax, r.accuracy_unadj; color = :black, marker)
+        # marker = ifelse(!r[kin], :rect, :cross);
+        scatter!(ax, r.accuracy; color = oi[4])
+        scatter!(ax, r.accuracy_unadj; color = :black)
         
         ylims!(ax, -0.02, 1.02)
         xlims!(ax, -0.02, 1.02)
     end
 
+    ylims!(axs[1], -0.02, 1.02)
+    xlims!(axs[1], -0.02, 1.02)
+
+    linkaxes!(axs...)
+
     Colorbar(
-        ll[1, 1];
+        lo[3, 1];
         limits = extrema(lv), colormap,
-        flipaxis = false, vertical = true, label = "Density"
+        flipaxis = false, vertical = false,
+        label = "Density"
+    )
+
+    group_color = [
+        MarkerElement(;
+            color, strokecolor = :transparent, marker = :circle
+        ) for color in [:black, oi[4]]
+    ]
+
+    color_leg = ["Yes", "No"];
+    leg_titles = ["Adjusted"];
+
+    Legend(
+        lo[3, 2],
+        [group_color],
+        [color_leg],
+        leg_titles,
+        tellheight = false, tellwidth = false,
+        orientation = :horizontal,
+        titleposition = :left,
+        nbanks = 1, framevisible = false
     )
 
     # set equal axes
-    for lx in los
-        colsize!(lx, 1, Aspect(1, 1.0))
-    end
-    colsize!(lo1, 1, Aspect(1, 1.0))
-
-    return los, cos, lo1, lop, lop2, ll
+    colsize!(lo, 1, Aspect(1, 1.0))
+    colsize!(lo, 2, Aspect(1, 1.0))
 end
 
 export perceivercontour!
@@ -126,7 +146,7 @@ export perceivercontour!
 - `plo`: parent layout
 """
 function bivariate_perceiver!(
-    plo, mm, sbar; kin = :kin431, nlevels = 12, colormap = :berlin
+    plo, sbar; kin = :kin431, nlevels = 12, colormap = :berlin
 )
 
     lxx = plo[1, 1:2] = GridLayout();
