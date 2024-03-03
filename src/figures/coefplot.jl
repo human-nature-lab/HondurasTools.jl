@@ -65,12 +65,31 @@ end
 
 export CoefPlotData, coefplotdata
 
-function coefficientbiplot!(plo, bmcp; reversenames = true)
+coefdict = Dict(
+    "kin431" => "kin",
+    "relation: personal private" => "personal private",
+    "dists p notinf & dists p" => "k-(i,j) dist.",
+    "dists a notinf & dists a" => "i-j dist.",
+    "dists p notinf" => "k-(i,j) path",
+    "dists a notinf" => "i-j path",
+);
+
+function coefficientbiplot!(
+    plo, bmcp;
+    reversenames = true,
+    cnames = nothing,
+    yticklabelrotation = π/6,
+    coefdict = coefdict
+)
     lo = plo[1, 1] = GridLayout();
 
-    cnames = bmcp[:tpr].names |> copy;
-    addnames = setdiff(bmcp[:fpr].names, bmcp[:tpr].names);
-    append!(cnames, addnames);
+    if isnothing(cnames)
+        cnames = bmcp[:tpr].names |> copy;
+        addnames = setdiff(bmcp[:fpr].names, bmcp[:tpr].names);
+        append!(cnames, addnames);
+    end
+
+    unique!(cnames)
 
     if reversenames
         cnames = reverse(cnames);
@@ -99,8 +118,17 @@ function coefficientbiplot!(plo, bmcp; reversenames = true)
 
     cnames_clean = replace.(cnames, "_" => " ");
 
+    # manually change coef names
+    cnames_processed = if !isnothing(coefdict)
+        [get(coefdict, e, e) for e in cnames_clean]
+    else cnames_clean
+    end
+
     ax = Axis(
-        lo[1, 1], yticks = (1:cnum, cnames_clean), yticksvisible = false
+        lo[1, 1];
+        yticks = (1:cnum, cnames_processed),
+        yticksvisible = false,
+        yticklabelrotation,
     );
 
     colors = (rb = :black, tpr = oi[5], fpr = oi[6], );
@@ -138,7 +166,9 @@ function coefficientbiplot!(
     plo, bmcps::AbstractVector;
     reversenames = true, rates = rates,
     markers = [:cross, :rect, :star6, :rect, :utriangle],
-    cnames = nothing
+    cnames = nothing,
+    yticklabelrotation = π/6,
+    coefdict = coefdict
 )
     lo = plo[1, 1] = GridLayout();
 
@@ -166,24 +196,19 @@ function coefficientbiplot!(
     cnames_clean = replace.(cnames, "_" => " ");
 
     # manually change coef names
-    cdict = Dict(
-        "kin431" => "kin",
-        "relation: personal private" => "personal private",
-        "dists p notinf & dists p" => "k-(i,j) dist.",
-        "dists a notinf & dists a" => "i-j dist.",
-        "dists p notinf" => "k-(i,j) path",
-        "dists a notinf" => "i-j path",
-    )
-
-    cnames_processed = [get(cdict, e, e) for e in cnames_clean]
+    cnames_processed = if !isnothing(coefdict)
+        [get(coefdict, e, e) for e in cnames_clean]
+    else cnames_clean
+    end
 
     ylabel_pos = (1:cnum) .- 1/2;
 
     # plot
     ax = Axis(
-        lo[1, 1], yticks = (ylabel_pos, cnames_processed),
+        lo[1, 1];
+        yticks = (ylabel_pos, cnames_processed),
         yticksvisible = false,
-        yticklabelrotation = π/6,
+        yticklabelrotation,
         # ylabel = "Coefficient",
         xlabel = "Estimate"
     );

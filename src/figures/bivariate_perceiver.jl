@@ -39,12 +39,14 @@ function perceivercontour!(
     psx = Any[];
     for i in 1:nrow(sbar)
         ps = pdict[(sbar.relation[i], sbar[i, kin])]
+        title = replace(unwrap(sbar.relation[i]), "_" => " ")
+        title = uppercase(title[1]) * title[2:end]
         ax = Axis(
             lo[ps...];
             ylabel = "True positive rate",
             xlabel = "False positive rate",
             xgridvisible = false, ygridvisible = false,
-            title = replace(unwrap(sbar.relation[i]), "_" => " "),
+            title,
             yticks = [0, 0.25, 0.5, 0.75, 1],
             xticks = [0, 0.25, 0.5, 0.75, 1]
         )
@@ -61,14 +63,14 @@ function perceivercontour!(
     axs[4].title = ""
 
     Label(
-        lo[1, 2, Right()], "kin",
+        lo[1, 2, Right()], "Kin",
         rotation = -π/2,
         font = :bold,
         padding = (5, 0, 0, 0)
     )
 
     Label(
-        lo[2, 2, Right()], "non-kin",
+        lo[2, 2, Right()], "Non-kin",
         rotation = -π/2,
         font = :bold,
         padding = (5, 0, 0, 0)
@@ -118,7 +120,7 @@ function perceivercontour!(
         ) for color in [:black, oi[4]]
     ]
 
-    color_leg = ["Yes", "No"];
+    color_leg = ["No", "Yes"];
     leg_titles = ["Adjusted"];
 
     Legend(
