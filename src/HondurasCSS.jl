@@ -5,7 +5,8 @@ import Base.getindex
 import Pkg
 using Reexport
 
-# add ".." when running these here, "." for external usage
+# add "." when running these here, "." for external usage
+# (total of two dots)
 Pkg.develop(path = "./HondurasTools.jl"); # general functions, definitions
 Pkg.develop(path = "./NiceDisplay.jl"); # tables, figures, quarto
 
@@ -41,14 +42,15 @@ export logistic, logit
 
 files_fg = "figures/" .* [
     "plotting.jl", "figure_utilities.jl", "stressfocus.jl",
-    "unitbarplot.jl", "backgroundplot.jl", "rocplot.jl",
+    "unitbarplot.jl",
+    "backgroundplot.jl",
+    "rocplot.jl",
     "biplot.jl", "interface_plot.jl",
     "roc-style.jl", "roc-pred.jl",
     "tiedist.jl", "pairdist.jl",
     "clustdiff.jl", "individualpredictions!.jl",
     "bivariate_perceiver.jl",
     "coefplot.jl"
-
 ];
 for x in files_fg; include(x) end
 
