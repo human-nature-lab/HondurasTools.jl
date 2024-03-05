@@ -1,7 +1,7 @@
 # variables.jl
 
-kin = :kin431;
-socio = :socio4;
+global kin = :kin431;
+global socio = :socio4;
 
 export kin, socio
 
