@@ -1,9 +1,8 @@
 # effects_utilities.jl
 
 function bimargins(
-    ms, vbls, crt, crf;
+    ms, vbls;
     tnr = true, invlink = logistic,
-    manual_typicals = [:age],
     vrs = [:response, :lower, :upper]
 )
 
@@ -61,7 +60,6 @@ end
 
 export design_dict
 
-
 """
         referencegrid(df::BiData, effectsdicts; rates = rates)
 
@@ -98,13 +96,19 @@ end
 export referencegrid
 
 function apply_referencegrids!(
-    m::EModel, reference_grids;
-    rates = rates, invlink = identity
+    m::EModel, referencegrids; rates = rates, invlink = identity
 )
 
-    for r in rates
-        effects!(reference_grids[r], m[r]; invlink)
+    Threads.@threads for r in rates
+        effects!(referencegrids[r], m[r]; invlink)
     end
 end
 
 export apply_referencegrids!
+
+function truenegative!(rgs::Union{NamedTuple, BiData})
+    rgs[:fpr][!, :response] = 1 .- rgs[:fpr][!, :response]
+    rgs[:fpr][!, :ci] = tuple_addinv.(rgs[:fpr][!, :ci])
+end
+
+export truenegative!
