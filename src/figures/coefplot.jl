@@ -47,6 +47,14 @@ end
 
 export ci
 
+function ci!(rgs::NamedTuple; x = :response, rates = rates, area = 1.96)
+    for r in rates
+        rgs[r][!, :ci] = ci.(rgs[r][!, x], rgs[r][!, :err]; area)
+    end
+end
+
+export ci!
+
 struct CoefPlotData
     names::Vector{String}
     βs::Vector{Real}
