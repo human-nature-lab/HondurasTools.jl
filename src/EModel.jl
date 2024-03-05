@@ -85,12 +85,20 @@ export getindex
 function bidatajoin(df; rates = rates)
     df = deepcopy(df)
     for r in rates
-        rename!(df[r], :response => r, :err => Symbol("err_" * string(r)))
+        rename!(
+            df[r],
+            :response => r, :err => Symbol("err_" * string(r)),
+            :ci => Symbol("ci_" * string(r))
+        )
     end
-    return leftjoin(
+
+    ndf = leftjoin(
         df[rates[1]], df[rates[2]],
         on = intersect(names(df[rates[1]]), names(df[rates[2]]))
     )
+    ndf.accuracy = tuple.(ndf.tpr, ndf.fpr)
+
+    return ndf
 end
 
 export bidatajoin
@@ -104,7 +112,10 @@ function bidatacombine(df; rates = rates)
     y = df[rates[2]] |> deepcopy
     y.rate .= rates[2]
 
-    return vcat(x, y)
+    z = vcat(x, y)
+    z.verity = passmissing(ifelse).(z.rate .== :tpr, true, false)
+
+    return z
 end
 
 export bidatacombine
