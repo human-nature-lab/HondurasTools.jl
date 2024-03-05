@@ -1,97 +1,122 @@
 # effectsplot.jl
 
-function effplot_cat!(
-    lo, ll, m1_mrg, vbl;
-    jdf = nothing,
-    xlabelrotation = 0.0, xticklabelrotation = 0.0
-)
-    m1_mrg_nk = @subset m1_mrg .!$kin
-    m1_mrg_nk[!, vbl] = categorical(string.(m1_mrg_nk[!, vbl]))
-
-    lvls = string.(levels(m1_mrg_nk[!, vbl]))
-    lvls = replace.(lvls, "_" => " ")
-    xticks = (1.5:2:(2*length(levels(m1_mrg_nk[!, vbl]))), lvls)
-
-    ax = Axis(
-        lo[1,1], xticks = xticks, xlabel = string(vbl), ylabel = "accuracy", xlabelrotation = xlabelrotation, xticklabelrotation = xticklabelrotation
+function EffectLegend!(ll, elems)
+    Legend(
+        ll[1, 1], elems, ["True positive", "True negative"], "Rate", framevisible = false,
+        orientation = :horizontal,
+        tellheight = false, tellwidth = false, nbanks = 1
     )
+end
 
-    sort!(m1_mrg_nk, [vbl, kin])
-    m1_mrg_nk.color = ifelse.(m1_mrg_nk[!, :verity], wc[5], wc[6])
+function effectsplot!(
+    l, ll, bpd;
+    jdf, axiskwargs...
+)
 
-    vl = (2.5:2:(2*length(levels(m1_mrg_nk[!, vbl]))))[1:end]
+    mrg = bpd[:marginslong]
+    vbl = bpd[:margvar]
+
+    vbltype = eltype(mrg[!, vbl])
+    cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
+
+    if cts
+        effplot_cts!(l, ll, mrg, vbl, jdf, axiskwargs...)
+    else
+        effplot_cat!(l, ll, mrg, vbl, jdf, axiskwargs...)
+    end
+end
+
+export effectsplot!
+
+function effplot_cat!(lo, ll, m1_mrg, vbl, jdf, axiskwargs...)
+
+    mrg_nk = @subset m1_mrg .!$kin
+    mrg_nk[!, vbl] = categorical(string.(mrg_nk[!, vbl]))
+
+    lvls = string.(levels(mrg_nk[!, vbl]))
+    lvls = replace.(lvls, "_" => " ")
+    xticks = (1.5:2:(2*length(levels(mrg_nk[!, vbl]))), lvls)
+
+    ax = Axis(lo[1, 1]; xticks, ylabel = "Accuracy", axiskwargs...)
+
+    sort!(mrg_nk, [vbl, kin])
+    mrg_nk.color = ifelse.(mrg_nk[!, :verity], oi[5], oi[6])
+
+    vl = (2.5:2:(2*length(levels(mrg_nk[!, vbl]))))[1:end]
 
     vlines!(ax, vl, color = :black, linestyle = :solid, linewidth = 0.5)
 
     scatter!(
-        ax, 1:nrow(m1_mrg_nk), m1_mrg_nk.response;
-         color = m1_mrg_nk.color
-        )
+        ax, 1:nrow(mrg_nk), mrg_nk.response;
+         color = mrg_nk.color
+    )
+    lwr = [x[1] for x in mrg_nk[!, :ci]]
+    upr = [x[2] for x in mrg_nk[!, :ci]]
     rangebars!(
-        ax, 1:nrow(m1_mrg_nk), m1_mrg_nk.lower, m1_mrg_nk.upper;
-        color = m1_mrg_nk.color
+        ax, 1:nrow(mrg_nk), lwr, upr;
+        color = mrg_nk.color
     )
 
-    elems = [[LineElement(color = :black), MarkerElement(marker = :circle, color = c, strokecolor = :transparent)] for c in wc[5:6]]
+    elems = [
+        [
+            LineElement(; color = c),
+            MarkerElement(;
+                marker = :circle, color = c, strokecolor = :transparent
+            )
+        ] for c in oi[5:6]
+    ]
 
-    Legend(
-        ll[1, 1], elems, ["true positive", "true negative"], "rate", framevisible = false, tellheight = false, tellwidth = false, nbanks = 2
-    )
+    EffectLegend!(ll, elems)
 
     return ax
 end
 
 export effplot_cat!
 
-function effplot_cts!(
-    lo, ll, m1_mrg, vbl;
-    jdf = nothing,
-    xlabelrotation = 0.0, xticklabelrotation = 0.0
-)
-    m1_mrg_nk = if !isnothing(kin)
-        @subset m1_mrg .!$kin
+function effplot_cts!(lo, ll, mrg_l, vbl, jdf, axiskwargs...)
+
+    mrg_nk = if !isnothing(kin)
+        @subset mrg_l .!$kin
     else
-        m1_mrg
+        mrg_l
     end
 
     vbl_str = string(vbl)
     vbl_str = replace(vbl_str, "_" => " ")
     ax = Axis(
-        lo[1, 1], xlabel = vbl_str, ylabel = "accuracy", xlabelrotation = xlabelrotation,
-        xticklabelrotation = xticklabelrotation
+        lo[1, 1];
+        ylabel = "Accuracy",
+        axiskwargs...
     )
 
-    sort!(m1_mrg_nk, vbl)
-    m1_mrg_nk.color = ifelse.(m1_mrg_nk[!, :verity], wc[5], wc[6])
+    sort!(mrg_nk, vbl)
+    mrg_nk.color = ifelse.(mrg_nk[!, :verity], oi[5], oi[6])
 
-    for (ix, cx) in zip([m1_mrg_nk.verity, .!m1_mrg_nk.verity], [5,6])
-        xs = m1_mrg_nk[ix, vbl]
-        rs = m1_mrg_nk[ix, :response]
-        lw = m1_mrg_nk[ix, :lower]
-        hg = m1_mrg_nk[ix, :upper]
-        band!(ax, xs, lw, hg, color = (wc[cx], 0.6))
-        lines!(ax, xs, rs, color = wc[cx])
+    for (ix, cx) in zip([mrg_nk.verity, .!mrg_nk.verity], [5,6])
+        xs = mrg_nk[ix, vbl]
+        rs = mrg_nk[ix, :response]
+        lwr = [x[1] for x in mrg_nk[ix, :ci]]
+        upr = [x[2] for x in mrg_nk[ix, :ci]]
+        band!(ax, xs, lwr, upr; color = (oi[cx], 0.6)) # no method for tuples
+        lines!(ax, xs, rs, color = oi[cx])
     end
 
     if isnothing(jdf)
         elems = [
             LineElement(
                 color = c
-            ) for c in wc[5:6]
+            ) for c in oi[5:6]
         ]
 
-        Legend(
-            ll[1, 1], elems, ["true positive", "true negative"], "rate",
-            framevisible = false,
-            tellheight = false, tellwidth = false, nbanks = 2
-        )
+        EffectLegend!(ll, elems)
     else
         # if j statistic data is included, add line and band
         # make legend that includes J statistic with color wong color 7
 
         ax2 = Axis(
-            lo[1, 1], label = vbl_str, ylabel = "J statistic", xlabelrotation = xlabelrotation,
-            xticklabelrotation = xticklabelrotation,
+            lo[1, 1];
+            label = vbl_str, ylabel = "J statistic",
+            xlabelrotation, xticklabelrotation,
             # yticklabelcolor = :red,
             yaxisposition = :right
         )
@@ -111,107 +136,82 @@ function effplot_cts!(
         rs = jdf[!, :peirce_mean]
         lw = jdf[!, :peirce_lwr]
         hg = jdf[!, :peirce_upr]
-        band!(ax2, xs, lw, hg, color = (wc[3], 0.2))
-        lines!(ax2, xs, rs, color = wc[3])
+        band!(ax2, xs, lw, hg, color = (oi[3], 0.2))
+        lines!(ax2, xs, rs, color = oi[3])
 
         elems = [
             LineElement(
                 color = c
-            ) for c in wc[[5,6,3]]
+            ) for c in oi[[5,6,3]]
         ]
 
         Legend(
-            ll[1, 1], elems, ["true positive", "true negative", "youden's J"], "rate",
+            ll[1, 1], elems, ["true positive", "true negative", "youden's J"], "Rate",
             framevisible = false,
             tellheight = false, tellwidth = false, nbanks = 3
         )
     end
 
-    xlims!(ax, extrema(m1_mrg_nk[!, vbl]))
+    xlims!(ax, extrema(mrg_nk[!, vbl]))
 
     return ax
 end
 
 export effplot_cts!
 
-function effplot_cts_pr!(
-    lo, ll, fg, m1_mrg, vbl; xlabelrotation = 0.0, xticklabelrotation = 0.0
-)
+function effplot_cts_pr!(lo, ll, mrg, vbl, axiskwargs...)
     
-    m1_mrg_nk = @subset m1_mrg .!$kin
+    mrg_nk = @subset mrg .!$kin
     vbl_str = string(vbl)
     vbl_str = replace(vbl_str, "_" => " ")
-    ax = lo[1,1] = Axis(
-        fg, xlabel = vbl_str, ylabel = "accuracy", xlabelrotation = xlabelrotation,
-        xticklabelrotation = xticklabelrotation
+    ax = Axis(
+        lo[1, 1];
+        xlabel = vbl_str, ylabel = "Accuracy",
+        axiskwargs...
     )
 
-    sort!(m1_mrg_nk, vbl)
-    m1_mrg_nk.color = ifelse.(m1_mrg_nk[!, :verity], wc[5], wc[6])
+    sort!(mrg_nk, vbl)
+    mrg_nk.color = ifelse.(mrg_nk[!, :verity], oi[5], oi[6])
 
-    if sum(m1_mrg_nk.verity) > 0
-        for ix in [m1_mrg_nk.verity]
-            xs = m1_mrg_nk[ix, vbl]
-            rs = m1_mrg_nk[ix, :response]
-            lw = m1_mrg_nk[ix, :lower]
-            hg = m1_mrg_nk[ix, :upper]
-            band!(ax, xs, lw, hg, color = (wc[5], 0.6))
-            lines!(ax, xs, rs, color = wc[5])
+    if sum(mrg_nk.verity) > 0
+        for ix in [mrg_nk.verity]
+            xs = mrg_nk[ix, vbl]
+            rs = mrg_nk[ix, :response]
+            lw = mrg_nk[ix, :lower]
+            hg = mrg_nk[ix, :upper]
+            band!(ax, xs, lw, hg, color = (oi[5], 0.6))
+            lines!(ax, xs, rs, color = oi[5])
         end
     end
 
-    if sum(.!m1_mrg_nk.verity) > 0
+    if sum(.!mrg_nk.verity) > 0
         for ix in [.!m1_mrg_nk.verity]
-            xs = m1_mrg_nk[ix, vbl]
-            rs = m1_mrg_nk[ix, :response]
-            lw = m1_mrg_nk[ix, :lower]
-            hg = m1_mrg_nk[ix, :upper]
-            band!(ax, xs, lw, hg, color = (wc[6], 0.6))
-            lines!(ax, xs, rs, color = wc[6])
+            xs = mrg_nk[ix, vbl]
+            rs = mrg_nk[ix, :response]
+            lw = mrg_nk[ix, :lower]
+            hg = mrg_nk[ix, :upper]
+            band!(ax, xs, lw, hg, color = (oi[6], 0.6))
+            lines!(ax, xs, rs, color = oi[6])
         end
     end
 
     if !isnothing(ll)
-        if sum(m1_mrg_nk.verity) > 0
-            elems = [LineElement(color = wc[5])]
+        if sum(mrg_nk.verity) > 0
+            elems = [LineElement(color = oi[5])]
                 
-            Legend(
-                ll[1, 1], elems, ["true positive"], "rate",
-                framevisible = false,
-                tellheight = false, tellwidth = false, nbanks = 2
-            )
+            EffectLegend!(ll, elems)
         end
 
-        if sum(.!m1_mrg_nk.verity) > 0
-            elems = [LineElement(color = wc[6])]
+        if sum(.!mrg_nk.verity) > 0
+            elems = [LineElement(color = oi[6])]
                 
-            Legend(
-                ll[1, 1], elems, ["false positive"], "rate",
-                framevisible = false,
-                tellheight = false, tellwidth = false, nbanks = 2
-            )
+            EffectLegend!(ll, elems)
         end
     end
 
-    xlims!(ax, extrema(m1_mrg_nk[!, vbl]))
+    xlims!(ax, extrema(mrg_nk[!, vbl]))
 
     return ax
 end
 
 export effplot_cts_pr!
-
-function effectsplot!(
-    l, ll, mrg, vbl;
-    jdf, xlabelrotation, xticklabelrotation
-)
-    vbltype = eltype(mrg[!, vbl])
-    cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
-    
-    if cts
-        effplot_cts!(l, ll, mrg, vbl; jdf, xlabelrotation, xticklabelrotation)
-    else
-        effplot_cat!(l, ll, mrg, vbl; jdf, xlabelrotation, xticklabelrotation)
-    end
-end
-
-export effectsplot!

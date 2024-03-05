@@ -111,4 +111,9 @@ function truenegative!(rgs::Union{NamedTuple, BiData})
     rgs[:fpr][!, :ci] = tuple_addinv.(rgs[:fpr][!, :ci])
 end
 
+function truenegative!(df::AbstractDataFrame)
+    df[!, :fpr] = 1 .- df[!, :fpr]
+    df[!, :ci_fpr] = tuple_addinv.(df[!, :ci_fpr])
+end
+
 export truenegative!

@@ -41,11 +41,12 @@ using StatsFuns: logistic, logit
 export logistic, logit
 
 files_fg = "figures/" .* [
-    "plotting.jl", "figure_utilities.jl", "stressfocus.jl",
+    "plotting.jl",
+    "figure_utilities.jl", "stressfocus.jl",
     "unitbarplot.jl",
     "backgroundplot.jl",
     "rocplot.jl",
-    "effectplot.jl",
+    "effectsplot.jl",
     "biplot.jl", "interface_plot.jl",
     "roc-style.jl", "roc-pred.jl",
     "tiedist.jl", "pairdist.jl",

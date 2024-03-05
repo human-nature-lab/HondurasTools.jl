@@ -207,3 +207,7 @@ function checkmains(mains, fm::Vector{T}) where T <: AbstractTerm
 end
 
 export checkmains
+
+sq_term(t::AbstractTerm) = FunctionTerm((t)->t ^ 2, [t], :($(t) ^ 2))
+
+export sq_term
