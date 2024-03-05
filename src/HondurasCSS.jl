@@ -45,6 +45,7 @@ files_fg = "figures/" .* [
     "unitbarplot.jl",
     "backgroundplot.jl",
     "rocplot.jl",
+    "effectplot.jl",
     "biplot.jl", "interface_plot.jl",
     "roc-style.jl", "roc-pred.jl",
     "tiedist.jl", "pairdist.jl",
