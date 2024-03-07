@@ -11,7 +11,7 @@ function getellipsepoints(cx, cy, rx, ry, θ)
 	(x,y)
 end
 
-function getellipsepoints(μ, Σ, confidence=0.95)
+function getellipsepoints(μ, Σ; confidence = 0.95)
 	quant = quantile(Chisq(2), confidence) |> sqrt
 	cx = μ[1]
 	cy =  μ[2]
@@ -41,7 +41,7 @@ end
 
 function rocplot!(
     l, ll, mus, vbl;
-    markeropacity = 0.5,
+    markeropacity = nothing,
     ellipse = false, jdf = nothing, legtitle = nothing
 )
 
@@ -49,6 +49,10 @@ function rocplot!(
 
     vbltype = eltype(mus[!, vbl])
     cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
+
+    if isnothing(markeropacity)
+        markeropacity = ifelse(cts, 0.5, 1.0)
+    end
 
     mus.color = if !cts
         mus[!, vbl] = categorical(string.(mus[!, vbl])) # make string regardless

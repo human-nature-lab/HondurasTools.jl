@@ -96,11 +96,17 @@ end
 export referencegrid
 
 function apply_referencegrids!(
-    m::EModel, referencegrids; rates = rates, invlink = identity
+    m::EModel, referencegrids;
+    invlink = identity, multithreaded = true
 )
-
-    Threads.@threads for r in rates
-        effects!(referencegrids[r], m[r]; invlink)
+    if multithreaded
+        Threads.@threads for r in rates
+            effects!(referencegrids[r], m[r]; invlink)
+        end
+    else
+        for r in rates
+            effects!(referencegrids[r], m[r]; invlink)
+        end
     end
 end
 
@@ -117,3 +123,63 @@ function truenegative!(df::AbstractDataFrame)
 end
 
 export truenegative!
+
+"""
+        usualeffects(dats)
+
+Construct the dictionary foundation of the reference grids for most analyses.
+"""
+function usualeffects(dats)
+    
+    df_ = dats.fpr;
+    
+    # separate or the same (across rates)?
+    ds = [dats[x][!, :dists_p][dats[x][!, :dists_p] .!= 0] for x in rates];
+    distmean = mean(reduce(vcat, ds))    
+
+    tpr_dict = Dict(
+        :kin431 => [false, true],
+        :dists_p => distmean
+    );
+
+    fpr_dict = deepcopy(tpr_dict);
+    fpr_dict[:dists_a] = mean(df_[df_[!, :dists_a] .!= 0, :dists_a])
+    return (tpr = tpr_dict, fpr = fpr_dict,)
+end
+
+export usualeffects
+
+"""
+        usualeffects(dats, vbl)
+
+Construct the dictionary foundation of the reference grids for most analyses. Include the range of a focal variable, `vbl`, observed in the data.
+"""
+function usualeffects(dats, vbl)
+    
+    df_ = dats.fpr;
+    
+    # separate or the same (across rates)?
+    ds = [dats[x][!, :dists_p][dats[x][!, :dists_p] .!= 0] for x in rates];
+    distmean = mean(reduce(vcat, ds))    
+
+    tpr_dict = Dict(
+        :kin431 => [false, true],
+        :dists_p => distmean
+    );
+
+    fpr_dict = deepcopy(tpr_dict);
+    fpr_dict[:dists_a] = mean(df_[df_[!, :dists_a] .!= 0, :dists_a])
+
+    effectsdicts = (tpr = tpr_dict, fpr = fpr_dict,)
+
+    # add the range of the focal variable
+    for r in rates
+        effectsdicts[r][vbl] = (
+            unique∘skipmissing∘vcat)(dats[:tpr][!, vbl], dats[:fpr][!, vbl]
+        )
+    end
+
+    return effectsdicts
+end
+
+export usualeffects

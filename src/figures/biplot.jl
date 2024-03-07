@@ -9,7 +9,7 @@ function biplotdata(
         ed[r][vbl] = (unique∘skipmissing∘vcat)(dats[:tpr][!, vbl], dats[:fpr][!, vbl])
     end
     rgs = referencegrid(dats, ed)
-    apply_referencegrids!(bimodel, rgs; rates, invlink)
+    apply_referencegrids!(bimodel, rgs; invlink)
     ci!(rgs)
 
     mrg = bidatajoin(rgs);
@@ -29,7 +29,7 @@ function biplot!(
     bpd;
     jdf = nothing,
     ellipse = false,
-    markeropacity = 0.5,
+    markeropacity = nothing,
     marginaxiskwargs...
 )
 
@@ -64,7 +64,7 @@ export biplot!
 
 function biplot(
     vbl, dats, effectsdicts, bimodel, lo, xlabel;
-    invlink = identity, markeropacity = 0.5
+    invlink = identity, markeropacity = nothing
 )
     
     bpdata = biplotdata(

@@ -5,8 +5,8 @@ global socio = :socio4;
 
 export kin, socio
 
-# useful variables
-rates = [:tpr, :fpr];
+global rates = [:tpr, :fpr];
+
 export rates
 
 # Reports paths
@@ -25,6 +25,10 @@ prj = (
 export prj
 
 # Paper paths
-ppath = (b = "css-paper/", t = "tables/", f = "figures/");
+ppth = (
+    b = "honduras-css-paper/",
+    t = "tables/", f = "figures/",
+    st = "tables_si/", sf = "figures_si/",
+);
 
-export ppath
+export ppth
