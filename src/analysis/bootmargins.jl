@@ -3,36 +3,6 @@
 
 using GeometryBasics:Point
 
-function _installparams!(bm, Θ, i, rates)
-    for r in rates
-        e = @views bm[r]
-        b, u = Θ[r]
-        
-        # install new parameters to bimodel
-        e.β = b[i]
-        e.θ = u[i];
-    end
-end
-
-function _assignmargins!(bstimates, refgrids, bm, Θ, iters, invlink, rates)
-    for i in 1:iters
-        _installparams!(bm, Θ, i, rates)
-
-        # marginal effect calculation
-        # overwrite -> this would have to be adjusted for Threads
-        apply_referencegrids!(
-            bm, refgrids;
-            invlink, multithreaded = false
-        )
-
-        # copy to the storage location
-        # no easy way to avoid effects! dump into a the refgrid dataframe
-        for r in rates
-            bstimates[r][i] .= refgrids[r][!, :response]
-        end
-    end
-end
-
 """
         bootstrapdata(pbs, iters)
 
@@ -83,6 +53,46 @@ function _bootstrap_allocate(refgrids, iters, respvar)
     return bstimates
 end
 
+function _installparams!(bm, Θ, i, rates)
+    for r in rates
+        e = @views bm[r]
+        b, u = Θ[r]
+        
+        # install new parameters to bimodel
+        e.β = b[i]
+        e.θ = u[i];
+    end
+end
+
+
+"""
+        _assignmargins!(bstimates, refgrids, bm, Θ, iters, invlink, rates)
+
+## Description
+
+Calculated bootstrapped marginal effects from the bootstrap parameter distributions from the model bootstrap. (no additional randomness here.)
+
+`iters` should be the number of iterations in the parametric bootstrap for the linear model.
+"""
+function _assignmargins!(bstimates, refgrids, bm, Θ, iters, invlink, rates)
+    for i in 1:iters
+        _installparams!(bm, Θ, i, rates)
+
+        # marginal effect calculation
+        # overwrite -> this would have to be adjusted for Threads
+        apply_referencegrids!(
+            bm, refgrids;
+            invlink, multithreaded = false
+        )
+
+        # copy to the storage location
+        # no easy way to avoid effects! dump into a the refgrid dataframe
+        for r in rates
+            bstimates[r][i] .= refgrids[r][!, :response]
+        end
+    end
+end
+
 """
         postprocess_bootstrap!(refgrids, bstimates, iters)
 
@@ -125,52 +135,66 @@ end
 
 Input `bimodel` and `parametricbootstrap()` results for each to generate bootstrapped confidence intervals for Youden's J statistic over the margins of a variable of interest `vbl`. `iteration` specifies the number of replications for generating TPR 
 
+- `iters`: number of iterations for j calculation (separate from number iters in the model bootstrap)
+
 """
 function jboot(
-    vbl, bimodel, pbs, dats;
-    iters = 1000,
+    vbl, bimodel, refgrids, pbs, iters;
     invlink = identity,
     confrange = [0.025, 0.975],
-    respvar = :response
+    respvar = :response,
+    type = :percentile
 )
+
+    if typeof(vbl) == Symbol
+        vbl = [vbl]
+    end
+
+    # we will overwrite these columns repeatedly during the bootstrap
+    refgrids = deepcopy(refgrids)
+
+    for r in rates
+        dropmissing!(refgrids[r], [vbl..., kin])
+    end
+
+    inc_names = (
+        tpr = setdiff(names(refgrids.tpr), ["err", "ci"]),
+        fpr = setdiff(names(refgrids.fpr), ["err", "ci"])
+    )
+    for r in rates; select!(refgrids[r], inc_names[r]) end
 
     # we will overwrite the model parameters during the bootstrap
     # (this strategy simplifies prediction and marginal effects calculation)
     bm = deepcopy(bimodel);
 
-    effdict = usualeffects(dats, vbl)
-    refgrids = referencegrid(dats, effdict)
-    apply_referencegrids!(bm, refgrids; invlink)
-    ci!(refgrids)
-
     @assert nrow(refgrids[:tpr]) .== nrow(refgrids[:fpr])
-
-    for r in rates
-        dropmissing!(refgrids[r], [vbl, kin])
-    end
+    
+    bslen = length(pbs.tpr.σ) # number of iterations in `pbs`
 
     # bstimates corresponds to the response column in each refgrid in refgrids
-    bstimates = _bootstrap_allocate(refgrids, iters, respvar)
+    bstimates = _bootstrap_allocate(refgrids, bslen, respvar)
+    Θ = bootstrapdata(pbs, bslen);
 
-    Θ = bootstrapdata(pbs, iters);
-
-    # perform resampling, calculate distribution of marginal effect predictions
-    _assignmargins!(bstimates, refgrids, bm, Θ, iters, invlink, rates);
-
-    # install correct values to bm
-    apply_referencegrids!(bm, refgrids; invlink)
+    # calculate distribution of marginal effect predictions based on
+    # resampled values from the model bootstrap
+    _assignmargins!(bstimates, refgrids, bm, Θ, bslen, invlink, rates);
 
     rg = deepcopy(refgrids);
-    postprocess_bootstrap!(rg, bstimates, iters)
+
+    postprocess_bootstrap!(rg, bstimates, bslen);
+
+    # use original model
+    apply_referencegrids!(bimodel, rg; invlink)
+    ci!(rg)
 
     # combine rate rg data -> rgc
-    for r in rates; sort!(rg[r], [kin, vbl]) end
+    for r in rates; sort!(rg[r], [kin, vbl...]) end
 
     # if these are not the same, we cannot lazily combine:
-    @assert(rg[:tpr][!, [kin, vbl]] == rg[:fpr][!, [kin, vbl]])
+    @assert(rg[:tpr][!, [kin, vbl...]] == rg[:fpr][!, [kin, vbl...]])
 
     # lazily add columns, renaming as appropriate
-    rgc = select(rg[:fpr], Not([:response, :err, :response_bs]))
+    rgc = select(rg[:fpr], Not([:response, :err, :ci, :response_bs]))
     for r in rates rgc[!, r] = rg[r][!, respvar] end
     for r in rates rgc[!, "err_" * string(r)] = rg[r][!, :err] end
     for r in rates rgc[!, "ci_" * string(r)] = rg[r][!, :ci] end
@@ -196,28 +220,23 @@ function jboot(
         rgc.bs_j[i] = Vector{Float64}(undef, iters)
     end
 
-    # resample
-    for (i, (s, v)) in (enumerate∘zip)(rgc.bs_tpr, rgc.bs_fpr)
-        for j in 1:iters
-            vr, sr = rand(v), rand(s)
-            rgc.bs_accuracy[i][j] = Point(vr, sr) # (fpr, tpr)
-            rgc.bs_j[i][j] = sr - vr # tpr - fpr
-        end
-    end
-
+    _jboot!(rgc, iters)
+    
     # basic bootstrap CI
     # https://www.stat.cmu.edu/~ryantibs/advmethods/notes/bootstrap.pdf
     rgc.ci_j = fill((NaN, NaN), nrow(rgc));
     rgc.bsinfo_j = Vector{NamedTuple}(undef, nrow(rgc));
     for (i, (x, θ)) in (enumerate∘zip)(rgc.bs_j, rgc.peirce)
-        qte = (q025, q975) = quantile(x, confrange)
+        xbar = mean(x)
+        se = std(x)
+        qte = quantile(x, confrange)
         rgc.bsinfo_j[i] = (
-            mean = mean(x), std = std(x, corrected = false), ptiles = qte
+            mean = xbar, std = se, ptiles = qte
         )
-        rgc.ci_j[i] = (2θ - q975, 2θ - q025)
+        rgc.ci_j[i] = bootinterval(θ, qte, se; type)
     end
 
-    # confidence ellipse
+    # for confidence ellipse calculation
     # https://www.stat.cmu.edu/~larry/=stat401/lecture-18.pdf
     rgc.Σ = [cov(x) for x in rgc.bs_accuracy]
 
@@ -225,3 +244,28 @@ function jboot(
 end
 
 export jboot
+
+function bootinterval(θ, qte, se; type = :percentile)
+    return if type == :basic
+        2θ - qte[2], 2θ - qte[1]
+    elseif type == :percentile
+        qte[1], qte[2]
+    elseif type == :normal
+        θ ± se*1.96
+    else
+        error("type not improperly specified")
+    end
+end
+
+"""
+resample for j
+"""
+function _jboot!(rgc, iters)
+    for (i, (s, v)) in (enumerate∘zip)(rgc.bs_tpr, rgc.bs_fpr)
+        for j in 1:iters
+            vr, sr = rand(v), rand(s)
+            rgc.bs_accuracy[i][j] = Point(vr, sr) # (fpr, tpr)
+            rgc.bs_j[i][j] = sr - vr # tpr - fpr
+        end
+    end
+end

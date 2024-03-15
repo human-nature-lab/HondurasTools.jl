@@ -208,6 +208,19 @@ end
 
 export checkmains
 
-sq_term(t::AbstractTerm) = FunctionTerm((t)->t ^ 2, [t], :($(t) ^ 2))
+"""
+Square formula term.
+"""
+function sq_term(t::AbstractTerm)
+    FunctionTerm((t)->t ^ 2, [t], :($(t) ^ 2))
+end
 
 export sq_term
+
+function detuple(tpl::Vector{T}) where T <: Tuple
+    x1 = [e[1] for e in tpl]
+    x2 = [e[2] for e in tpl]
+    return x1, x2
+end
+
+export detuple

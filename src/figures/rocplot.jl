@@ -39,54 +39,127 @@ function getellipsepoints(μ, Σ; confidence = 0.95)
 	getellipsepoints(cx, cy, rx, ry, θ)
 end
 
+function _cat_legend!(
+    layout, vbl_vals, varname, ellipse, ellipsecolor; legargs...
+)
+    elems = if !ellipse
+        [
+            MarkerElement(
+                marker = :rect, color = c, strokecolor = :transparent
+            ) for c in wc[1:length(levels(vbl_vals))]
+        ]
+    else
+        [
+            [
+                MarkerElement(
+                    marker = :circle, color = ellipsecolor,
+                    strokecolor = :transparent, markersize = 30
+                ),
+                MarkerElement(
+                    marker = :circle, color = c, strokecolor = :transparent
+                )
+            ] for c in wc[1:length(levels(vbl_vals))]
+        ]
+    end
+
+    lvls = string.(levels(vbl_vals))
+    lvls = replace.(lvls, "_" => " ")
+
+    elems_kin = [
+        MarkerElement(;
+            marker = m, color = :black, strokecolor = :transparent
+        ) for m in [:rect, :cross]
+    ]
+
+    lvls_kin = ["False", "True"];
+
+    Legend(
+        layout[1, 2], [elems, elems_kin], [lvls, lvls_kin], [varname, "Kin tie"];
+        legargs..., orientation = :vertical, nbanks = 1
+    )
+end
+
+function roc_legend!(
+    layout, vbl_vals, varname, ellipse, ellipsecolor, cts;
+    extraelement = false,
+    legargs...
+)
+    if !cts
+        _cat_legend!(
+            layout, vbl_vals, varname, ellipse, ellipsecolor; legargs...
+        )
+    else
+        lx = layout[1, 2] = GridLayout()
+        rowsize!(lx, 1, Relative(4.5/5))
+        rangescale = extrema(vbl_vals)
+        Colorbar(
+            lx[1, 1];
+            limits = rangescale, colormap = :berlin,
+            flipaxis = false, vertical = true,
+            label = varname,
+            tellheight = false
+        )
+        if extraelement
+            existcolor = colorschemes[:Anemone][1] # :managua10
+            elems = [MarkerElement(; marker = :circle, color = existcolor)]
+            Legend(
+                lx[2, 1], [elems], ["No path"], "";
+                orientation = :vertical, nbanks = 1,
+                framevisible = false, legargs...
+            )
+        end
+    end
+end
+
 function rocplot!(
-    l, ll, mus, vbl;
+    layout, margins, vbl, varname;
     markeropacity = nothing,
-    ellipse = false, jdf = nothing, legtitle = nothing
+    ellipse = false,
+    ellipsecolor = (:grey, 0.3),
+    legend = true
 )
 
     legargs = (framevisible = false, tellheight = false, tellwidth = false,)
 
-    vbltype = eltype(mus[!, vbl])
+    vbltype = eltype(margins[!, vbl])
     cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
 
     if isnothing(markeropacity)
         markeropacity = ifelse(cts, 0.5, 1.0)
     end
 
-    mus.color = if !cts
-        mus[!, vbl] = categorical(string.(mus[!, vbl])) # make string regardless
-        [oi[levelcode(x)] for x in mus[!, vbl]]
+    margins.color = if !cts
+        margins[!, vbl] = categorical(string.(margins[!, vbl])) # make string regardless
+        [oi[levelcode(x)] for x in margins[!, vbl]]
     else
-        rangescale = extrema(mus[!, vbl])
-        get(colorschemes[:berlin], mus[!, vbl], rangescale);
+        rangescale = extrema(margins[!, vbl])
+        get(colorschemes[:berlin], margins[!, vbl], rangescale);
     end;
 
-    mus.marker = ifelse.(mus[!, kin], :cross, :rect);
+    margins.marker = ifelse.(margins[!, kin], :cross, :rect);
     
     ax = Axis(
-        l[1, 1]; xlabel = "False positive rate", ylabel = "True positive rate"
+        layout[1, 1];
+        xlabel = "False positive rate", ylabel = "True positive rate",
+        # aspect = 1
+        height = 250, width = 250
     )
 
     # line of chance
     chanceline!(ax);
     improvementline!(ax);
     
-    xlims!(0, 1)
-    ylims!(0, 1)
-
+    xlims!(ax, 0, 1)
+    ylims!(ax, 0, 1)
+    
     # (optionally) plot confidence ellipse
-    if !isnothing(jdf) & ellipse
-        jdf = select(jdf, [kin, vbl, :cov])
-        mus2 = leftjoin(mus, jdf, on = [vbl, kin])
+    if ellipse
+        jdf = margins[!, [:tpr, :fpr, :Σ]]
 
-        for (p1, p2, Σ) in zip(
-            mus2[!, Symbol("false")], mus2[!, Symbol("true")], mus2[!, :cov]
-        )
-            # lines!(getellipsepoints(Point(p1, p2), Σ)..., label = "95% confidence interval", color = (:grey, 0.1), )
+        for (fp, tp, Σ) in zip(jdf.fpr, jdf.tpr, jdf.Σ)
             poly!(
-                Point2f.(zip(getellipsepoints(Point(p1, p2), Σ)...,));
-                color =(:grey, 0.1)
+                Point2f.(zip(getellipsepoints(Point(fp, tp), Σ)...,));
+                color = ellipsecolor
             )
         end
     end
@@ -94,58 +167,20 @@ function rocplot!(
     # plot the data
     scatter!(
         ax,
-        mus[!, :fpr], mus[!, :tpr],
+        margins[!, :fpr], margins[!, :tpr],
         color = [
-            (x, markeropacity) for x in mus.color];
-            marker = mus.marker, markersize = 8
+            (x, markeropacity) for x in margins.color];
+            marker = margins.marker, markersize = 8
     )
 
-    vbl_str = if isnothing(legtitle)
-        replace(string.(vbl), "_" => " ")
-    else
-        legtitle
-    end
-
-    # legend: variable/color
-    if !cts
-        elems = [
-            MarkerElement(
-                marker = :rect, color = c, strokecolor = :transparent
-            ) for c in wc[1:length(levels(mus[!, vbl]))]
-        ]
-
-        lvls = string.(levels(mus[!, vbl]))
-        lvls = replace.(lvls, "_" => " ")
-
-        Legend(
-            l[1, 2], elems, lvls, vbl_str;
-            legargs..., orientation = :vertical, nbanks = 1
-        )
-
-        colgap!(l, -10)
-    else
-        rangescale = extrema(mus[!, vbl])
-        Colorbar(
-            l[1, 2];
-            limits = rangescale, colormap = :berlin,
-            flipaxis = false, vertical = true,
-            label = vbl_str,
-            tellheight = false
+    if legend
+        # legend: variable/color
+        roc_legend!(
+            layout, margins[!, vbl], varname, ellipse, ellipsecolor, cts;
+            legargs...
         )
     end
     
-    # legend: kin/marker
-    elems = [
-        MarkerElement(;
-            marker = m, color = :black, strokecolor = :transparent
-        ) for m in [:rect, :cross]
-    ]
-
-    Legend(
-        ll[1, 2], elems, ["False", "True"], "Kin";
-        legargs..., orientation = :horizontal, nbanks = 1
-    )
-
     return ax
 end
 

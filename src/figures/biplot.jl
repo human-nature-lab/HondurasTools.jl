@@ -1,79 +1,109 @@
 # biplot.jl
 
 function biplotdata(
-    bimodel, effectsdicts, dats, vbl; invlink = invlink
+	bimodel, dats, vbl;
+    pbs = nothing,
+	varname = nothing,
+	invlink = invlink, type = :normal, iters = 1000,
+	transforms = nothing, returnpbs = false,
 )
-    # add focal variable to a copy of effectsdicts
-    ed = deepcopy(effectsdicts)
-    for r in rates
-        ed[r][vbl] = (unique∘skipmissing∘vcat)(dats[:tpr][!, vbl], dats[:fpr][!, vbl])
-    end
-    rgs = referencegrid(dats, ed)
-    apply_referencegrids!(bimodel, rgs; invlink)
-    ci!(rgs)
 
-    mrg = bidatajoin(rgs);
-    truenegative!(rgs)
-    mrg_l = bidatacombine(rgs)
-    
-    dropmissing!(mrg, [vbl, kin])
-    dropmissing!(mrg_l, [vbl, kin])
+	effdict = usualeffects(dats, vbl)
+	refgrids = referencegrid(dats, effdict)
+	apply_referencegrids!(bimodel, refgrids; invlink)
+	ci!(refgrids)
+	for r in refgrids
+		sort!(r, [kin, vbl])
+	end
+	rgs = deepcopy(refgrids)
 
-    return (margins = mrg, marginslong = mrg_l, dict = ed, margvar = vbl,)
+	mrg = bidatajoin(rgs)
+	truenegative!(rgs)
+	mrg_l = bidatacombine(rgs)
+
+	dropmissing!(mrg, [vbl, kin])
+	dropmissing!(mrg_l, [vbl, kin])
+
+	# add bootstrap info only to the wide `mrg`
+	if !isnothing(pbs)
+		bs = jboot(
+			vbl, bimodel, rgs, pbs, iters; invlink, type,
+			confrange = [0.025, 0.975], respvar = :response,
+		)
+		disallowmissing!(bs)
+
+		# add bootstrap info
+		@assert mrg[!, [:dists_p, :dists_a, kin, vbl]] == bs[!, [:dists_p, :dists_a, kin, vbl]]
+
+		mrg = hcat(mrg, select(bs, setdiff(names(bs), names(mrg))))
+	end
+
+	varname = if isnothing(varname)
+		replace(string(varname), "_" => " ")
+	else
+		varname
+	end
+
+	# transform margin variable to original range
+	if !isnothing(transforms)
+		for e in [mrg, mrg_l]
+			reversestandards!(e, [vbl], transforms)
+		end
+	end
+
+	return if !isnothing(pbs) & returnpbs
+		(margvar = vbl, margins = mrg, marginslong = mrg_l, dict = effdict, bs = bs, varname = varname)
+	else
+		(margins = mrg, marginslong = mrg_l, dict = effdict, margvar = vbl, varname = varname)
+	end
 end
 
 export biplotdata
 
 function biplot!(
-    plo,
-    bpd;
-    jdf = nothing,
-    ellipse = false,
-    markeropacity = nothing,
-    marginaxiskwargs...
+	plo,
+	bpd;
+	jstat = true,
+	ellipse = false,
+    ellipsecolor = (:grey, 0.3),
+	markeropacity = nothing,
+	marginaxiskwargs...,
 )
 
-    ##
-    
-    lroc = plo[1, 1] = GridLayout();
-    colsize!(lroc, 1, Aspect(1, 1))
-    lef = plo[1, 2] = GridLayout();
-    colsize!(lef, 1, Aspect(1, 1))
+	lroc = plo[1, 1] = GridLayout()
+	colsize!(lroc, 1, Relative(4 / 5))
+	lef = plo[1, 2] = GridLayout()
+	colsize!(lef, 1, Relative(4 / 5))
 
-    colgap!(plo, -50)
+	rocplot!(
+		lroc,
+		bpd[:margins], bpd[:margvar], bpd[:varname];
+		ellipse,
+        ellipsecolor,
+		markeropacity
+	)
 
-    rocplot!(
-        lroc, lroc[2, 1], bpd[:margins], bpd[:margvar];
-        ellipse, jdf, legtitle = marginaxiskwargs[:xlabel],
-        markeropacity
-    )
-    
-    effectsplot!(
-        lef, lef[2, 1],
-        bpd;
-        jdf, marginaxiskwargs...
-    )
+	effectsplot!(
+		lef,
+		bpd, jstat;
+		marginaxiskwargs...,
+	)
 
-    rowsize!(lroc, 1, Relative(4/5))
-    rowsize!(lef, 1, Relative(4/5))
-
-    return plo
+	return plo
 end
 
 export biplot!
 
 function biplot(
-    vbl, dats, effectsdicts, bimodel, lo, xlabel;
-    invlink = identity, markeropacity = nothing
+	vbl, dats, effectsdicts, bimodel, lo, xlabel;
+	invlink = identity, markeropacity = nothing,
 )
-    
-    bpdata = biplotdata(
-        bimodel, effectsdicts, dats, vbl; invlink
-    );
 
-    biplot!(lo, bpdata; xlabel, markeropacity)
-    #for i in 1:2; colsize!(lo, i, Aspect(1, 1)) end
-    # rowsize!(lo, 1, Aspect(1, 2))
+	bpdata = biplotdata(
+		bimodel, effectsdicts, dats, vbl; invlink,
+	)
+
+	biplot!(lo, bpdata; xlabel, markeropacity)
 end
 
 export biplot

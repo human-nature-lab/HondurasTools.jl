@@ -50,9 +50,11 @@ files_fg = "figures/" .* [
     "biplot.jl", "interface_plot.jl",
     "roc-style.jl", "roc-pred.jl",
     "tiedist.jl", "pairdist.jl",
-    "clustdiff.jl", "individualpredictions!.jl",
+    "clustdiff.jl",
+    "individualpredictions!.jl",
     "bivariate_perceiver.jl",
-    "coefplot.jl"
+    "coefplot.jl",
+    "distanceplot.jl"
 ];
 for x in files_fg; include(x) end
 

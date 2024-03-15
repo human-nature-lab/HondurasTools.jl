@@ -100,7 +100,8 @@ function apply_referencegrids!(
     invlink = identity, multithreaded = true
 )
     if multithreaded
-        Threads.@threads for r in rates
+        #Threads.@threads for r in rates
+        for r in rates
             effects!(referencegrids[r], m[r]; invlink)
         end
     else
@@ -150,12 +151,16 @@ end
 export usualeffects
 
 """
-        usualeffects(dats, vbl)
+        usualeffects(dats, vbls)
 
-Construct the dictionary foundation of the reference grids for most analyses. Include the range of a focal variable, `vbl`, observed in the data.
+Construct the dictionary foundation of the reference grids for most analyses. Include the range of a focal variable(s), `vbls`, observed in the data.
 """
-function usualeffects(dats, vbl)
+function usualeffects(dats, vbls)
     
+    if typeof(vbls) <: Symbol
+        vbls = [vbls]
+    end
+
     df_ = dats.fpr;
     
     # separate or the same (across rates)?
@@ -164,7 +169,8 @@ function usualeffects(dats, vbl)
 
     tpr_dict = Dict(
         :kin431 => [false, true],
-        :dists_p => distmean
+        :dists_p => distmean,
+        :age => mean(dats[:fpr].age)
     );
 
     fpr_dict = deepcopy(tpr_dict);
@@ -174,9 +180,11 @@ function usualeffects(dats, vbl)
 
     # add the range of the focal variable
     for r in rates
-        effectsdicts[r][vbl] = (
-            unique∘skipmissing∘vcat)(dats[:tpr][!, vbl], dats[:fpr][!, vbl]
-        )
+        for vbl in vbls
+            effectsdicts[r][vbl] = (
+                unique∘skipmissing∘vcat)(dats[:tpr][!, vbl], dats[:fpr][!, vbl]
+            )
+        end
     end
 
     return effectsdicts
