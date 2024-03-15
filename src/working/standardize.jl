@@ -86,6 +86,12 @@ function standards(df)
     return transforms
 end
 
+"""
+
+## Description
+
+Apply the data standardization for all columns present in transforms.
+"""
 function applystandards!(df, transforms)
     for (v, dt) in transforms
         if string(v) ∈ names(df)
@@ -98,15 +104,54 @@ function applystandards!(df, transforms)
     end;
 end
 
-function reversestandards!(df, transforms)
+"""
+        reversestandards!(df, transforms; digits = nothing)
+
+## Description
+
+Reverse the data standardization for all columns present in transforms.
+"""
+function reversestandards!(df, transforms; digits = nothing)
     for (v, dt) in transforms
         idx = .!ismissing.(df[!, v])
         vnm = df[idx, v]
         vnm = disallowmissing(vnm)
+        if !isnothing(digits)
+            vnm = round.(vnm; digits)
+        end
         df[idx, v] = StatsBase.reconstruct(dt, vnm)
     end;
 end
 
+"""
+        reversestandards!(df, vbls, transforms; digits = nothing)
+
+## Description
+
+Reverse the data standardization for columns present in transforms and in `vbls`.
+"""
+function reversestandards!(df, vbls, transforms; digits = nothing)
+    for v in vbls
+        dt = get(transforms, v, missing)
+        if !ismissing(dt)
+            idx = .!ismissing.(df[!, v])
+            vnm = df[idx, v]
+            vnm = disallowmissing(vnm)
+            if !isnothing(digits)
+                vnm = round.(vnm; digits)
+            end
+            df[idx, v] = StatsBase.reconstruct(dt, vnm)
+        end
+    end
+end
+
+"""
+        reversestandard(df, v, transforms)
+
+## Description
+
+Reverse standardization for a column and a set of transforms. Non-mutating.
+"""
 function reversestandard(df, v, transforms)
     y = deepcopy(df[!, v])
     dt = transforms[v]
