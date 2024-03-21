@@ -3,11 +3,14 @@
 function getneighbors(prc, vl, rel, nds; ids = ids, relname = :relation)
 
     ix = findfirst((vl .== nds[!, ids.vc]) .& (rel .== nds[!, relname]))
-    g = nds[ix, :graph]
-    vprc = tryindex(g, prc, :name; alt = missing)
-
-    return if !ismissing(vprc)
-        [get_prop(g, va, :name) for va in neighbors(g, vprc)]
+    
+    return if !isnothing(ix)
+        g = nds[ix, :graph]
+        vprc = tryindex(g, prc, :name; alt = missing)
+        if !ismissing(vprc)
+            [get_prop(g, va, :name) for va in neighbors(g, vprc)]
+        else missing
+        end
     else missing
     end
 end
@@ -115,6 +118,26 @@ function addneighbors!(
     # neighbor lists of length 0 => missing
     # not sure what happened here: this means that that "No_One" shows up as a node in the networks...
     df_a.neighbors[coalesce.(passmissing(length).(df_a.neighbors), 0) .== 0] .= missing
+
+    x = @subset df_a ismissing.(:neighbors)
+
+    q2 = @subset nds :relation .== "free_time"
+    q = DataFrame(
+        :pop => [length(y) for y in q2.names],
+        :gpop => [nv(y) for y in q2.graph],
+        :village_code => q2.village_code
+    )
+    leftjoin!(q, q2, on = :village_code)
+
+    @chain x begin
+        groupby(:village_code)
+        combine(nrow => :count)
+        leftjoin(_, q, on = :village_code)
+        @transform(:frac_isol = :count ./ :pop)
+        select(:village_code, :count, :pop, :frac_isol)
+    end
+
+    [degree(g) for g in nds.graph]
 
     println("missing: " * string(sum(ismissing.(df_a.neighbors))))
 

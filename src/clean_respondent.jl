@@ -448,27 +448,6 @@ function clean_respondent(
         end
     end
 
-    # age category
-    begin
-        rf[!, :agecat] = fill("<= 65", nrow(rf));
-
-        for (i, x) in enumerate(rf[!, :age])
-            if !ismissing(x)
-                if x > 65
-                    rf[i, :agecat] = if x > 80
-                        "> 80"
-                    elseif x > 75
-                        "> 75"
-                    elseif x > 70
-                        "> 70"
-                    elseif x > 65
-                        "> 65"
-                    end
-                end
-            end
-        end
-    end
-
     # others
 
     let
@@ -546,13 +525,20 @@ function clean_respondent(
     let # correct `data_source`
         rwds1 = rf.data_source[rf.wave .== 1];
         rwds1n = replace(
-            rwds1, 1 => "Census, survey", 2 => "Census, no survey", 3 => "Alter"
+            rwds1,
+            1 => "Census, survey",
+            2 => "Census, no survey",
+            3 => "Alter"
         );
     
         rwds2 = rf.data_source[rf.wave .> 1];
         rwds2n = replace(
-            rwds2, 1 => "Census, survey", 2 => "Census, survey",
-            3 => "Census, no survey", 4 => "Alter");
+            rwds2,
+            1 => "Census, survey",
+            2 => "Census, survey",
+            3 => "Census, no survey",
+            4 => "Alter"
+        );
     
         rf.data_source = fill("", nrow(rf));
         rf.data_source[rf.wave .== 1] .= rwds1n;
