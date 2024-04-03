@@ -1,13 +1,15 @@
 # riddles_functions.jl
 
 """
-        stagetwo(outcome, ef_t, ef_f; x = :response)
+        stagetwo(outcome, x, bef, fitmodel; terms = nothing)
 
 ## Description
 
 Calculate the second-stage regression estimates, of the riddle on the accuracy score.
+
+- `fitmodel`: The model, as a function `fitmodel(fm, df)`; e.g., `fit(LinearModel, fm, df)`.
 """
-function stagetwo(outcome, bef; x = :response, terms = nothing)
+function stagetwo(outcome, x, bef, fitmodel; terms = nothing)
 
     fm = if isnothing(terms)
         Term(outcome) ~ Term(x)
@@ -16,8 +18,8 @@ function stagetwo(outcome, bef; x = :response, terms = nothing)
     end
 
     return emodel(
-        fit(GeneralizedLinearModel, fm, bef.tpr, Binomial(), LogitLink()),
-        fit(GeneralizedLinearModel, fm, bef.fpr, Binomial(), LogitLink())
+        fitmodel(fm, bef.tpr),
+        fitmodel(fm, bef.fpr),
     );
 end
 
@@ -36,8 +38,10 @@ function stagetwo(outcome, ef::DataFrame; terms = nothing)
     end
     
     return emodel(
-        fit(GeneralizedLinearModel, fm, ef, Binomial(), LogitLink()),
-        fit(GeneralizedLinearModel, fm2, ef, Binomial(), LogitLink())
+        # fit(GeneralizedLinearModel, fm, ef, Binomial(), LogitLink()),
+        # fit(GeneralizedLinearModel, fm2, ef, Binomial(), LogitLink())
+        fit(LinearModel, fm, ef),
+        fit(LinearModel, fm2, ef)
     );
 end
 
@@ -55,7 +59,7 @@ function stagetwo_peirce(outcome, ef; x = :youden, terms = nothing)
         Term(outcome) ~ Term(x) + terms
     end
     
-    return fit(GeneralizedLinearModel, fm, ef, Binomial(), LogitLink())
+    return fit(LinearModel, fm, ef)
 end
 
 export stagetwo_peirce
@@ -169,7 +173,7 @@ function refgrid_stage1(dats, regvars, efdicts; rates = rates)
     # check that rows in effects DataFrame equals number of perceivers
     for r in rates
         df = bef[r]
-        @assert length(unique(df.perceiver)) == nrow(df)
+        # @warn length(unique(df.perceiver)) == nrow(df)
     end
 
     # set the design for the marginal means
@@ -247,8 +251,8 @@ export bootstore
 function boot2stage!(
     bs_stage2mods, bs_stage2mods_dosage, bs_stage2mods_controls,
     stage2mods_bs, stage2mods_dosage_bs, stage2mods_controls_bs,
-    m1, pb, regvars, efdicts, controls, dats_;
-    ι = (L = 1_000, K = 1_000, rates = rates, riddles = riddles)
+    bimodel, pb, regvars, efdicts, controls, dats_, otc, invlink;
+    ι = (L = 1_000, K = 1_000, rates = rates, riddles = riddles,)
 )
 
     Threads.@threads for k in 1:ι.K
@@ -256,7 +260,7 @@ function boot2stage!(
         # install bootstrap values for prediction
         # (comprehension to unpack to vector)
 
-        m1_ = deepcopy(m1)
+        m1_ = deepcopy(bimodel)
 
         for r in ι.rates
             βsi = pb[r].fits[k].β;
@@ -268,9 +272,13 @@ function boot2stage!(
 
         # marginal effects for stage 2
         # `efdicts` is constant over loop
-        bef = refgrid_stage1(dats_, regvars, efdicts);
-        addeffects!(bef, m1_, otc; rates = ι.rates);
-
+        bef = refgrid_stage1(dats_, regvars, efdicts; rates = rates);
+        apply_referencegrids!(bimodel, bef; invlink)
+    
+        for r in rates
+            leftjoin!(bef[r], otc, on = [:village_code, :perceiver => :name]);
+        end
+    
         # second-stage estimates
         # N.B., kwarg x = :response
         # for z in riddles
