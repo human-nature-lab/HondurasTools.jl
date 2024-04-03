@@ -148,6 +148,21 @@ function bifit(
     )
 end
 
+"""
+        bifit(fitmodel, fx, df)
+
+## Description
+
+- `fitmodel`: The model, as a function `fitmodel(fm, df)`; e.g., `fit(LinearModel, fm, df)`.
+"""
+function bifit(fitmodel, fx, df)
+
+    return emodel(
+        fitmodel(fx, df.tpr),
+        fitmodel(fx, df.fpr),
+    );
+end
+
 export bifit
 
 function distance_interaction!(col, v)

@@ -191,3 +191,23 @@ function usualeffects(dats, vbls)
 end
 
 export usualeffects
+
+function perceiver_efdicts(dats; kinvals = [false])
+    dt_ = dats.tpr;
+    df_ = dats.fpr;
+    
+    # separate or the same (across rates)?
+    ds = [dats[x].dists_p[dats[x].dists_p .!= 0] for x in rates];
+    distmean = mean(reduce(vcat, ds))    
+
+    tpr_dict = Dict(
+        :kin431 => kinvals,
+        :dists_p => distmean,
+    );
+
+    fpr_dict = deepcopy(tpr_dict);
+    fpr_dict[:dists_a] = mean(df_[df_[!, :dists_a] .!= 0, :dists_a])
+    return (tpr = tpr_dict, fpr = fpr_dict)
+end
+
+export perceiver_efdicts

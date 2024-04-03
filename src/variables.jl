@@ -6,8 +6,10 @@ global socio = :socio4;
 export kin, socio
 
 global rates = [:tpr, :fpr];
-
 export rates
+
+global rls = (ft = "free_time", pp = "personal_private",);
+export rls
 
 # Reports paths
 prj = (
