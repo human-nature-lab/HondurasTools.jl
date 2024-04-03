@@ -35,7 +35,8 @@ and NiceDisplay
 @reexport using MixedModels
 
 # @reexport using Lasso
-@reexport using StandardizedPredictors, Effects
+@reexport using Effects
+# StandardizedPredictors # no longer using this
 
 using StatsFuns: logistic, logit
 export logistic, logit
@@ -54,15 +55,19 @@ files_fg = "figures/" .* [
     "individualpredictions!.jl",
     "bivariate_perceiver.jl",
     "coefplot.jl",
-    "distanceplot.jl"
+    "distanceplot.jl",
+    "stage2_figure.jl"
 ];
 for x in files_fg; include(x) end
 
 files_an = "analysis/" .* [
     "accuracies.jl", "accuracy_functions.jl", "bootmargins.jl",
     "riddles_functions.jl", "riddles_functions_pbs.jl",
-    "parametricbootstrap2.jl"
+    "parametricbootstrap2.jl",
+    "stage2.jl",
+    "homophily.jl"
 ];
+
 for x in files_an; include(x) end
 
 files_g = [
