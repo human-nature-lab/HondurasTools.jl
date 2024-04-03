@@ -234,3 +234,121 @@ function process_nvariable!(
 end
 
 export process_nvariable, process_nvariable!
+
+
+"""
+        neighborprops(g::AbstractGraph, v::Int; property = :name)
+
+## Description
+
+Get the specified property for each neighbor of `v`, where `v` is the vertex index in the graph object.
+"""
+function neighborprops(g::AbstractGraph, v::Int; property = :name)
+    return [get_prop(g, a, property) for a in neighbors(g, v)]
+end
+
+"""
+        neighborprops(g::AbstractGraph, v::AbstractString; property = :name)
+
+## Description
+
+Get the specified property for each neighbor of `v`, where `v` is the property of that node.
+"""
+function neighborprops(g::AbstractGraph, v::AbstractString; property = :name)
+    return [get_prop(g, a, property) for a in neighbors(g, get_prop(g, v, property))]
+end
+
+export neighborprops
+
+"""
+        neighborprops!(
+            nb::Vector{Vector{S}}, g::AbstractGraph; property = :name
+        )
+
+## Description
+
+Get the property for each neighbor, for each node in the graph.
+"""
+function neighborprops!(
+    nb::Vector{Vector{S}}, g::AbstractGraph; property = :name
+) where S <: Any
+    for v in 1:nv(g)
+        nb[v] = neighborprops(g, v; property)
+    end
+end
+
+"""
+        neighborprops!(
+            nb::Vector{Vector{Vector{S}}}, gs::Vector{T}; property = :name
+        )
+
+## Description
+
+Get the property for each neighbor, for each node in the graph, for a vector of graphs.
+"""
+function neighborprops!(
+    nb::Vector{Vector{Vector{S}}}, gs::Vector{T}; property = :name
+) where {T <: AbstractGraph, S <: Any}
+    for (i, g) in enumerate(gs)
+        neighborprops!(@views(nb[i]), g; property)
+    end
+end
+
+export neighborprops!
+
+"""
+        neighbordata(ndfw; additionals = nothing, flat = true)
+
+## Description
+
+- `additionals`: additional variables to include from `ndfw`
+
+Extract neighbor names from `ndfw` network info DataFrame.
+"""
+function neighbordata(
+    ndfw; additionals = nothing, vector_additionals = nothing,
+    flat = true
+)
+    
+    nb = Vector{Vector{Vector{String}}}(undef, length(ndfw[!, :graph]));
+    for (i, x) in enumerate(ndfw.names)
+        nb[i] = Vector{Vector{String}}(undef, length(x))
+    end
+
+    neighborprops!(nb, ndfw[!, :graph])
+
+    nfo = if isnothing(additionals)
+        DataFrame(
+            :village_code => ndfw[!, :village_code],
+            :names => ndfw[!, :names],
+            :neighbors => nb
+        )
+    else
+        DataFrame(
+        :village_code => ndfw.village_code,
+        :names => ndfw.names,
+        :neighbors => nb,
+        [e => ndfw[!, e] for e in additionals]...,
+        [e => ndfw[!, e] for e in vector_additionals]...
+    )
+    end
+
+    return if flat
+        nfo_ = @chain nfo begin
+            flatten(
+                [
+                    :names, :neighbors,
+                    vector_additionals...
+                ],
+                scalar = Missing
+            )
+            flatten([:neighbors], scalar = Missing)
+        end
+        rename!(nfo_, :names => :name) 
+        nfo_
+    else
+        nfo
+    end
+end
+
+export neighbordata

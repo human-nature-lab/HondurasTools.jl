@@ -129,7 +129,9 @@ function DataFrame(gr::T; type = :node) where T <:AbstractMetaGraph
                 if typeof(v) != Missing # update if there are non-missing entries
                     dx[!, k] = typeof(v)[]
                 end
-                allowmissing!(dx, k)
+                if string(k) ∈ names(dx)
+                    allowmissing!(dx, k)
+                end
             end
         end
     end
