@@ -2,7 +2,7 @@
 
 function EffectLegend!(ll, elems)
     Legend(
-        ll[1, 1], elems, ["TPR", "FPR"], "Accuracy", framevisible = false,
+        ll[1, 1], elems, ["TPR", "TNR"], "Accuracy", framevisible = false,
         orientation = :vertical,
         tellheight = false, tellwidth = false, nbanks = 1
     )
@@ -137,7 +137,7 @@ function effplot_cat!(layout, bpd, jstat; axiskwargs...)
 
         Legend(
             layout[1, 2],
-            elems, ["TPR", "FPR", "J"], "Accuracy",
+            elems, ["TPR", "TNR", "J"], "Accuracy",
             framevisible = false, orientation = :vertical,
             tellheight = false, tellwidth = false, nbanks = 1
         )        
@@ -151,6 +151,7 @@ export effplot_cat!
 function effplot_cts!(
     layout, bpd, jstat;
     limitx = true, dotlegend = false,
+    fpronly = false,
     axiskwargs...
 )
 
@@ -177,23 +178,46 @@ function effplot_cts!(
 
     vervals = sunique(mrg_nk[!, :verity])
 
-    clrs = if vervals == [false, true]
-        [5, 6]
-    elseif vervals == [true]
-        [5]
-    elseif vervals == [false]
-        [6]
-    end
+    # clrs = if vervals == [false, true]
+    #     [5, 6]
+    # elseif vervals == [true]
+    #     [5]
+    # elseif vervals == [false]
+    #     [6]
+    # end
     
-    idxs = [mrg_nk.verity .== v for v in vervals]
+    # idxs = [mrg_nk.verity .== v for v in vervals]
 
-    for (ix, cx) in zip(idxs, clrs)
-        xs = mrg_nk[ix, vbl]
-        rs = mrg_nk[ix, :response]
-        lwr = [x[1] for x in mrg_nk[ix, :ci]]
-        upr = [x[2] for x in mrg_nk[ix, :ci]]
-        band!(ax, xs, lwr, upr; color = (oi[cx], 0.6)) # no method for tuples
-        lines!(ax, xs, rs, color = oi[cx])
+    # for (ix, cx) in zip(idxs, clrs)
+    #     xs = mrg_nk[ix, vbl]
+    #     rs = mrg_nk[ix, :response]
+    #     lwr = [x[1] for x in mrg_nk[ix, :ci]]
+    #     upr = [x[2] for x in mrg_nk[ix, :ci]]
+    #     band!(ax, xs, lwr, upr; color = (oi[cx], 0.6)) # no method for tuples
+    #     lines!(ax, xs, rs, color = oi[cx])
+    # end
+
+    nk = @subset margins .!$kin
+
+    for (r, clr) in zip(rates, [oi[5], oi[6]])
+        if (r == :fpr) | ((r == :tpr) & !fpronly)            
+            
+            rci = Symbol("ci_" * string(r))
+
+            xs = nk[!, vbl]
+            rs = nk[!, r]
+            lwr = [x[1] for x in nk[!, rci]]
+            upr = [x[2] for x in nk[!, rci]]
+
+            if r == :fpr
+                rs = 1 .- rs
+                lwr = 1 .- lwr
+                upr = 1 .- upr
+            end
+
+            band!(ax, xs, lwr, upr; color = (clr, 0.6)) # no method for tuples
+            lines!(ax, xs, rs, color = clr)
+        end
     end
 
     if !jstat
@@ -268,7 +292,7 @@ function effplot_cts!(
         Legend(
             layout[1, 2],
             elems,
-            ["TPR", "FPR", "J"],
+            ["TPR", "TNR", "J"],
             "Accuracy",
             framevisible = false, orientation = :vertical,
             tellheight = false, tellwidth = false, nbanks = 1

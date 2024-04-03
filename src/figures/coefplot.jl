@@ -173,7 +173,7 @@ end
 function coefficientbiplot!(
     plo, bmcps::AbstractVector;
     reversenames = true, rates = rates,
-    markers = [:cross, :rect, :star6, :rect, :utriangle],
+    markers = [:rect, :cross, :star6, :rect, :utriangle],
     cnames = nothing,
     yticklabelrotation = π/6,
     coefdict = coefdict
@@ -313,7 +313,6 @@ end
 
 export coefficientbiplot!
 
-
 """
 plot marginal means
 """
@@ -404,3 +403,127 @@ function margmeanplot!(lo, effs, effs_youd, modelnames, model_legend)
 end
 
 export margmeanplot!
+
+function coefficientplot!(
+    plo, cpds::AbstractVector;
+    reversenames = true,
+    markers = [:cross, :rect, :star6, :rect, :utriangle],
+    cnames = nothing,
+    yticklabelrotation = π/6,
+    coefdict = coefdict,
+    marker_leg = nothing
+)
+    lo = plo[1, 1] = GridLayout();
+
+    #=
+    coeff order:
+    - order of model 1 tpr, then add other tpr variables.
+    - repeat for fpr.
+    =#
+
+    if isnothing(cnames)
+        cnames = String[];
+        for cpd in cpds
+            append!(cnames, cpd.names)
+        end
+    end
+
+    unique!(cnames)
+
+    if reversenames
+        cnames = reverse(cnames);
+    end
+    cnum = length(cnames);
+    cnames_clean = replace.(cnames, "_" => " ");
+
+    # manually change coef names
+    cnames_processed = if !isnothing(coefdict)
+        [get(coefdict, e, e) for e in cnames_clean]
+    else cnames_clean
+    end
+
+    ylabel_pos = (1:cnum) .- 1/2;
+
+    # plot
+    ax = Axis(
+        lo[1, 1];
+        yticks = (ylabel_pos, cnames_processed),
+        yticksvisible = false,
+        yticklabelrotation,
+        # ylabel = "Coefficient",
+        xlabel = "Estimate"
+    );
+
+    colors = (rb = :black, tpr = oi[5], fpr = oi[6], );
+
+    yindices = [fill(0.0, length(cnames)) for _ in eachindex(cpds)]
+    ypos = [yfuncs(1, length(cpds)) .+ (i-1) for i in eachindex(cnames)]
+
+    for j in eachindex(cpds)
+        yindices[j] .= [ypos[i][j] for i in eachindex(cnames)]
+    end
+
+    vlines!(ax, 0, color = :black, linestyle = :dot)
+    hlines!(1:(cnum-1), color = (:black, 0.5), linewidth = 0.8)
+    ylims!(ax, 0, cnum)
+
+    (l, (cpd, marker)) = (collect∘enumerate∘zip)(cpds, markers)[1]
+
+    for (l, (cpd, marker)) in (enumerate∘zip)(cpds, markers)
+        β_ = fill(0.0, length(cnames));
+        intr = Vector{Tuple{Real, Real}}(undef, length(cnames));
+
+        for (i, e) in enumerate(cnames)
+            idx = findfirst(cpd.names .== e)
+            β_[i] = if !isnothing(idx)
+                cpd.βs[idx]
+            else
+                NaN
+            end
+            intr[i] = if !isnothing(idx)
+                cpd.intr[idx]
+            else
+                (NaN, NaN)
+            end
+        end
+
+        rangebars!(
+            ax, yindices[l], intr;
+            color = colors.rb, direction = :x
+        )
+        scatter!(
+            ax, β_, yindices[l];
+            color = colors.rb, marker
+        )
+    end
+
+    # Legend
+
+    group_marker = [
+        MarkerElement(;
+            color = :black, strokecolor = :transparent, marker
+        ) for marker in markers[eachindex(cpds)]
+    ]
+
+    if isnothing(marker_leg)
+        marker_leg = ["1", "2", "3"];
+    end
+    
+    leg_titles = ["Model"];
+
+    Legend(
+        lo[2, 1],
+        [group_marker],
+        [marker_leg],
+        leg_titles,
+        tellheight = false, tellwidth = false,
+        orientation = :horizontal,
+        nbanks = 1, framevisible = false
+    )
+
+    rowsize!(lo, 1, Relative(18/20))
+
+    return lo
+end
+
+export coefficientplot!
