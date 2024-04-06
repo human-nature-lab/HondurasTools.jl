@@ -5,7 +5,9 @@ trial(p) = rand(Bernoulli(p))
 
 """
 		parametricboot2stage(
-            bimodel, pb, regvars, dats_, otc;
+            bimodel, pb, bef_,
+            fitmodel, modelformulas, mls,
+            ;
             iters = (L = 1, K = 1),
             rates = rates, riddles = riddles,
         )
@@ -13,6 +15,8 @@ trial(p) = rand(Bernoulli(p))
 ## Description
 
 parametric bootstrap for 2-stage model.
+
+As written, this only works for binary outcomes models at the second stage.
 
 """
 function parametricboot2stage(
@@ -32,10 +36,11 @@ function parametricboot2stage(
     # We don't need K copies -> just overwrite the single copy
 	# K copies of the bimodel
 	# stage1_models = preallocate_bs_models(bimodel, iters.K)
-    stage1_model = deepcopy(bimodel)
+    # stage1_model = deepcopy(bimodel)
+	stage1_model = [deepcopy(bimodel) for _ in 1:iters.K];
 
 	bootparams = Dict(
-		i => bootstore(e, riddles, iters.L, iters.K) for (i, e) in enumerate(mls)
+		i => bootstore(e, riddles, iters.L, iters.K, rates) for (i, e) in enumerate(mls)
 	)
 
 	ems = Dict(z => Dict{Int, Vector{EModel}}() for z in riddles)
@@ -80,11 +85,10 @@ function _pb2stage_K!(
 	riddles, rates, iters,
 	invlink,
 )
-
-    # Threads.@threads 
+    
+    # threads would be an issue here due to overwriting
     # this repeatedly overwrites bm with new param values
-	for k in 1:(iters.K)
-		bm = stage1_model
+	Threads.@threads for k in 1:(iters.K)
 
 		# install bootstrap values for prediction from stage 1 model
 		# (comprehension to unpack to vector)
@@ -92,12 +96,12 @@ function _pb2stage_K!(
 			βsi = pb[r].fits[k].β
 			θsi = pb[r].fits[k].θ
 
-			MixedModels.setβ!(bm[r], [x for x in βsi])
-			MixedModels.setθ!(bm[r], [x for x in θsi])
+			MixedModels.setβ!(stage1_model[k][r], [x for x in βsi])
+			MixedModels.setθ!(stage1_model[k][r], [x for x in θsi])
 		end
 
 		# marginal effects from stage 1 (as data for stage 2)
-		apply_referencegrids!(bm, befs[k]; invlink)
+		apply_referencegrids!(stage1_model[k], befs[k]; invlink)
 
 		# second stage model
         # (that forms the basis for the second stage bootstrap)
@@ -125,6 +129,7 @@ function _pb2stage_L!(
 	k, L,
 	riddles, rates,
 )
+
 	for l in 1:L
 		# parametric bootstrap at second stage
 		# overwrites bef[r][!, z]
@@ -157,6 +162,10 @@ function _pb2stage_L!(
 					bootparams[e][z][r][l, k] .= coef(m2_s[k][r])
 				end
 			end
+
+			# J
+			# leftjoin!(befs[k][r], befs)
+
 		end
 	end
 end
@@ -174,6 +183,14 @@ function _preallocate_bs_models!(bms, bm)
 	end
 end
 
+"""
+		make_yb(rates, df, K)
+
+## Description
+
+- Preallocate for second-stage model predictions. K prediction vectors. For `BiModel` objects.
+
+"""
 function make_yb(rates, bef, K)
 	return Dict(
 		[r => [Vector{Float64}(undef, nrow(bef[r])) for _ in 1:K] for r in rates]
@@ -183,7 +200,7 @@ end
 # """
 # Reference grids from stage 1 model, with estimates for each individual. Then, join the outcomes data.
 
-# - Model estiamtes are calculated from this template during the K-L loop.
+# - Model estimates are calculated from this template during the K-L loop.
 # """
 # function dataforstage2!(befs, dats_, otc, regvars, efdicts, K, rates, addvars)
 #     # Threads.@threads
@@ -202,11 +219,35 @@ end
 
 # end
 
-function stage2data(dats, otc, addvars, regvars; rates = rates)
-    efdicts = perceiver_efdicts(dats; kinvals = false)
+"""
+
+
+## Description
+
+Make stage 2 data. See function for details on variables included.
+"""
+function stage2data(dats, otc, addvars, regvars; rates = rates, kinvals = false)
+    efdicts = perceiver_efdicts(dats; kinvals)
     bef_ = refgrid_stage1(dats, regvars, efdicts; rates = rates)
-    for r in rates
-        leftjoin!(bef_[r], otc, on = [:perceiver => :name])
+
+	rvg1 = [setdiff([regvars..., :kin431], [:degree])..., [:dists_p]...]
+	rvg2 = [setdiff([regvars..., :kin431], [:degree])..., [:dists_p, :dists_a]...]
+	# include average degree (of the two relationships)
+	tpr = @chain bef_.tpr begin
+		groupby(rvg1)
+		combine(:degree => mean => :degree)
+	end
+
+	fpr = @chain bef_.fpr begin
+		groupby(rvg2)
+		combine(:degree => mean => :degree)
+	end
+	bef_ = bidata(tpr, fpr)
+    
+	for r in rates
+        if !isnothing(otc)
+            leftjoin!(bef_[r], otc, on = [:perceiver => :name])
+        end
         if !isnothing(addvars)
             leftjoin!(bef_[r], addvars, on = [:perceiver => :name])
         end
@@ -215,3 +256,40 @@ function stage2data(dats, otc, addvars, regvars; rates = rates)
 end
 
 export stage2data
+
+# post bootstrap
+
+function extractbootparams(
+    bootparams, mls; riddles = riddles, rates = rates, func = std
+)
+
+    stds = Dict(
+        z => Dict(
+            r => Dict(e => Vector{Float64}(undef, np) for (e, np) in zip(keys(bootparams), mls)) for r in rates
+        ) for z in riddles
+    )
+
+    for z in riddles
+        for e in eachindex(mls)
+            for r in rates
+                mt = bootparams[e][z][r];
+                lc = length(mt[1, 1]);
+
+                # move preallocation out?
+                mtv = let mtv = [Vector{Float64}(undef, size(mt, 1) * size(mt, 2)) for _ in 1:lc];
+                    for (j, e1) in enumerate(mt)
+                        for (k, e2) in enumerate(e1)
+                            mtv[k][j] = e2
+                        end
+                    end
+                    mtv
+                end
+
+                stds[z][r][e] = [func(x) for x in mtv]
+            end
+        end
+    end
+    return stds
+end
+
+export extractbootparams

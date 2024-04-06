@@ -62,10 +62,13 @@ for x in files_fg; include(x) end
 
 files_an = "analysis/" .* [
     "accuracies.jl", "accuracy_functions.jl", "bootmargins.jl",
-    "riddles_functions.jl", "riddles_functions_pbs.jl",
+    "riddles_functions.jl",
+    "riddles_functions_pbs.jl",
     "parametricbootstrap2.jl",
+    "tpr_fpr_functions_pbs.jl",
     "stage2.jl",
-    "homophily.jl"
+    "homophily.jl",
+    "effects!.jl"
 ];
 
 for x in files_an; include(x) end

@@ -181,7 +181,11 @@ function refgrid_stage1(dats, regvars, efdicts; rates = rates)
         df = bef[r];
 
         for (k, v) in efdicts[r]
-            df[!, k] = ifelse(length(v) == 1, fill(v, nrow(df)), v)
+            if length(v) == 1
+                df[!, k] = fill(v, nrow(df))
+            else
+                @assert v == unique(df[!, k])
+            end
         end
     end
 
@@ -229,7 +233,6 @@ Create object to store the bootstrapped coefficients for the stage 2 models,
 for each of the outcomes.
 """
 function bootstore(p, riddles, L, K)
-    k = 1 # pick arbitrary index, all models are the same
     return Dict(
         reduce(
             vcat,
@@ -245,6 +248,29 @@ function bootstore(p, riddles, L, K)
         )
     )
 end
+
+export bootstore
+
+"""
+
+## Description
+
+Create object to store the bootstrapped coefficients for the stage 2 models.
+"""
+function _bootstore(p, L, K)
+    return [Vector{Float64}(undef, p) for _ in 1:L, _ in 1:K]
+end
+
+"""
+
+## Description
+
+Create object to store the bootstrapped coefficients for the stage 2 models.
+"""
+function bootstore(p, L, K, outcomes)
+    return (;[o => _bootstore(p, L, K) for o in outcomes]...)
+end
+
 
 export bootstore
 
@@ -323,3 +349,49 @@ end
 
 export boot2stage!
 
+
+function adj_table(m, ses)
+    ct1 = DataFrame(GLM.coeftable(m));
+    x = coef(m) .± (ses .* 1.96)
+    ct1[!, "Std. Error (Corrected)"] = ses
+    ct1[!, "Lower 95% (Corrected)"] = [minimum(v) for v in x]
+    ct1[!, "Upper 95% (Corrected)"] = [maximum(v) for v in x]
+    ct1[!, "Pr(>|z|) (Corrected)"] = pvalues(m, ses)
+    return ct1
+end
+
+export adj_table
+
+function adjtable(mos, stds, z, r, i)
+    m = mos[i][z][r]
+    ses = stds[z][r][i]
+    ct1 = DataFrame(GLM.coeftable(m));
+    x = coef(m) .± (ses .* 1.96)
+    ct1[!, "Std. Error (Corrected)"] = ses
+    ct1[!, "Lower 95% (Corrected)"] = [minimum(v) for v in x]
+    ct1[!, "Upper 95% (Corrected)"] = [maxmimum(v) for v in x]
+    ct1[!, "Pr(>|z|) (Corrected)"] = pvalues(m, ses)
+    return ct1
+end
+
+function adjtable(mos, stds, z, i)
+    a = adjtable(mos, stds, z, :tpr, i)
+    b = adjtable(mos, stds, z, :fpr, i)
+    a.rate .= "tpr"
+    b.rate .= "fpr"
+    return vcat(a, b)
+end
+
+export adjtable
+
+function pvalues(m)
+    zstat = coef(m) ./ stderror(m)
+    return 2 .* cdf(Distributions.Normal(), -abs.(zstat))
+end
+
+function pvalues(m, ses)
+    zstat = coef(m) ./ ses
+    return 2 .* cdf(Distributions.Normal(), -abs.(zstat))
+end
+
+export pvalues

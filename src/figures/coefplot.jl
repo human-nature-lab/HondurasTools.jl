@@ -510,18 +510,20 @@ function coefficientplot!(
     end
     
     leg_titles = ["Model"];
+    
+    if marker_leg != :none
+        Legend(
+            lo[2, 1],
+            [group_marker],
+            [marker_leg],
+            leg_titles,
+            tellheight = false, tellwidth = false,
+            orientation = :horizontal,
+            nbanks = 1, framevisible = false
+        )
+        rowsize!(lo, 1, Relative(18/20))
+    end
 
-    Legend(
-        lo[2, 1],
-        [group_marker],
-        [marker_leg],
-        leg_titles,
-        tellheight = false, tellwidth = false,
-        orientation = :horizontal,
-        nbanks = 1, framevisible = false
-    )
-
-    rowsize!(lo, 1, Relative(18/20))
 
     return lo
 end
