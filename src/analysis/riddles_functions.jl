@@ -232,7 +232,7 @@ export addeffects!
 Create object to store the bootstrapped coefficients for the stage 2 models,
 for each of the outcomes.
 """
-function bootstore(p, riddles, L, K)
+function bootstore(p, riddles, rates, L, K)
     return Dict(
         reduce(
             vcat,
@@ -259,6 +259,30 @@ Create object to store the bootstrapped coefficients for the stage 2 models.
 """
 function _bootstore(p, L, K)
     return [Vector{Float64}(undef, p) for _ in 1:L, _ in 1:K]
+end
+
+
+"""
+
+## Description
+
+Create object to store the bootstrapped coefficients for the stage 2 models.
+"""
+function _bootstore2(p, L, K)
+    return (; [r => [Vector{Float64}(undef, p) for _ in 1:L, _ in 1:K] for r in [:tpr, :fpr, :j]]...)
+end
+
+"""
+
+## Description
+
+Create object to store the bootstrapped coefficients for the stage 2 models.
+"""
+function _bootstore3(p, L, K)
+
+    return [
+        (; [q => Vector{Float64}(undef, p) for q in [:tpr, :fpr, :j]]...) for _ in 1:L, _ in 1:K
+    ]
 end
 
 """
@@ -369,7 +393,7 @@ function adjtable(mos, stds, z, r, i)
     x = coef(m) .± (ses .* 1.96)
     ct1[!, "Std. Error (Corrected)"] = ses
     ct1[!, "Lower 95% (Corrected)"] = [minimum(v) for v in x]
-    ct1[!, "Upper 95% (Corrected)"] = [maxmimum(v) for v in x]
+    ct1[!, "Upper 95% (Corrected)"] = [maximum(v) for v in x]
     ct1[!, "Pr(>|z|) (Corrected)"] = pvalues(m, ses)
     return ct1
 end

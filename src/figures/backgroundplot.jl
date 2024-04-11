@@ -353,10 +353,45 @@ function backgroundplot!(plo, css, ndf4; diagnostic = false)
     end
 
     node_color, node_size = node_properties(graphs[1], v)
+    
+    cnt = 0
+    for (label, ax, psh) in zip(["a", "b", "c"], axs, [1.5, 1.5, 1.5])
+        cnt += 1
+        # Label(
+        #     layout[1, 1, TopLeft()],
+        #     label,
+        #     fontsize = 26,
+        #     font = :bold,
+        #     padding = (0, 0, 0, 0),
+        #     halign = :right
+        # )
+
+        ytr = maximum(abs.([a[2] for a in poses[1]] |> extrema))
+        xtr = maximum(abs.([a[1] for a in poses[1]] |> extrema))
+        text!(
+            ax, 
+            label, position = Point2f(-xtr+psh, ytr-0.5),
+            align = (:center, :center),
+            fontsize = 26, font = :bold
+        )
+    end
+
+    # plot limits
+    
+    
+    # for (i, ax) in enumerate(axs)
+    # xtr = maximum(abs.([a[1] for a in poses[1]] |> extrema))+0.2
+    # ytr = maximum(abs.([a[2] for a in poses[1]] |> extrema))+0.2
+    #     xextrema = (-xtr, xtr)
+    #     yextrema = (-ytr, ytr)
+    #     xlims!(ax, xextrema)
+    #     ylims!(ax, yextrema)
+    # end
+
     fullplot!(axs[1], poses[1], graphs[1], node_color, node_size)
     sampleableplot!(axs[2], poses[2], graphs[2:3], v)
     sampledplot!(axs[3], poses[2], graphs[2], v)
-    return los
+    return los, poses
 end
 
 export backgroundplot!

@@ -142,7 +142,8 @@ function rocplot!(
         layout[1, 1];
         xlabel = "False positive rate", ylabel = "True positive rate",
         # aspect = 1
-        height = 250, width = 250
+        height = 250, width = 250,
+        title = string(varname)
     )
 
     # line of chance

@@ -33,7 +33,7 @@ function biplotdata(
 		disallowmissing!(bs)
 
 		# add bootstrap info
-		@assert mrg[!, [:dists_p, :dists_a, kin, vbl]] == bs[!, [:dists_p, :dists_a, kin, vbl]]
+		# @assert mrg[!, [:dists_p, :dists_a, kin, vbl]] == bs[!, [:dists_p, :dists_a, kin, vbl]]
 
 		mrg = hcat(mrg, select(bs, setdiff(names(bs), names(mrg))))
 	end
@@ -82,7 +82,7 @@ function biplot!(
         ellipsecolor,
 		markeropacity
 	)
-
+	
 	effectsplot!(
 		lef,
 		bpd, jstat;

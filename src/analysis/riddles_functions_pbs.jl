@@ -1,7 +1,52 @@
 # riddles_functions_pbs.jl
 # parametric bootstrap functions
 
+function riddle_forms(z, x)
+    return [(@eval @formula($z ~ 1 + $x)),
+    (@eval @formula($z ~ 1 + $x + age + man)),
+    (@eval @formula($z ~ 1 + $x + age + man + degree))] 
+end
+
+export riddle_forms
+
 trial(p) = rand(Bernoulli(p))
+
+"""
+		bieffects!(bf, bimodel, invlink; rates)
+
+## Description
+
+"""
+function bieffects!(bf, bimodel, invlink; rates)
+	for r in rates
+		effects!(
+			bf, bimodel[r];
+			invlink,
+			eff_col = r,
+			err_col = Symbol(string(r) * "_err")
+		);
+	end
+	bf[!, :j] .= bf[!, :tpr] - bf[!, :fpr];
+	bf
+end
+
+export bieffects!
+
+# helper functions to store simulated outcomes
+@inline _inner1(l, K) = [Vector{Float64}(undef, l) for _ in 1:K]
+@inline _inner2(l, K) = (; [r => _inner1(l, K) for r in [:tpr, :fpr, :j]]...)
+@inline _inner3(outcomes, l, K) = (; [z => _inner2(l, K) for z in outcomes]...)
+
+@inline yballocate(k, l) = [(
+	tpr = Vector{Float64}(undef, l),
+	fpr = Vector{Float64}(undef, l),
+	j = Vector{Float64}(undef, l)
+) for _ in 1:k
+]
+
+# @inline _minner1(K, mt) = Vector{mt}(undef, K) for _ in 1:K]
+# @inline _minner2(l, K, mt) = (; [r => _minner1(l, K, mt) for r in [:tpr, :fpr, :j]]...)
+# @inline _minner3(outcomes, l, K, mt) = (; [z => _minner2(l, K, mt) for z in outcomes]...)
 
 """
 		parametricboot2stage(
@@ -20,17 +65,22 @@ As written, this only works for binary outcomes models at the second stage.
 
 """
 function parametricboot2stage(
-	bimodel, pb, bef_,
-    fitmodel, modelformulas, mls,
+	bimodel, pb, bf,
+    fitmodel, modelformulas, nparam,
     ;
 	iters = (L = 1, K = 1),
-	rates = rates, riddles = riddles,
+	rates = rates,
+	invlink = logistic
 )
 
+	mt = StatsModels.TableRegressionModel;
+
+	bf = deepcopy(bf) # this will have all the needed variables
     # copies of data for stage 2
-	befs = Vector{BiData}(undef, iters.K)
-    for i in eachindex(befs)
-        befs[i] = deepcopy(bef_)
+	
+	bfs = Vector{DataFrame}(undef, iters.K)
+    for i in eachindex(bfs)
+        bfs[i] = deepcopy(bf)
     end
 
     # We don't need K copies -> just overwrite the single copy
@@ -39,27 +89,19 @@ function parametricboot2stage(
     # stage1_model = deepcopy(bimodel)
 	stage1_model = [deepcopy(bimodel) for _ in 1:iters.K];
 
-	bootparams = Dict(
-		i => bootstore(e, riddles, iters.L, iters.K, rates) for (i, e) in enumerate(mls)
-	)
+	bootparams = _bootstore2(nparam, L, K)
 
-	ems = Dict(z => Dict{Int, Vector{EModel}}() for z in riddles)
+	ems = Vector{ModelSet}(undef, iters.K)
+	ybs = yballocate(iters.K, nrow(bf))
 
-	# model versions in the order given in modelformulas
-	for z in riddles
-		for e in 1:length(modelformulas[z])
-			ems[z][e] = Vector{EModel}(undef, iters.K)
-		end
+	# stage 1 link
+
+	bieffects!(bf, bimodel, invlink; rates)
+
+	m2_s = Vector{Vector{mt}}(undef, iters.K)
+	for i in eachindex(m2_s)
+		m2_s[i] = Vector{mt}(undef, 3)
 	end
-
-	addeffects!(bef_, bimodel; rates = rates)
-
-	ybs = Dict(z => make_yb(rates, bef_, iters.K) for z in riddles)
-
-	m2_s = Vector{EModel}(undef, iters.K)
-
-    # stage 1 link
-    invlink = logistic;
 
 	@time @show "setup complete"
 
@@ -67,8 +109,8 @@ function parametricboot2stage(
 		bootparams,
 		pb,
 		m2_s, ybs, befs, ems, stage1_model,
-		fitmodel, modelformulas,
-		riddles, rates, iters,
+		fitmodel, fxs,
+		rates, iters,
 		invlink,
 	)
 
@@ -81,8 +123,8 @@ function _pb2stage_K!(
 	bootparams,
 	pb,
 	m2_s, ybs, befs, ems, stage1_model,
-	fitmodel, modelformulas,
-	riddles, rates, iters,
+	fitmodel, fxs,
+	rates, iters,
 	invlink,
 )
     
@@ -101,71 +143,47 @@ function _pb2stage_K!(
 		end
 
 		# marginal effects from stage 1 (as data for stage 2)
-		apply_referencegrids!(stage1_model[k], befs[k]; invlink)
+		# apply_referencegrids!(stage1_model[k], befs[k]; invlink)
+		bieffects!(bfs[k], stage1_model[k], invlink; rates);
+
+		# end of first stage only material
+
+		# this is also bootstrapping for J similar to aims 1 and 2
 
 		# second stage model
         # (that forms the basis for the second stage bootstrap)
         # here, fit with with data from model 1 bootstrap iter k
-		for z in riddles
-			for (e, fx) in enumerate(modelformulas[z])
-				ems[z][e][k] = bifit(fitmodel, fx, befs[k])
-				for r in rates
-					# there are K prediction vectors, riddle_hat_{z,k}
-					ybs[z][r][k] = predict(ems[z][e][k][r])
-				end
-			end
+		ems[k] = modelset(
+			fitmodel(fxs[:tpr], bfs[k]),
+			fitmodel(fxs[:fpr], bfs[k]),
+			fitmodel(fxs[:j], bfs[k])
+		)
+
+		for r in [:tpr, :fpr, :j]
+			# there are K prediction vectors, riddle_hat_{z,k}
+			ybs[k][r] .= predict(ems[k][r])
 		end
 
 		_pb2stage_L!(
-			bootparams, m2_s, befs, ybs, fitmodel, modelformulas, k, iters.L,
-			riddles, rates,
+			bootparams, m2_s, bfs, ybs, fitmodel, fxs, k, iters.L
 		)
 	end
 end
 
-function _pb2stage_L!(
-	bootparams, m2_s, befs, ybs,
-	fitmodel, modelformulas,
-	k, L,
-	riddles, rates,
-)
+function _pb2stage_L!(bootparams, m2_s, bfs, ybs, fitmodel, fxs, k, L)
 
 	for l in 1:L
 		# parametric bootstrap at second stage
-		# overwrites bef[r][!, z]
+		# overwrites bf[k][!, z] at each rate
 
 		# no case resampling
 		# instead, sample new outcomes using model parameters
-		for z in riddles
-			for r in rates
-				#=
-				replace DataFrame col with simulated response vector
-				lazily deal with missingness
-				(difficult in the presence of 3
-				response variables in the same DataFrame)
 
-                N.B., since our second stage is binary, we simulate a response
-                vector from the predicted probabilities
-				=#
-				befs[k][r][.!ismissing.(befs[k][r][!, z]), z] .= trial.(ybs[z][r][k])
-			end
-            
-			for (e, fx) in enumerate(modelformulas[z])
-				# overwrite within an l
-				# within a z
-				m2_s[k] = bifit(fitmodel, fx, befs[k])
+		for q in [:tpr, :fpr, :j]
+			bfs[k][!, z] .= trial.(ybs[k][q]) # simulated outcomes
+			m2_s[q][k] = fitmodel(fxs[q], bf)
 
-				for r in rates
-					# store parameters
-					# for a riddle, for a rate
-					# the vector of parameters is stored in position [l, k] of a matrix
-					bootparams[e][z][r][l, k] .= coef(m2_s[k][r])
-				end
-			end
-
-			# J
-			# leftjoin!(befs[k][r], befs)
-
+			bootparams[q][l, k] .= coef(m2_s[k][q])
 		end
 	end
 end

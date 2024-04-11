@@ -1,5 +1,54 @@
 # EModel.jl
 
+struct ModelSet{T<:RegressionModel}
+	tpr::T
+	fpr::T
+	j::T
+end
+
+function modelset(m1, m2, m3)
+    return ModelSet(m1, m2, m3)
+end
+
+function getindex(em::ModelSet, s::Symbol)
+
+    tpr = s != :tpr
+    fpr = s != :fpr
+    j = s != :j
+    return if !(tpr | fpr | j)
+        println("invalid index")
+        nothing
+    else
+        getfield(em, s)
+    end
+end
+
+mutable struct MMS{T<:RegressionModel}
+	tpr::T
+	fpr::T
+	j::T
+end
+
+function mms(m1, m2, m3)
+    return MMS(m1, m2, m3)
+end
+
+function getindex(em::MMS, s::Symbol)
+
+    tpr = s != :tpr
+    fpr = s != :fpr
+    j = s != :j
+    return if !(tpr | fpr | j)
+        println("invalid index")
+        nothing
+    else
+        getfield(em, s)
+    end
+end
+
+export MMS
+export mms
+
 struct EModel{T<:RegressionModel}
     tpr::T
     fpr::T
@@ -87,14 +136,19 @@ function bidatajoin(df; rates = rates)
     for r in rates
         rename!(
             df[r],
-            :response => r, :err => Symbol("err_" * string(r)),
+            :response => r,
+            :err => Symbol("err_" * string(r)),
             :ci => Symbol("ci_" * string(r))
         )
+        # select!(df[r], Not("ci"))
     end
 
     ndf = leftjoin(
         df[rates[1]], df[rates[2]],
-        on = intersect(names(df[rates[1]]), names(df[rates[2]]))
+        on = setdiff(
+            intersect(names(df[rates[1]]), names(df[rates[2]])),
+            []
+        )
     )
     ndf.accuracy = tuple.(ndf.tpr, ndf.fpr)
 

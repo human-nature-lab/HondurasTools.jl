@@ -56,7 +56,9 @@ files_fg = "figures/" .* [
     "bivariate_perceiver.jl",
     "coefplot.jl",
     "distanceplot.jl",
-    "stage2_figure.jl"
+    "stage2_figure.jl",
+    "riddle_plot!.jl",
+    "homophily_plot.jl"
 ];
 for x in files_fg; include(x) end
 
@@ -68,7 +70,8 @@ files_an = "analysis/" .* [
     "tpr_fpr_functions_pbs.jl",
     "stage2.jl",
     "homophily.jl",
-    "effects!.jl"
+    "effects!.jl",
+    "newstrap.jl"
 ];
 
 for x in files_an; include(x) end

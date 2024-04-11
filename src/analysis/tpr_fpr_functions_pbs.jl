@@ -148,7 +148,6 @@ function t_pb2stage_K!(
 		for z in outcomes
 			for (e, fx) in enumerate(modelformulas[z])
 				ems[z][e][k] = fitmodel(fx, befs[k][:tpr])
-			
 				# there are K prediction vectors, riddle_hat_{z,k}
 				ybs[z][k] = predict(ems[z][e][k])
 			end

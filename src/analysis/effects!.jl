@@ -63,13 +63,13 @@ end
 export varcov_boot
 
 """
-        varcov_boot(y)
+        boot_varcov(y)
 
 ## Description
 
 Boostrapped variance-covariance matrix from bootparams type object. `Y` is the organized-into-vectors version.
 """
-function varcov_boot_proc(Y)
+function boot_varcov(Y)
     mlen = length(Y)
     VC = fill(NaN, mlen, mlen);
     for i in 1:mlen; VC[i,i] = var(Y[i]) end;
@@ -84,13 +84,13 @@ function varcov_boot_proc(Y)
     return VC
 end
 
-export varcov_boot_proc
+export boot_varcov
 
-function effects2!(rx2, mx, oc, vcmat, invlink)
+function boot_effects!(rx2, mx, oc, vcmat, invlink)
     effects!(rx2, mx, vcmat; invlink)
     rx2[!, :lower] = rx2[!, oc] - rx2.err * 1.96
     rx2[!, :upper] = rx2[!, oc] + rx2.err * 1.96
     return rx2
 end
 
-export effects2!
+export boot_effects!
