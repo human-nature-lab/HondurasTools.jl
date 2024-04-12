@@ -24,7 +24,7 @@ end
 
 export effectsplot!
 
-function effplot_cat!(layout, bpd, jstat; axiskwargs...)
+function effplot_cat!(layout, bpd, jstat; legend = true, axiskwargs...)
 
     vbl = bpd.margvar
     mrgl = bpd.marginslong
@@ -54,7 +54,7 @@ function effplot_cat!(layout, bpd, jstat; axiskwargs...)
     ax = Axis(
         layout[1, 1];
         xticks,
-        ylabel = "Accuracy",
+        ylabel = "Rate",
         xlabel = varname,
         height = 250,
         axiskwargs...
@@ -116,7 +116,7 @@ function effplot_cat!(layout, bpd, jstat; axiskwargs...)
         )
     end
 
-    if !jstat
+    if !jstat & legend
         elems = [
             [
                 LineElement(; color = c),
@@ -127,7 +127,7 @@ function effplot_cat!(layout, bpd, jstat; axiskwargs...)
         ]
 
         EffectLegend!(layout[1, 2], elems)
-    else
+    elseif legend
         elems = [
             [
                 LineElement(; color),
@@ -152,6 +152,7 @@ function effplot_cts!(
     layout, bpd, jstat;
     limitx = true, dotlegend = false,
     fpronly = false,
+    legend = true,
     axiskwargs...
 )
 
@@ -168,7 +169,7 @@ function effplot_cts!(
 
     ax = Axis(
         layout[1, 1];
-        ylabel = "Accuracy",
+        ylabel = "Rate",
         xlabel = varname,
         axiskwargs...
     )
@@ -178,29 +179,10 @@ function effplot_cts!(
 
     vervals = sunique(mrg_nk[!, :verity])
 
-    # clrs = if vervals == [false, true]
-    #     [5, 6]
-    # elseif vervals == [true]
-    #     [5]
-    # elseif vervals == [false]
-    #     [6]
-    # end
-    
-    # idxs = [mrg_nk.verity .== v for v in vervals]
-
-    # for (ix, cx) in zip(idxs, clrs)
-    #     xs = mrg_nk[ix, vbl]
-    #     rs = mrg_nk[ix, :response]
-    #     lwr = [x[1] for x in mrg_nk[ix, :ci]]
-    #     upr = [x[2] for x in mrg_nk[ix, :ci]]
-    #     band!(ax, xs, lwr, upr; color = (oi[cx], 0.6)) # no method for tuples
-    #     lines!(ax, xs, rs, color = oi[cx])
-    # end
-
     nk = @subset margins .!$kin
 
     for (r, clr) in zip(rates, [oi[5], oi[6]])
-        if (r == :fpr) | ((r == :tpr) & !fpronly)            
+        if (r == :fpr) | ((r == :tpr) & !fpronly) 
             
             rci = Symbol("ci_" * string(r))
 
@@ -220,7 +202,7 @@ function effplot_cts!(
         end
     end
 
-    if !jstat
+    if !jstat & legend
         elems = []
         for (color, tr) in zip(oi[5:6], [0.6, 0.6])
             x = if dotlegend
@@ -267,36 +249,51 @@ function effplot_cts!(
         a, b = detuple(jdf.ci_j)
         jpd = (x = jdf[!, vbl], y = jdf[!, :peirce], lwr = a, upr = b,)
 
-        band!(ax2, jpd.x, jpd.lwr, jpd.upr; color = (oi[2], 0.3))
-        lines!(ax2, jpd.x, jpd.y; color = oi[2])
+        if !fpronly
+            band!(ax2, jpd.x, jpd.lwr, jpd.upr; color = (oi[2], 0.3))
+            lines!(ax2, jpd.x, jpd.y; color = oi[2])
+        end
 
         pal = tuple.(oi[[5, 6, 2]], [0.6, 0.6, 0.3])
 
-        elems = []
-        for c in pal
-            x = if dotlegend
-                [
-                    PolyElement(; marker = :rect, color = c),
-                    LineElement(color = c[1]),
-                    MarkerElement(; marker = :circle, color = c)
-                ]
-            else
-                [
-                    PolyElement(; marker = :rect, color = c),
-                    LineElement(color = c[1])
-                ]
+        if legend
+            elems = []
+            for c in pal
+                x = if dotlegend
+                    [
+                        PolyElement(; marker = :rect, color = c),
+                        LineElement(color = c[1]),
+                        MarkerElement(; marker = :circle, color = c)
+                    ]
+                else
+                    [
+                        PolyElement(; marker = :rect, color = c),
+                        LineElement(color = c[1])
+                    ]
+                end
+                push!(elems, x)
             end
-            push!(elems, x)
-        end
 
-        Legend(
-            layout[1, 2],
-            elems,
-            ["TPR", "TNR", "J"],
-            "Accuracy",
-            framevisible = false, orientation = :vertical,
-            tellheight = false, tellwidth = false, nbanks = 1
-        )
+            if !fpronly
+                Legend(
+                    layout[1, 2],
+                    elems,
+                    ["TPR", "TNR", "J"],
+                    "Accuracy",
+                    framevisible = false, orientation = :vertical,
+                    tellheight = false, tellwidth = false, nbanks = 1
+                )
+            else
+                Legend(
+                    layout[1, 2],
+                    [elems[2]],
+                    ["TNR"],
+                    "Accuracy",
+                    framevisible = false, orientation = :vertical,
+                    tellheight = false, tellwidth = false, nbanks = 1
+                )
+            end
+        end
     end
 
     ax_ = if jstat
@@ -322,7 +319,7 @@ function effplot_cts_pr!(layout, bpd; axiskwargs...)
     ax = Axis(
         layout[1, 1];
         xlabel = bpd.varname,
-        ylabel = "Accuracy",
+        ylabel = "Rate",
         axiskwargs...
     )
 

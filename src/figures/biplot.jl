@@ -67,6 +67,7 @@ function biplot!(
 	ellipse = false,
     ellipsecolor = (:grey, 0.3),
 	markeropacity = nothing,
+	panellabels = false,
 	marginaxiskwargs...,
 )
 
@@ -80,7 +81,8 @@ function biplot!(
 		bpd[:margins], bpd[:margvar], bpd[:varname];
 		ellipse,
         ellipsecolor,
-		markeropacity
+		markeropacity,
+		roctitle = false
 	)
 	
 	effectsplot!(
@@ -88,6 +90,10 @@ function biplot!(
 		bpd, jstat;
 		marginaxiskwargs...,
 	)
+
+	if panellabels
+		labelpanels!([lroc, lef])
+	end
 
 	return plo
 end

@@ -82,6 +82,7 @@ end
 function roc_legend!(
     layout, vbl_vals, varname, ellipse, ellipsecolor, cts;
     extraelement = false,
+    px = [1,2],
     legargs...
 )
     if !cts
@@ -89,7 +90,7 @@ function roc_legend!(
             layout, vbl_vals, varname, ellipse, ellipsecolor; legargs...
         )
     else
-        lx = layout[1, 2] = GridLayout()
+        lx = layout[px...] = GridLayout()
         rowsize!(lx, 1, Relative(4.5/5))
         rangescale = extrema(vbl_vals)
         Colorbar(
@@ -116,7 +117,8 @@ function rocplot!(
     markeropacity = nothing,
     ellipse = false,
     ellipsecolor = (:grey, 0.3),
-    legend = true
+    legend = true,
+    roctitle = true
 )
 
     legargs = (framevisible = false, tellheight = false, tellwidth = false,)
@@ -143,7 +145,7 @@ function rocplot!(
         xlabel = "False positive rate", ylabel = "True positive rate",
         # aspect = 1
         height = 250, width = 250,
-        title = string(varname)
+        title = ifelse(roctitle, string(varname), "")
     )
 
     # line of chance

@@ -58,7 +58,9 @@ files_fg = "figures/" .* [
     "distanceplot.jl",
     "stage2_figure.jl",
     "riddle_plot!.jl",
-    "homophily_plot.jl"
+    "homophily_plot.jl",
+    # paper figures
+    "figure2.jl"
 ];
 for x in files_fg; include(x) end
 

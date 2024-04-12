@@ -128,7 +128,7 @@ end
 
 export distance_roc!
 
-function distance_eff!(l, mr; jstat = false, fpronly = false)
+function distance_eff!(l, mr; jstat = false, fpronly = false, legend = true)
 	de = mr.existvar
 	mg = deepcopy(mr)
 	@subset!(mg.marginslong, .!($kin))
@@ -149,7 +149,9 @@ function distance_eff!(l, mr; jstat = false, fpronly = false)
 	mg_ = deepcopy(mg)
 	@subset!(mg_.marginslong, $de)
 	@subset!(mg_.margins, $de)
-	ax = effplot_cts!(l, mg_, jstat; dotlegend = true, limitx = false, fpronly)
+	ax = effplot_cts!(
+		l, mg_, jstat; dotlegend = true, limitx = false, fpronly, legend
+	)
 
 	mg_ = deepcopy(mg)
 	select!(mg_.marginslong, Not([:err, :verity]))
