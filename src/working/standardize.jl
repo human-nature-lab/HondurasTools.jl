@@ -40,19 +40,19 @@ function standards(df)
         :dists_p_i, :dists_a_i,
         # alter properties
         :degree_centrality_diff_a,
-        :degree_centrality_mean_a,
+        # :degree_centrality_mean_a,
         :betweenness_centrality_diff_a,
-        :betweenness_centrality_mean_a,
+        # :betweenness_centrality_mean_a,
         :degree_diff_a,
-        :degree_mean_a,
+        # :degree_mean_a,
         :betweenness_diff_a,
-        :betweenness_mean_a,
+        # :betweenness_mean_a,
         :local_clustering_coefficient_diff_a,
-        :local_clustering_coefficient_mean_a,
+        # :local_clustering_coefficient_mean_a,
         :age_diff_a,
-        :age_mean_a,
+        # :age_mean_a,
         :age2_diff_a,
-        :age2_mean_a
+        # :age2_mean_a
     ];
     
     for vbl in vbls
@@ -82,6 +82,15 @@ function standards(df)
             applytransform!(transforms, vbl, df; tr = UnitRangeTransform)
         end
     end
+
+    # hand transformed
+    # keep these on scale as respondent-level variable
+    transforms[:age_mean_a] = transforms[:age]
+    transforms[:degree_centrality_mean_a] = transforms[:degree_centrality]
+    transforms[:betweenness_centrality_mean_a] = transforms[:betweenness_centrality]
+    transfomrs[:betweenness_mean_a] = transforms[:betweenness]
+    transforms[:degree_mean_a] = transforms[:degree]
+    transforms[:local_clustering_coefficient_mean_a] = transforms[:local_clustering_coefficient]
 
     return transforms
 end
@@ -165,57 +174,57 @@ end
 export standards, applystandards!, reversestandards!, reversestandard
 
 # use css perceiver values extrema to standardize
-function standardize_vars(df)
-    contrasts = Dict{Symbol, ZScore}();
+# function standardize_vars(df)
+#     contrasts = Dict{Symbol, ZScore}();
 
-    # demographics
+#     # demographics
 
-    # respondent
-    vbls = [
-        :age, :age_ln,
-        :sleepingrooms, :children_under12,
-        :total_churches, :catholic_church, :protestant_church,
-        :total_athletic_areas, :total_schools,
-        :elevation,
-        # network distances
-        :dists_p, :dists_a, :union_dists_p, :union_dists_a,
-        :dists_p_i,
-    ]
-    for vbl in vbls
-        contrasts[vbl] = ZScore(transformunitvalues(df[!, vbl])...);
-    end
+#     # respondent
+#     vbls = [
+#         :age, :age_ln,
+#         :sleepingrooms, :children_under12,
+#         :total_churches, :catholic_church, :protestant_church,
+#         :total_athletic_areas, :total_schools,
+#         :elevation,
+#         # network distances
+#         :dists_p, :dists_a, :union_dists_p, :union_dists_a,
+#         :dists_p_i,
+#     ]
+#     for vbl in vbls
+#         contrasts[vbl] = ZScore(transformunitvalues(df[!, vbl])...);
+#     end
 
-    # network
-    for (k, _) in node_fund
-        contrasts[k] = ZScore(transformunitvalues(df[!, k])...);
-    end
-    for vb in[:modularity_religion]
-        contrasts[vb] = ZScore(transformunitvalues(df[!, vb])...);
-    end
+#     # network
+#     for (k, _) in node_fund
+#         contrasts[k] = ZScore(transformunitvalues(df[!, k])...);
+#     end
+#     for vb in[:modularity_religion]
+#         contrasts[vb] = ZScore(transformunitvalues(df[!, vb])...);
+#     end
 
-    # microbiome
-    # vbls = [:spend, :risk_score, :cognitive_score]
-    # for vbl in vbls
-    #     contrasts[vbl] = ZScore(transformunitvalues(mb[!, vbl])...);
-    # end
+#     # microbiome
+#     # vbls = [:spend, :risk_score, :cognitive_score]
+#     # for vbl in vbls
+#     #     contrasts[vbl] = ZScore(transformunitvalues(mb[!, vbl])...);
+#     # end
 
-    # distances
+#     # distances
     
-    #contrasts[:nodedistance] = ZScore(transformunitvalues(nd.distance[.!isnan.(nd.distance)])...);
+#     #contrasts[:nodedistance] = ZScore(transformunitvalues(nd.distance[.!isnan.(nd.distance)])...);
 
-    # for e in distmetrics
-    #     contrasts[e] = ZScore(transformunitvalues(css[!, e])...)
-    # end
+#     # for e in distmetrics
+#     #     contrasts[e] = ZScore(transformunitvalues(css[!, e])...)
+#     # end
 
-    # for e in [:degree_centrality,  :betweenness_centrality,  :closeness_centrality, :local_clustering_coefficient, :triangles]
-    #     contrasts[e] = ZScore(transformunitvalues(ndf[ndf.relationship .∈ Ref(["free_time", "personal_private", "kin"]), e])...);
-    # end 
+#     # for e in [:degree_centrality,  :betweenness_centrality,  :closeness_centrality, :local_clustering_coefficient, :triangles]
+#     #     contrasts[e] = ZScore(transformunitvalues(ndf[ndf.relationship .∈ Ref(["free_time", "personal_private", "kin"]), e])...);
+#     # end 
 
-    # for e in vcat(centralities_ft, centralities_pp)
-    #     contrasts[e] = ZScore(transformunitvalues(css[!, e])...)
-    # end
-    return contrasts
-end
+#     # for e in vcat(centralities_ft, centralities_pp)
+#     #     contrasts[e] = ZScore(transformunitvalues(css[!, e])...)
+#     # end
+#     return contrasts
+# end
 
 export standardize_vars
 
