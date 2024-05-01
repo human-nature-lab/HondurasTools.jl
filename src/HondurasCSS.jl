@@ -83,6 +83,15 @@ files_g = [
     "effects_utilities.jl", "analysis_utilities.jl",
     "variables.jl"
 ];
+
 for x in files_g; include(x) end
+
+files_p = "process/" .* [
+    "clean_css.jl", "css_process_raw.jl",
+    "css_distances_without_ndf.jl", "css_distances.jl",
+    "ground_truth.jl"
+];
+
+for x in files_p; include(x) end
 
 end # module HondurasCSS

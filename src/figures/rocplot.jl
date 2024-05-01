@@ -71,7 +71,7 @@ function _cat_legend!(
         ) for m in [:rect, :cross]
     ]
 
-    lvls_kin = ["False", "True"];
+    lvls_kin = ["No", "Yes"];
 
     Legend(
         layout[1, 2], [elems, elems_kin], [lvls, lvls_kin], [varname, "Kin tie"];
