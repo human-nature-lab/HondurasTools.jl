@@ -15,8 +15,12 @@ export ±
 
 Replace tuple (v, v) with tuple (1-v, 1-v).
 """
-function tuple_addinv(tpl)
-    return (1 - tpl[1], 1 - tpl[2])
+function tuple_addinv(tpl; flip = true)
+    return if flip
+        (1 - tpl[2], 1 - tpl[1])
+    else
+        (1 - tpl[1], 1 - tpl[2])
+    end
 end
 
 export tuple_addinv

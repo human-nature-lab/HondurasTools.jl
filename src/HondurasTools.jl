@@ -34,7 +34,6 @@ module HondurasTools
     include("clean_outcomes.jl")
     include("clean_village.jl")
     include("clean_ihr.jl")
-    include("clean_css.jl")
     include("risk_process.jl")
 
     include("graphdataframe.jl")
@@ -50,10 +49,7 @@ module HondurasTools
     include("jointnetwork.jl")
 
     # network processing
-    include("groundtruth.jl")
     include("networkinfo.jl")
-    include("cssdistances_without_ndf.jl")
-    include("cssdistances.jl")
 
     include("neighbors.jl")
 

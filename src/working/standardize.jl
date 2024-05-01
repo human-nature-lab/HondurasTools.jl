@@ -85,10 +85,11 @@ function standards(df)
 
     # hand transformed
     # keep these on scale as respondent-level variable
+    # alter property means
     transforms[:age_mean_a] = transforms[:age]
     transforms[:degree_centrality_mean_a] = transforms[:degree_centrality]
     transforms[:betweenness_centrality_mean_a] = transforms[:betweenness_centrality]
-    transfomrs[:betweenness_mean_a] = transforms[:betweenness]
+    transforms[:betweenness_mean_a] = transforms[:betweenness]
     transforms[:degree_mean_a] = transforms[:degree]
     transforms[:local_clustering_coefficient_mean_a] = transforms[:local_clustering_coefficient]
 
