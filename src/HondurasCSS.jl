@@ -13,6 +13,8 @@ Pkg.develop(path = "./NiceDisplay.jl"); # tables, figures, quarto
 @reexport using HondurasTools
 @reexport using NiceDisplay
 
+import HondurasTools.sortedges!
+
 # other dependencies
 using GeometryBasics
 using Random
@@ -88,8 +90,8 @@ for x in files_g; include(x) end
 
 files_p = "process/" .* [
     "clean_css.jl", "css_process_raw.jl",
-    "css_distances_without_ndf.jl", "css_distances.jl",
-    "ground_truth.jl"
+    "cssdistances_without_ndf.jl", "cssdistances.jl",
+    "groundtruth.jl"
 ];
 
 for x in files_p; include(x) end
