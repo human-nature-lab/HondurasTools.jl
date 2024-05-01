@@ -1,7 +1,7 @@
 # tie_properties.jl
 
 function amean!(cssalters, vbl)
-    ab = Symbol(string(vbl) * "_a")
+    ab = Symbol(string(vbl) * "_mean_a")
     a1 = Symbol(string(vbl) * "_a1")
     a2 = Symbol(string(vbl) * "_a2")
 
@@ -11,7 +11,7 @@ end
 export amean!
 
 function adiff!(cssalters, vbl)
-    ab = Symbol(string(vbl) * "_ad")
+    ab = Symbol(string(vbl) * "_diff_a")
     a1 = Symbol(string(vbl) * "_a1")
     a2 = Symbol(string(vbl) * "_a2")
 
