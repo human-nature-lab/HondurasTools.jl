@@ -25,7 +25,7 @@ function applytransform!(transforms, vbl, df; tr = UnitRangeTransform)
 end
 
 # use css perceiver values extrema to standardize
-function standards(df)
+function standards(df; tr = UnitRangeTransform)
     transforms = Dict{Symbol, AbstractDataTransform}();
 
     # respondent
@@ -59,14 +59,14 @@ function standards(df)
     
     for vbl in vbls
         if string(vbl) ∈ names(df)
-            applytransform!(transforms, vbl, df; tr = UnitRangeTransform)
+            applytransform!(transforms, vbl, df; tr)
         end
     end
 
     # network
     for (k, _) in node_fund
         if string(k) ∈ names(df)
-            applytransform!(transforms, k, df; tr = UnitRangeTransform)
+            applytransform!(transforms, k, df; tr)
         end
     end
     
@@ -81,7 +81,7 @@ function standards(df)
     vbls = [:spend, :risk_score, :cognitive_score];
     for vbl in vbls
         if string(vbl) ∈ names(df)
-            applytransform!(transforms, vbl, df; tr = UnitRangeTransform)
+            applytransform!(transforms, vbl, df; tr)
         end
     end
 
