@@ -234,5 +234,12 @@ function _distances_post(cc, css, relnames)
     # so that we have an effect of not being infinite, and then for those who
     # are not infinite, we assess the effect of distance
 
+    # this should really include all distances that we are planning on using
+    for x in [
+        :dists_p, :dists_a, :union_dists_p, :union_dists_a, :are_related_dists_p, :are_related_dists_a
+    ]
+        distance_interaction!(css, x)
+    end
+
     return css
 end

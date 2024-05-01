@@ -165,13 +165,16 @@ end
 
 export bifit
 
-function distance_interaction!(col, v)
+function distance_interaction!(col, v; newvar = false)
     v2 = string(v) * "_notinf" |> Symbol
     fnte = .!(isinf.(col[!, v]) .| isnan.(col[!, v])); # finite
     col[!, v2] = fnte
     col[.!fnte, v] .= 0 # revalue dist as zero when infinite
-    vi = string(v) * "_i" |> Symbol
-    col[!, vi] = col[!, v2] .* col[!, v] # create interaction
+
+    if newvar
+        vi = string(v) * "_i" |> Symbol
+        col[!, vi] = col[!, v2] .* col[!, v] # create interaction
+    end
 end
 
 export distance_interaction!

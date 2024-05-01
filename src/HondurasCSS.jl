@@ -96,4 +96,6 @@ files_p = "process/" .* [
 
 for x in files_p; include(x) end
 
+include("tie_properties.jl")
+
 end # module HondurasCSS
