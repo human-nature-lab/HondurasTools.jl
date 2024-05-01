@@ -36,8 +36,9 @@ function standards(df)
         :total_athletic_areas, :total_schools,
         :elevation,
         # network distances
-        :dists_p, :dists_a, :union_dists_p, :union_dists_a,
-        :dists_p_i, :dists_a_i,
+        :dists_p, :dists_a,
+        :union_dists_p, :union_dists_a,
+        :are_related_dists_p, :are_related_dists_a,
         # alter properties
         :degree_centrality_diff_a,
         # :degree_centrality_mean_a,
@@ -51,8 +52,9 @@ function standards(df)
         # :local_clustering_coefficient_mean_a,
         :age_diff_a,
         # :age_mean_a,
-        :age2_diff_a,
-        # :age2_mean_a
+        # :age2_diff_a,
+        # :age2_mean_a,
+        :wealth_d1_4_diff_a
     ];
     
     for vbl in vbls
