@@ -1,73 +1,69 @@
 # effectsplot.jl
 
-function EffectLegend!(ll, elems)
-    Legend(
-        ll[1, 1], elems, ["TPR", "TNR"], "Accuracy", framevisible = false,
-        orientation = :vertical,
-        tellheight = false, tellwidth = false, nbanks = 1
-    )
-end
-
 function effectsplot!(
-    l, bpd, jstat; axiskwargs...
+    l, rg, margvar, margvarname, tnr, jstat;
+    dropkin = true, kin = kin, dotlegend = false,
+    axiskwargs...
 )
 
-    vbltype = eltype(bpd[:margins][!, bpd[:margvar]])
+    rg = deepcopy(rg)
+    if dropkin  & (string(kin) ∈ names(rg))
+        @subset! rg .!$kin
+    end
+    vx = intersect(string(kin), [string(margvar)], names(rg))
+    sort!(rg, vx)
+
+    vbltype = eltype(rg[!, margvar])
     cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
 
-    if cts
-        effplot_cts!(l, bpd, jstat; axiskwargs...)
-    else
-        effplot_cat!(l, bpd, jstat; axiskwargs...)
-    end
+    func = ifelse(cts, effplot_cts!, effplot_cat!)
+    func(l[1, 1], rg, margvar, margvarname, tnr, jstat; axiskwargs...)
+    # Box(l[1,1], color = (:red, 0.3))
+    effectslegend!(l[1, 2], jstat, cts, dotlegend; tr = 0.6)
+    # Box(l[1,2], color = (:blue, 0.3))
+    
+    colsize!(l, 2, Auto(0.2))
+    colgap!(l, 10)
 end
 
 export effectsplot!
 
-function effplot_cat!(layout, bpd, jstat; legend = true, axiskwargs...)
+function effplot_cat!(
+    layout, rg, vbl, margvarname, tnr, jstat;
+    axh = 250,
+    axiskwargs...
+)
 
-    vbl = bpd.margvar
-    mrgl = bpd.marginslong
-    margins = bpd.margins
-    varname = bpd.varname
-
-    _mrgl = select(mrgl, [kin, vbl, :response, :ci, :rate])
-    
-    # if J statistic, add it to `marginslong`
-    if jstat
-        _mrg = select(margins, [kin, vbl, :peirce, :ci_j])
-        _mrg.rate .= :j
-        rename!(_mrg, :peirce => :response, :ci_j => :ci)
-        mrgl = vcat(_mrgl, _mrg)
-    end
-
-    mrg_nk = @subset mrgl .!$kin
-    mrg_nk[!, vbl] = categorical(string.(mrg_nk[!, vbl]))
-
-    lvls = string.(levels(mrg_nk[!, vbl]))
+    # in case the variable is not coded properly as a categorical
+    # e.g., it may be a binary variable
+    rg[!, vbl] = categorical(string.(rg[!, vbl]))
+    lvls = string.(levels(rg[!, vbl]))
     lvls = replace.(lvls, "_" => " ")
 
     statnum = ifelse(!jstat, 2, 3)
 
-    xticks = (mean(1:statnum):statnum:(statnum*length(levels(mrg_nk[!, vbl]))), lvls)
+    xticks = (
+        mean(1:statnum):statnum:(statnum*length(levels(mrg_nk[!, vbl]))),
+        lvls
+    )
 
     ax = Axis(
-        layout[1, 1];
+        layout;
         xticks,
         ylabel = "Rate",
-        xlabel = varname,
-        height = 250,
+        xlabel = margvarname,
+        height = axh,
         axiskwargs...
     )
 
     if jstat
+        # add secondary axis right for J
         # if j statistic data is included, add point and rangebars
         # make legend that includes J statistic with color oi[7]
 
-        # right axis for J statistic
-        ax2 = Axis(
-            layout[1, 1];
-            xlabel = varname,
+        ax_r = Axis(
+            layout;
+            xlabel = margvarname,
             ylabel = "J",
             yaxisposition = :right,
             height = 250,
@@ -75,72 +71,42 @@ function effplot_cat!(layout, bpd, jstat; legend = true, axiskwargs...)
         )
 
         # only include y axis ticks, label, ticklabels
-        hidespines!(ax2)
-        hidexdecorations!(ax2)
-        linkxaxes!(ax, ax2)
+        hidespines!(ax_r)
+        hidexdecorations!(ax_r)
+        linkxaxes!(ax, ax_r)
     end
-
-    @inline ratecolor(x) = if x == :tpr
-        oi[5]
-    elseif x == :fpr
-        oi[6]
-    else
-        oi[2]
-    end
-
-    sort!(mrg_nk, [vbl, kin])
-    mrg_nk.color = ratecolor.(mrg_nk[!, :rate])
 
     vl = ((statnum+0.5):statnum:(statnum*length(levels(mrg_nk[!, vbl]))))[1:end]
 
     vlines!(ax, vl, color = :black, linestyle = :solid, linewidth = 0.5)
 
-    mrg_nk.lwr = [x[1] for x in mrg_nk[!, :ci]]
-    mrg_nk.upr = [x[2] for x in mrg_nk[!, :ci]]
-    mrg_nk.xs = 1:nrow(mrg_nk)
-    
-    gdf = groupby(mrg_nk, :rate)
+    # plot the data
+    for r in [:tpr, :fpr, :j]
+        if (string(r) ∉ names(rg)) | fpronly
+            continue
+        else
+            ciname = "ci_" * string(r) |> Symbol
+            color = ratecolor(r)
+            
+            ax_ = if (r == :j) & jstat
+                ax2
+            else ax
+            end
 
-    for (k, g) in pairs(gdf)
-        ax_ = if (k.rate == :j) & jstat
-            ax2
-        else ax
+            xs = rg[!, margvar];
+            ys = rg[!, r];
+            lwr = [x[1] for x in rg[!, ciname]];
+            upr = [x[2] for x in rg[!, ciname]];
+
+            if tnr & (r == :fpr)
+                ys = 1 - ys
+                lwr = 1 .- lwr
+                upr = 1 .- upr
+            end
+
+            scatter!(ax_, xs, ys; color);
+            rangebars!(ax_, xs, lwr, upr; color)
         end
-        scatter!(
-            ax_, g.xs, g.response;
-            color = g.color
-        )
-        rangebars!(
-            ax_, g.xs, g.lwr, g.upr;
-            color = g.color
-        )
-    end
-
-    if !jstat & legend
-        elems = [
-            [
-                LineElement(; color = c),
-                MarkerElement(;
-                    marker = :circle, color = c, strokecolor = :transparent
-                )
-            ] for c in oi[5:6]
-        ]
-
-        EffectLegend!(layout[1, 2], elems)
-    elseif legend
-        elems = [
-            [
-                LineElement(; color),
-                MarkerElement(;marker = :circle, color, strokecolor = :transparent)
-            ] for color in oi[[5, 6, 2]]
-        ]
-
-        Legend(
-            layout[1, 2],
-            elems, ["TPR", "TNR", "J"], "Accuracy",
-            framevisible = false, orientation = :vertical,
-            tellheight = false, tellwidth = false, nbanks = 1
-        )        
     end
 
     return ax
@@ -149,160 +115,76 @@ end
 export effplot_cat!
 
 function effplot_cts!(
-    layout, bpd, jstat;
-    limitx = true, dotlegend = false,
-    fpronly = false,
-    legend = true,
+    layout, rg, margvar, margvarname, tnr, jstat;
+    tr = 0.6,
+    limitx = true, fpronly = false,
+    axh = 250,
     axiskwargs...
 )
-
-    margins = bpd.margins
-    marginslong = bpd.marginslong
-    vbl = bpd.margvar
-    varname = bpd.varname
-
-    mrg_nk = if !isnothing(kin)
-        @subset marginslong .!$kin
-    else
-        marginslong
-    end
 
     ax = Axis(
         layout[1, 1];
         ylabel = "Rate",
-        xlabel = varname,
+        xlabel = margvarname,
+        height = axh,
         axiskwargs...
     )
 
-    sort!(mrg_nk, vbl)
-    mrg_nk.color = ifelse.(mrg_nk[!, :verity], oi[5], oi[6])
+    if jstat
+        # add secondary axis right for J
+        # if j statistic data is included, add point and rangebars
+        # make legend that includes J statistic with color oi[7]
 
-    vervals = sunique(mrg_nk[!, :verity])
+        ax_r = Axis(
+            layout;
+            xlabel = margvarname,
+            ylabel = "J",
+            yaxisposition = :right,
+            height = 250,
+            axiskwargs...
+        )
 
-    nk = @subset margins .!$kin
+        # only include y axis ticks, label, ticklabels
+        hidespines!(ax_r)
+        hidexdecorations!(ax_r)
+        linkxaxes!(ax, ax_r)
+    end
 
-    for (r, clr) in zip(rates, [oi[5], oi[6]])
-        if (r == :fpr) | ((r == :tpr) & !fpronly) 
+    # plot the data
+    
+    for r in [:tpr, :fpr, :j]
+        if (string(r) ∉ names(rg)) | fpronly
+            continue
+        else
+            ciname = "ci_" * string(r) |> Symbol
+            clr = ratecolor(r)
             
-            rci = Symbol("ci_" * string(r))
+            ax_ = if (r == :j) & jstat
+                ax_r
+            else ax
+            end
 
-            xs = nk[!, vbl]
-            rs = nk[!, r]
-            lwr = [x[1] for x in nk[!, rci]]
-            upr = [x[2] for x in nk[!, rci]]
-
-            if r == :fpr
-                rs = 1 .- rs
+            xs = rg[!, margvar];
+            ys = rg[!, r];
+            lwr = [x[1] for x in rg[!, ciname]];
+            upr = [x[2] for x in rg[!, ciname]];
+            
+            if tnr & (r == :fpr)
+                ys = 1 .- ys
                 lwr = 1 .- lwr
                 upr = 1 .- upr
             end
 
-            band!(ax, xs, lwr, upr; color = (clr, 0.6)) # no method for tuples
-            lines!(ax, xs, rs, color = clr)
+            lines!(ax_, xs, ys, color = clr)
+            band!(ax_, xs, lwr, upr; color = (clr, tr)) # no method for tuples
         end
-    end
-
-    if !jstat & legend
-        elems = []
-        for (color, tr) in zip(oi[5:6], [0.6, 0.6])
-            x = if dotlegend
-                [
-                    PolyElement(; color = (color, tr)),
-                    LineElement(; color),
-                    MarkerElement(; marker = :circle, color)
-                ]
-            else
-                [
-                    PolyElement(; color = (color, tr)),
-                    LineElement(; color)
-                ]
-            end
-            push!(elems, x)
-        end
-
-        EffectLegend!(layout[1, 2], elems)
-    else
-        # if j statistic data is included, add line and band
-        # make legend that includes J statistic with color oi[7]
-        jdf = margins[!, [kin, vbl, :peirce, :ci_j]]
-
-        # right axis for J statistic
-        ax2 = Axis(
-            layout[1, 1];
-            xlabel = varname,
-            ylabel = "J statistic",
-            yaxisposition = :right,
-            axiskwargs...
-        )
-
-        hidespines!(ax2)
-        hidexdecorations!(ax2)
-        linkxaxes!(ax, ax2)
-
-        # hlines!(ax2, [0.0], color = :grey, linestyle = :dot)
-
-        if !isnothing(kin)
-            jdf = @subset jdf .!$kin
-        end
-        sort!(jdf, vbl)
-
-        a, b = detuple(jdf.ci_j)
-        jpd = (x = jdf[!, vbl], y = jdf[!, :peirce], lwr = a, upr = b,)
-
-        if !fpronly
-            band!(ax2, jpd.x, jpd.lwr, jpd.upr; color = (oi[2], 0.3))
-            lines!(ax2, jpd.x, jpd.y; color = oi[2])
-        end
-
-        pal = tuple.(oi[[5, 6, 2]], [0.6, 0.6, 0.3])
-
-        if legend
-            elems = []
-            for c in pal
-                x = if dotlegend
-                    [
-                        PolyElement(; marker = :rect, color = c),
-                        LineElement(color = c[1]),
-                        MarkerElement(; marker = :circle, color = c)
-                    ]
-                else
-                    [
-                        PolyElement(; marker = :rect, color = c),
-                        LineElement(color = c[1])
-                    ]
-                end
-                push!(elems, x)
-            end
-
-            if !fpronly
-                Legend(
-                    layout[1, 2],
-                    elems,
-                    ["TPR", "TNR", "J"],
-                    "Accuracy",
-                    framevisible = false, orientation = :vertical,
-                    tellheight = false, tellwidth = false, nbanks = 1
-                )
-            else
-                Legend(
-                    layout[1, 2],
-                    [elems[2]],
-                    ["TNR"],
-                    "Accuracy",
-                    framevisible = false, orientation = :vertical,
-                    tellheight = false, tellwidth = false, nbanks = 1
-                )
-            end
-        end
-    end
-
-    ax_ = if jstat
-        ax2
-    else ax
     end
     
     if limitx
-        xlims!(ax_, extrema(mrg_nk[!, vbl]))
+        xlims!(ax, extrema(rg[!, margvar]))
+        if jstat
+            xlims!(ax_r, extrema(rg[!, margvar]))
+        end
     end
 
     return ax
@@ -310,61 +192,67 @@ end
 
 export effplot_cts!
 
-function effplot_cts_pr!(layout, bpd; axiskwargs...)
-    
-    vbl = bpd.margvar
-
-    mrg_nk = @subset mrg .!$kin
-
-    ax = Axis(
-        layout[1, 1];
-        xlabel = bpd.varname,
-        ylabel = "Rate",
-        axiskwargs...
+function effectslegend!(
+    layout, jstat, cts, dotlegend;
+    tr = 0.6,
+    lkwargs = (
+        framevisible = false,
+        orientation = :vertical,
+        tellheight = false,
+        tellwidth = false,
+        nbanks = 1,
     )
+)
+    
+    rts = ifelse(jstat, [:tpr, :fpr, :j], [:tpr, :fpr]);
+    rts_names = ifelse(jstat, ["TPR", "TNR", "J"], ["TPR", "TNR"]);
 
-    sort!(mrg_nk, vbl)
-    mrg_nk.color = ifelse.(mrg_nk[!, :verity], oi[5], oi[6])
+    elems = [];
 
-    if sum(mrg_nk.verity) > 0
-        for ix in [mrg_nk.verity]
-            xs = mrg_nk[ix, vbl]
-            rs = mrg_nk[ix, :response]
-            lw = mrg_nk[ix, :lower]
-            hg = mrg_nk[ix, :upper]
-            band!(ax, xs, lw, hg, color = (oi[5], 0.6))
-            lines!(ax, xs, rs, color = oi[5])
+    if !cts
+        for r in rts
+            e = [
+                LineElement(; color = ratecolor(r)),
+                MarkerElement(;
+                    marker = :circle, color = ratecolor(r), strokecolor = :transparent
+                )
+            ]
+            push!(elems, e)
         end
+
+        Legend(
+            layout,
+            elems, rts_names, "Accuracy";
+            lkwargs...
+        )
+    else
+        for r in rts
+            x = if dotlegend
+                [
+                    PolyElement(; color = (ratecolor(r), tr)),
+                    LineElement(; color = ratecolor(r)),
+                    MarkerElement(; marker = :circle, color = ratecolor(r))
+                ]
+            else
+                [
+                    PolyElement(; color = (ratecolor(r), tr)),
+                    LineElement(; color = ratecolor(r))
+                ]
+            end
+            push!(elems, x)
+        end
+        Legend(
+            layout, elems, rts_names, "Accuracy";
+            lkwargs...
+        )
     end
-
-    if sum(.!mrg_nk.verity) > 0
-        for ix in [.!m1_mrg_nk.verity]
-            xs = mrg_nk[ix, vbl]
-            rs = mrg_nk[ix, :response]
-            lw = mrg_nk[ix, :lower]
-            hg = mrg_nk[ix, :upper]
-            band!(ax, xs, lw, hg, color = (oi[6], 0.6))
-            lines!(ax, xs, rs, color = oi[6])
-        end
-    end
-
-    if !isnothing(layout)
-        if sum(mrg_nk.verity) > 0
-            elems = [LineElement(color = oi[5])]
-                
-            EffectLegend!(layout[1, 2], elems)
-        end
-
-        if sum(.!mrg_nk.verity) > 0
-            elems = [LineElement(color = oi[6])]
-                
-            EffectLegend!(layout[1, 2], elems)
-        end
-    end
-
-    xlims!(ax, extrema(mrg_nk[!, vbl]))
-
-    return ax
 end
 
-export effplot_cts_pr!
+# old
+function EffectLegend!(ll, elems)
+    Legend(
+        ll[1, 1], elems, ["TPR", "TNR"], "Accuracy", framevisible = false,
+        orientation = :vertical,
+        tellheight = false, tellwidth = true, nbanks = 1,
+    )
+end

@@ -1,5 +1,52 @@
 # rocplot.jl
 
+function rocplot!(
+    layout,
+    rg, margvar, margvarname;
+    dropkin = false,
+    ellipsecolor = (:grey, 0.3),
+    markeropacity = nothing,
+    roctitle = true,
+    kinlegend = true,
+    extramargin = false,
+    legargs = (framevisible = false, tellheight = false, tellwidth = false,)
+)
+
+    ellipse = ifelse("Σ" ∈ names(rg), true, false);
+
+    rg = deepcopy(rg)
+    
+    if !dropkin & (string(kin) ∈ names(rg))
+        @subset! rg .!$kin
+        kinmarker = false
+    else
+        kinmarker = true
+    end
+
+    rocplot_!(
+        layout[1, 1], rg, margvar, margvarname;
+        markeropacity,
+        ellipse,
+        ellipsecolor,
+        roctitle,
+        kinmarker = kinmarker,
+        kin = kin,
+        axsz = 250,
+        extramargin,
+    )
+
+    vbltype = eltype(rg[!, margvar])
+    cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
+    lx = layout[1, 2] = GridLayout()
+    roclegend!(
+        lx, rg[!, margvar], margvarname, ellipse, ellipsecolor, cts;
+        kinlegend,
+        legargs...
+    )
+end
+
+export rocplot!
+
 function getellipsepoints(cx, cy, rx, ry, θ)
 	t = range(0, 2*pi, length=100)
 	ellipse_x_r = @. rx * cos(t)
@@ -40,7 +87,8 @@ function getellipsepoints(μ, Σ; confidence = 0.95)
 end
 
 function _cat_legend!(
-    layout, vbl_vals, varname, ellipse, ellipsecolor; legargs...
+    layout, vbl_vals, varname, ellipse, ellipsecolor,
+    kinlegend; legargs...
 )
     elems = if !ellipse
         [
@@ -65,36 +113,45 @@ function _cat_legend!(
     lvls = string.(levels(vbl_vals))
     lvls = replace.(lvls, "_" => " ")
 
-    elems_kin = [
-        MarkerElement(;
-            marker = m, color = :black, strokecolor = :transparent
-        ) for m in [:rect, :cross]
-    ]
+    if kinlegend
+        elems_kin = [
+            MarkerElement(;
+                marker = m, color = :black, strokecolor = :transparent
+            ) for m in [:rect, :cross]
+        ]
 
-    lvls_kin = ["No", "Yes"];
+        lvls_kin = ["No", "Yes"];
+        lvls = [lvls, lvls_kin]
+        elems = [elems, elems_kin]
+        nms = [varname, "Kin tie"]
+    else
+        elems = [elems]
+        lvls = [lvls]
+        nms = [varname]
+    end
 
     Legend(
-        layout[1, 2], [elems, elems_kin], [lvls, lvls_kin], [varname, "Kin tie"];
+        layout[1, 2], elems, lvls, nms;
         legargs..., orientation = :vertical, nbanks = 1
     )
 end
 
-function roc_legend!(
+function roclegend!(
     layout, vbl_vals, varname, ellipse, ellipsecolor, cts;
     extraelement = false,
-    px = [1,2],
+    kinlegend = true,
     legargs...
 )
     if !cts
         _cat_legend!(
-            layout, vbl_vals, varname, ellipse, ellipsecolor; legargs...
+            layout, vbl_vals, varname, ellipse, ellipsecolor,
+            kinlegend; legargs...
         )
     else
-        lx = layout[px...] = GridLayout()
-        rowsize!(lx, 1, Relative(4.5/5))
+        rowsize!(layout, 1, Relative(4.5/5))
         rangescale = extrema(vbl_vals)
         Colorbar(
-            lx[1, 1];
+            layout[1, 1];
             limits = rangescale, colormap = :berlin,
             flipaxis = false, vertical = true,
             label = varname,
@@ -104,7 +161,7 @@ function roc_legend!(
             existcolor = colorschemes[:Anemone][1] # :managua10
             elems = [MarkerElement(; marker = :circle, color = existcolor)]
             Legend(
-                lx[2, 1], [elems], ["No path"], "";
+                layout[2, 1], [elems], ["No path"], "";
                 orientation = :vertical, nbanks = 1,
                 framevisible = false, legargs...
             )
@@ -112,54 +169,66 @@ function roc_legend!(
     end
 end
 
-function rocplot!(
-    layout, margins, vbl, varname;
+function rocplot_!(
+    layout, rg, margvar, margvarname;
     markeropacity = nothing,
     ellipse = false,
     ellipsecolor = (:grey, 0.3),
-    legend = true,
-    roctitle = true
+    roctitle = true,
+    kinmarker = true,
+    kin = kin,
+    axsz = 250,
+    extramargin = false
 )
 
-    legargs = (framevisible = false, tellheight = false, tellwidth = false,)
+    rg = deepcopy(rg);
 
-    vbltype = eltype(margins[!, vbl])
+    vbltype = eltype(rg[!, margvar])
     cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
 
     if isnothing(markeropacity)
         markeropacity = ifelse(cts, 0.5, 1.0)
     end
 
-    margins.color = if !cts
-        margins[!, vbl] = categorical(string.(margins[!, vbl])) # make string regardless
+    rg.color = if !cts
+        rg[!, margvar] = categorical(string.(rg[!, margvar]))
         [oi[levelcode(x)] for x in margins[!, vbl]]
     else
-        rangescale = extrema(margins[!, vbl])
-        get(colorschemes[:berlin], margins[!, vbl], rangescale);
+        rangescale = extrema(rg[!, margvar])
+        get(colorschemes[:berlin], rg[!, margvar], rangescale);
     end;
 
-    margins.marker = ifelse.(margins[!, kin], :cross, :rect);
+    if kinmarker & (string(kin) ∈ names(rg))
+        rg.marker = ifelse.(rg[!, kin], :cross, :rect);
+    else
+        rg.marker .= :circle
+    end
     
     ax = Axis(
-        layout[1, 1];
+        layout;
         xlabel = "False positive rate", ylabel = "True positive rate",
         # aspect = 1
-        height = 250, width = 250,
-        title = ifelse(roctitle, string(varname), "")
+        height = axsz, width = axsz,
+        title = ifelse(roctitle, string(margvarname), "")
     )
 
     # line of chance
     chanceline!(ax);
     improvementline!(ax);
     
-    xlims!(ax, 0, 1)
-    ylims!(ax, 0, 1)
+    if !extramargin
+        xlims!(ax, 0, 1)
+        ylims!(ax, 0, 1)
+    else
+        ylims!(ax, -0.02, 1.02)
+        xlims!(ax, -0.02, 1.02)
+        vlines!(ax, [0, 1], color = (:black, 0.3));
+        hlines!(ax, [0, 1], color = (:black, 0.3));
+    end
     
     # (optionally) plot confidence ellipse
     if ellipse
-        jdf = margins[!, [:tpr, :fpr, :Σ]]
-
-        for (fp, tp, Σ) in zip(jdf.fpr, jdf.tpr, jdf.Σ)
+        for (fp, tp, Σ) in zip(rg.fpr, rg.tpr, rg.Σ)
             poly!(
                 Point2f.(zip(getellipsepoints(Point(fp, tp), Σ)...,));
                 color = ellipsecolor
@@ -170,21 +239,13 @@ function rocplot!(
     # plot the data
     scatter!(
         ax,
-        margins[!, :fpr], margins[!, :tpr],
-        color = [
-            (x, markeropacity) for x in margins.color];
-            marker = margins.marker, markersize = 8
+        rg[!, :fpr], rg[!, :tpr];
+        color = [(x, markeropacity) for x in rg.color],
+        marker = rg.marker,
+        markersize = 8
     )
-
-    if legend
-        # legend: variable/color
-        roc_legend!(
-            layout, margins[!, vbl], varname, ellipse, ellipsecolor, cts;
-            legargs...
-        )
-    end
     
     return ax
 end
 
-export rocplot!
+export rocplot_!
