@@ -130,8 +130,22 @@ end
 
 export make_figure1
 
-function make_figure2(m0a, m0b, m0c, m1, crs, cr)
-    invlink = logistic;
+# %%
+
+function make_bf(dats, effectsdicts)
+    bef = referencegrid(dats, effectsdicts);
+    bf = deepcopy(bef[:fpr])
+    for r in [:tpr, :fpr, :j]
+        bf[!, r] .= NaN
+        bf[!, Symbol(string(r) * "_err")] .= NaN
+    end
+    return bf
+end
+
+function setup_figure2(m1, df; invlink = logistic, socio = socio)
+
+    # dictionary of variable values / ranges for the reference grid
+    df = dropmissing(df, [:relation, kin, :dists_p, :dists_a])
 
     # calculate marginal effects
     prds = [
@@ -143,157 +157,132 @@ function make_figure2(m0a, m0b, m0c, m1, crs, cr)
         :dists_p_notinf, :dists_p
     ];
 
-    regvars = [
-        :age, :man, :educated,
-        # exclude repeated-within-subject variables
-        # :degree_centrality,
-        # :kin431, # => set kin431 to false
-        # :relation,
-        # :dists_p_notinf, :dists_p_i, 
-        # only for convenience
-        :perceiver, :village_code
-    ];
-
     dats = let
-        crt2 = dropmissing(crs.tpr, prds);
-        crf2 = dropmissing(crs.tpr, prds);
+        crt2 = @subset df $socio
+        crf2 = @subset df .!$socio
+        
+        dropmissing!(crt2, prds);
+        dropmissing!(crf2, prds);
 
         sort!(crt2, [:perceiver, :order]);
         sort!(crf2, [:perceiver, :order]);
         bidata(crt2, crf2)
     end;
 
-    # dictionary of variable values / ranges for the reference grid
-    effectsdicts = let df = cr
-        df = dropmissing(cr, [:relation, kin, :dists_p, :dists_a])
+    d1 = Dict(
+        :relation => sunique(df[!, :relation]),
+        kin => sunique(df[!, kin]),
+        :dists_p => df[df[!, :dists_p] .!= 0, :dists_p] |> mean,
+        :age => (mean∘skipmissing)(df[!, :age])
+    )
 
-        d1 = Dict(
-            :relation => sunique(df[!, :relation]),
-            kin => sunique(df[!, kin]),
-            :dists_p => df[df[!, :dists_p] .!= 0, :dists_p] |> mean,
-            :age => (mean∘skipmissing)(df[!, :age])
+    df_ = @subset(df, .!($socio)); # only false ties -> range is correct
+    d2 = deepcopy(d1)
+    d2[:dists_a] = df_[df_[!, :dists_a] .!= 0, :dists_a] |> mean
+
+    effectsdicts = (tpr = d1, fpr = d2, );
+
+    # construct reference grids    
+    bf = make_bf(dats, effectsdicts)
+    bieffects!(bf, m1, invlink; rates)
+
+    # marginal effects across models
+    for q in rates
+        bf[!, Symbol(string(q) * "_ci")] = ci.(
+            bf[!, q], bf[!, Symbol(string(q)*"_err")]
         )
-
-        df = @subset(df, .!($socio)); # only false ties -> range is correct
-        d2 = deepcopy(d1)
-        d2[:dists_a] = df[df[!, :dists_a] .!= 0, :dists_a] |> mean
-
-        (tpr = d1, fpr = d2, )
     end
 
-    # marginal effects
-
-    modelnames = ["m0a", "m0b", "m1i"];
-    model_legend = reduce(
-        vcat,
-        fill(["1", "2", "3"], 2)
-    );
-
-    function make_bf(dats, effectsdicts)
-        bef = referencegrid(dats, effectsdicts);
-        bf = deepcopy(bef[:fpr])
-        for r in [:tpr, :fpr, :j]
-            bf[!, r] .= NaN
-            bf[!, Symbol(string(r) * "_err")] .= NaN
-        end
-        return bf
-    end
-
-    mdf = let
-        mn = [:m1, :ma, :mb, :mc];
-        # construct reference grids    
-        bfs = [make_bf(dats, effectsdicts) for e in mn]
-
-        for (i, (m, m_)) in (enumerate∘zip)([m1, m0a, m0b, m0c], mn)
-            bieffects!(bfs[i], m, invlink; rates)
-            bfs[i].model .= m_
-        end
-
-        mdf = reduce(vcat, bfs)
-        sort!(mdf, :model)
-
-        # marginal effects across models
-        for q in rates
-            mdf[!, Symbol(string(q) * "_ci")] = ci.(
-                mdf[!, q], mdf[!, Symbol(string(q)*"_err")]
-            )
-        end
-
-        mdf.tnr = 1 .- mdf.fpr
-        mdf.tnr_ci = tuple_addinv.(mdf[!, :fpr_ci])
-        mdf
-    end
+    bf.tnr = 1 .- bf.fpr;
+    bf.tnr_ci = tuple_addinv.(bf[!, :fpr_ci]);
 
     # relation-truth-subject-level TPR and FPR (model free)
     # adjusted estimates from "model 1"
-    sbar = let
-        sbar = errors(
-            cr;
-            truth = socio, grouping = [kin, :relation, :perceiver]
-        );
+    sbar = errors(
+        df;
+        truth = socio, grouping = [kin, :relation, :perceiver]
+    );
 
-        sort!(sbar, [kin, :relation])
+    sort!(sbar, [kin, :relation])
 
-        # subject-level averages
-        sbar = @chain sbar begin
-            dropmissing!()
-            @subset! :socio .> 3 ((:count .- :socio) .> 3)
-            dropmissing([:tpr, :type1])
-            groupby([kin, :relation, :tpr, :type1])
-            combine(nrow => :count)
-            @subset .!(isnan.(:tpr) .| isnan.(:type1))
-            groupby([:relation, kin])
-            combine(
-                [x => Ref => x for x in [:tpr, :type1, :count]]...
-            )
-            sort!([:relation, kin])
-        end;
-        
-        sbar.fpr_tpr_bar = [
-            tuple(mean(x), mean(y)) for (x, y) in zip(sbar.type1, sbar.tpr)
-        ];
-        rename!(sbar, :type1 => :fpr)
+    # subject-level averages
+    sbar = @chain sbar begin
+        dropmissing!()
+        @subset! :socio .> 3 ((:count .- :socio) .> 3)
+        dropmissing([:tpr, :type1])
+        groupby([kin, :relation, :tpr, :type1])
+        combine(nrow => :count)
+        @subset .!(isnan.(:tpr) .| isnan.(:type1))
+        groupby([:relation, kin])
+        combine(
+            [x => Ref => x for x in [:tpr, :type1, :count]]...
+        )
+        sort!([:relation, kin])
+    end;
+    
+    sbar.fpr_tpr_bar = [
+        tuple(mean(x), mean(y)) for (x, y) in zip(sbar.type1, sbar.tpr)
+    ];
+    rename!(sbar, :type1 => :fpr)
 
-        mdf_model = @subset(mdf, :model .== (Symbol("m1")));
-        inames = intersect(names(mdf_model), names(sbar));
-        for x in string.(rates)
-            rename!(mdf_model, x => x*"_adj")
-        end
-
-        leftjoin!(sbar, mdf_model; on = [kin, :relation])
-
-        sbar
+    inames = intersect(names(bf), names(sbar));
+    for x in string.(rates)
+        rename!(bf, x => x*"_adj")
     end
 
-    # bmcp0 = (tpr = coefplotdata(m0a.tpr), fpr = coefplotdata(m0a.fpr));
-    # bmcp = (tpr = coefplotdata(m1.tpr), fpr = coefplotdata(m1.fpr));
-    # bmcp1i = (tpr = coefplotdata(m1i.tpr), fpr = coefplotdata(m1i.fpr));
+    leftjoin!(sbar, bf; on = [kin, :relation])
 
-    # models = [bmcp0, bmcp];
+    return sbar
+end
 
+export setup_figure2
 
-    figure2 = let sbar = sbar
-        fg = Figure();
-        l_ = fg[1, 1] = GridLayout();
+function make_figure2(sbar, bpd)
+    
+    fg = Figure();
+    l = fg[1, 1] = GridLayout();
+    l1_ = l[1, 1] = GridLayout();
 
-        # plot bivariate distribution
-        perceivercontour!(
-            l_, sbar; kin = :kin431, nlevels = 10, colormap = :berlin,
-        )
+    # plot bivariate distribution
+    perceivercontour!(
+        l1_, sbar; kin = :kin431, nlevels = 10, colormap = :berlin,
+    );
+    colsize!(l1_, 3, Relative(1/6))
 
-        # l_coef = coefficientbiplot!(
-        #     gb, models;
-        #     cnames = union(models[2].tpr.names, models[2].fpr.names)
-        # )
+    l2_ = l[2, :] = GridLayout();
+    l21 = l2_[1, 1] = GridLayout();
+    l22 = l2_[1, 2] = GridLayout();
 
-        caption = "Coefficient plot. Coefficients for TPR (blue) and FPR (red) models. Coefficients are reported if they show up as significant in at least one of the two models. All numeric covariates are standardized to the unit range. Coefficients are unadjusted from logistic model. Observe that alter-alter distances only appear in FPR model."
+    # Box(l2_[1,2], color = (:blue, 0.3))
+    # Box(l22[1,1], color = (:red, 0.3))
+    # Box(l22[1,2], color = (:red, 0.3))
 
-        fg
-    end;
+    colsize!(l2_, 1, Relative(1/2))
 
-    resize!(figure2, 800, 800)
-    resize_to_layout!(figure2)
-    return figure2
+    rocplot!(
+        l21,
+        bpd.rg, bpd.margvar, bpd.margvarname;
+        ellipsecolor = (:grey, 0.3),
+        markeropacity = nothing,
+        extramargin = true
+    )    
+
+    effectsplot!(
+        l22, bpd.rg, bpd.margvar, bpd.margvarname, bpd.tnr, bpd.jstat;
+        dropkin = true, kin = kin
+    )
+
+    caption = "Coefficient plot. Coefficients for TPR (blue) and FPR (red) models. Coefficients are reported if they show up as significant in at least one of the two models. All numeric covariates are standardized to the unit range. Coefficients are unadjusted from logistic model. Observe that alter-alter distances only appear in FPR model."
+
+    # rowsize!(l, 1, Relative(2/3))
+    labelpanels!([l1_, l2_])
+
+    # w,h
+    resize!(fg, 900, 1200)
+    @show resize_to_layout!(fg)
+    fg
+
+    return fg
 end
 
 export make_figure2
