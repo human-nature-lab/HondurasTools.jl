@@ -1,6 +1,24 @@
 # figure_utilities.jl
 
 """
+        ratecolor(x)
+
+## Description
+
+"""
+function ratecolor(x)
+    return if x == :tpr
+        oi[5]
+    elseif x == :fpr
+        oi[6]
+    elseif (x == :peirce) | (x == :j)
+        oi[7]
+    else
+        oi[2]
+    end
+end
+
+"""
         chanceline!(ax)
 
 ## Description

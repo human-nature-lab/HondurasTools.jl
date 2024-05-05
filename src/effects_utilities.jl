@@ -126,11 +126,11 @@ end
 export truenegative!
 
 """
-        usualeffects(dats)
+        usualeffects(dats; kinvals = [false, true])
 
 Construct the dictionary foundation of the reference grids for most analyses.
 """
-function usualeffects(dats)
+function usualeffects(dats; kinvals = [false, true])
     
     df_ = dats.fpr;
     
@@ -138,10 +138,13 @@ function usualeffects(dats)
     ds = [dats[x][!, :dists_p][dats[x][!, :dists_p] .!= 0] for x in rates];
     distmean = mean(reduce(vcat, ds))    
 
-    tpr_dict = Dict(
-        :kin431 => [false, true],
-        :dists_p => distmean
-    );
+    tpr_dict = Dict{Symbol, Any}()
+
+    tpr_dict[:dists_p] = distmean
+
+    if !isnothing(kinvals)
+        tpr_dict[:kin431] = kinvals
+    end
 
     fpr_dict = deepcopy(tpr_dict);
     fpr_dict[:dists_a] = mean(df_[df_[!, :dists_a] .!= 0, :dists_a])
@@ -151,11 +154,11 @@ end
 export usualeffects
 
 """
-        usualeffects(dats, vbls)
+        usualeffects(dats, vbls; kinvals = [false, true])
 
 Construct the dictionary foundation of the reference grids for most analyses. Include the range of a focal variable(s), `vbls`, observed in the data.
 """
-function usualeffects(dats, vbls)
+function usualeffects(dats, vbls; kinvals = [false, true])
     
     if typeof(vbls) <: Symbol
         vbls = [vbls]
@@ -165,13 +168,14 @@ function usualeffects(dats, vbls)
     
     # separate or the same (across rates)?
     ds = [dats[x][!, :dists_p][dats[x][!, :dists_p] .!= 0] for x in rates];
-    distmean = mean(reduce(vcat, ds))    
 
-    tpr_dict = Dict(
-        :kin431 => [false, true],
-        :dists_p => distmean,
-        :age => mean(dats[:fpr].age)
-    );
+    tpr_dict = Dict{Symbol, Any}()
+    tpr_dict[:dists_p] = mean(reduce(vcat, ds))
+    tpr_dict[:age] = mean(dats[:fpr].age)
+
+    if !isnothing(kinvals)
+        tpr_dict[:kin431] = kinvals
+    end
 
     fpr_dict = deepcopy(tpr_dict);
     fpr_dict[:dists_a] = mean(df_[df_[!, :dists_a] .!= 0, :dists_a])
@@ -181,9 +185,44 @@ function usualeffects(dats, vbls)
     # add the range of the focal variable
     for r in rates
         for vbl in vbls
-            effectsdicts[r][vbl] = (
-                unique∘skipmissing∘vcat)(dats[:tpr][!, vbl], dats[:fpr][!, vbl]
-            )
+            effectsdicts[r][vbl] = (unique∘skipmissing∘vcat)(dats[:tpr][!, vbl], dats[:fpr][!, vbl])
+        end
+    end
+
+    return effectsdicts
+end
+
+"""
+        usualeffects(dats, additions; stratifykin = true, rates = rates)
+
+Construct the dictionary foundation of the reference grids for most analyses. Include the range of a focal variable(s), specified as pairs in `additions`.
+"""
+function usualeffects(dats, additions; stratifykin = true, rates = rates)
+
+    df_ = dats.fpr;
+    
+    # separate or the same (across rates)?
+    ds = [dats[x][!, :dists_p][dats[x][!, :dists_p] .!= 0] for x in rates];
+
+    tpr_dict = Dict{Symbol, Any}()
+    tpr_dict[:dists_p] = mean(reduce(vcat, ds))
+    tpr_dict[:age] = mean(dats[:fpr].age)
+
+    fpr_dict = deepcopy(tpr_dict);
+    fpr_dict[:dists_a] = mean(df_[df_[!, :dists_a] .!= 0, :dists_a])
+
+    effectsdicts = (tpr = tpr_dict, fpr = fpr_dict,);
+
+    if stratifykin
+        for r in rates
+            push!(effectsdicts[r], kin => [false, true])
+        end
+    end
+
+    # add the range of the focal variable
+    for r in rates
+        for x in additions
+            push!(effectsdicts[r], x)
         end
     end
 
