@@ -154,7 +154,7 @@ function jboot(
     refgrids = deepcopy(refgrids)
 
     for r in rates
-        dropmissing!(refgrids[r], [vbl..., kin])
+        dropmissing!(refgrids[r], intersect(names(refgrids[r]), string.([vbl..., kin])))
     end
 
     inc_names = (
@@ -188,10 +188,10 @@ function jboot(
     ci!(rg)
 
     # combine rate rg data -> rgc
-    for r in rates; sort!(rg[r], [kin, vbl...]) end
+    for r in rates; sort!(rg[r], intersect(names(refgrids[r]), string.([vbl..., kin]))) end
 
     # if these are not the same, we cannot lazily combine:
-    @assert(rg[:tpr][!, [kin, vbl...]] == rg[:fpr][!, [kin, vbl...]])
+    @assert(rg[:tpr][!, intersect(names(refgrids[:tpr]), string.([vbl..., kin]))] == rg[:fpr][!, intersect(names(refgrids[:fpr]), string.([vbl..., kin]))])
 
     # lazily add columns, renaming as appropriate
     rgc = select(rg[:fpr], Not([:response, :err, :ci, :response_bs]))
@@ -211,7 +211,7 @@ function jboot(
     rgc.bs_accuracy = Vector{Vector{Point2{Float64}}}(undef, nrow(rgc))
 
     # calculate j statistic
-    rgc[!, :peirce] = rgc[!, :tpr] - rgc[!, :fpr];
+    rgc[!, :j] = rgc[!, :tpr] - rgc[!, :fpr];
 
     rgc.bs_j = Vector{Vector{Float64}}(undef, nrow(rgc))
     
@@ -226,7 +226,7 @@ function jboot(
     # https://www.stat.cmu.edu/~ryantibs/advmethods/notes/bootstrap.pdf
     rgc.ci_j = fill((NaN, NaN), nrow(rgc));
     rgc.bsinfo_j = Vector{NamedTuple}(undef, nrow(rgc));
-    for (i, (x, θ)) in (enumerate∘zip)(rgc.bs_j, rgc.peirce)
+    for (i, (x, θ)) in (enumerate∘zip)(rgc.bs_j, rgc.j)
         xbar = mean(x)
         se = std(x)
         qte = quantile(x, confrange)
