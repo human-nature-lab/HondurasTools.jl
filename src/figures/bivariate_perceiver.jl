@@ -11,7 +11,10 @@
 estimates from some selected `EModel`.
 """
 function perceivercontour!(
-    lo, sbar; kin = :kin431, nlevels = 10, colormap = :berlin
+    lo, sbar;
+    kin = kin,
+    nlevels = 10, colormap = :berlin,
+    axsz = 250
 )
 
     # bivariate density kernels
@@ -44,13 +47,15 @@ function perceivercontour!(
         title = uppercase(title[1]) * title[2:end]
         ax = Axis(
             lo[ps...];
-            ylabel = "True positive rate (TPR)",
-            xlabel = "False positive rate (FPR)",
+            ylabel = "True positive rate",
+            xlabel = "False positive rate",
             xgridvisible = false, ygridvisible = false,
             # title,
             # titlefontsize = 26,
             yticks = [0, 0.25, 0.5, 0.75, 1],
-            xticks = [0, 0.25, 0.5, 0.75, 1]
+            xticks = [0, 0.25, 0.5, 0.75, 1],
+            width = axsz,
+            height = axsz
         )
 
         push!(axs, ax)
@@ -69,6 +74,8 @@ function perceivercontour!(
         rotation = 0,
         font = :bold,
         fontsize = labelfontsize,
+        justification = :right,
+        halign = :left,
         padding = (10, 0, 0, 0)
     )
 
@@ -77,6 +84,8 @@ function perceivercontour!(
         rotation = 0,
         font = :bold,
         fontsize = labelfontsize,
+        justification = :left,
+        halign = :left,
         padding = (10, 0, 0, 0)
     )
     
@@ -126,10 +135,12 @@ function perceivercontour!(
 
     linkaxes!(axs...)
 
+    lol = lo[1:2, 3] = GridLayout();
+
     Colorbar(
-        lo[3, 1];
+        lol[1:2, 1];
         limits = extrema(lv), colormap,
-        flipaxis = false, vertical = false,
+        flipaxis = false, vertical = true,
         label = "Density"
     )
 
@@ -143,19 +154,19 @@ function perceivercontour!(
     leg_titles = ["Adjusted"];
 
     Legend(
-        lo[3, 2],
+        lol[3, 1],
         [group_color],
         [color_leg],
         leg_titles,
         tellheight = false, tellwidth = false,
-        orientation = :horizontal,
-        titleposition = :left,
+        orientation = :vertical,
+        # titleposition = :left,
         nbanks = 1, framevisible = false
     )
 
     # set equal axes
-    colsize!(lo, 1, Aspect(1, 1.0))
-    colsize!(lo, 2, Aspect(1, 1.0))
+    # colsize!(lo, 1, Aspect(1, 1.0))
+    # colsize!(lo, 2, Aspect(1, 1.0))
 end
 
 export perceivercontour!
