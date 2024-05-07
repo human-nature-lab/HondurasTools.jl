@@ -112,6 +112,14 @@ end
 
 export stround
 
+import StatsBase.round
+
+function round(x::Tuple{Float64, Float64}; digits = digits)
+    return tuple([round(a; digits) for a in x]...)
+end
+
+export round
+
 """
         sa(a)
 
