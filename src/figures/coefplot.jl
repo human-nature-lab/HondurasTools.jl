@@ -41,16 +41,25 @@ end
 
 export bimodelcoefplot
 
+"""
+Generalize this.
+"""
 function ci(x, se; area = 1.96)
-    return x .± se * area
+    return x ± se * area
 end
 
 export ci
 
-function ci!(rgs::NamedTuple; x = :response, rates = rates, area = 1.96)
+function ci!(rgs::Union{NamedTuple, BiData}; x = :response, rates = rates, area = 1.96)
     for r in rates
         rgs[r][!, :ci] = ci.(rgs[r][!, x], rgs[r][!, :err]; area)
     end
+end
+
+export ci!
+
+function ci!(rg::DataFrame; x = :response, area = 1.96)
+        rg[!, :ci] = ci.(rg[!, x], rg[!, :err]; area)
 end
 
 export ci!

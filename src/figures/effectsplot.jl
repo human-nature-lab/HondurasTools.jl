@@ -2,13 +2,15 @@
 
 function effectsplot!(
     l, rg, margvar, margvarname, tnr, jstat;
+    fpronly = false,
     dropkin = true, kin = kin, dotlegend = false,
     axiskwargs...
 )
 
-    rg = deepcopy(rg)
-    if dropkin  & (string(kin) ∈ names(rg))
-        @subset! rg .!$kin
+    rg = if dropkin & (string(kin) ∈ names(rg))
+        @subset rg .!$kin
+    else
+        deepcopy(rg)
     end
     vx = intersect(string(kin), [string(margvar)], names(rg))
     sort!(rg, vx)
@@ -17,19 +19,20 @@ function effectsplot!(
     cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
 
     func = ifelse(cts, effplot_cts!, effplot_cat!)
-    func(l[1, 1], rg, margvar, margvarname, tnr, jstat; axiskwargs...)
+    func(l[1, 1], rg, margvar, margvarname, tnr, jstat; fpronly, axiskwargs...)
     # Box(l[1,1], color = (:red, 0.3))
     effectslegend!(l[1, 2], jstat, cts, dotlegend; tr = 0.6)
     # Box(l[1,2], color = (:blue, 0.3))
     
     colsize!(l, 2, Auto(0.2))
-    colgap!(l, 10)
+    colgap!(l, 20)
 end
 
 export effectsplot!
 
 function effplot_cat!(
     layout, rg, vbl, margvarname, tnr, jstat;
+    fpronly = false,
     axh = 250,
     axiskwargs...
 )
@@ -39,11 +42,12 @@ function effplot_cat!(
     rg[!, vbl] = categorical(string.(rg[!, vbl]))
     lvls = string.(levels(rg[!, vbl]))
     lvls = replace.(lvls, "_" => " ")
+    rg.lc = levelcode.(rg[!, vbl]);
 
     statnum = ifelse(!jstat, 2, 3)
 
     xticks = (
-        mean(1:statnum):statnum:(statnum*length(levels(mrg_nk[!, vbl]))),
+        sunique(rg.lc),
         lvls
     )
 
@@ -52,9 +56,9 @@ function effplot_cat!(
         xticks,
         ylabel = "Rate",
         xlabel = margvarname,
-        height = axh,
-        axiskwargs...
-    )
+        height = axh)
+    #     axiskwargs...
+    # )
 
     if jstat
         # add secondary axis right for J
@@ -76,9 +80,13 @@ function effplot_cat!(
         linkxaxes!(ax, ax_r)
     end
 
-    vl = ((statnum+0.5):statnum:(statnum*length(levels(mrg_nk[!, vbl]))))[1:end]
-
+    vl = sunique(rg[!, :lc])[1:(end-1)] .+ 0.5
     vlines!(ax, vl, color = :black, linestyle = :solid, linewidth = 0.5)
+
+    xshift = ifelse(
+        !jstat,
+        (tpr = -0.333, fpr = 0.333), (tpr = -0.333, fpr = 0, j = 0.333)
+    )
 
     # plot the data
     for r in [:tpr, :fpr, :j]
@@ -89,17 +97,17 @@ function effplot_cat!(
             color = ratecolor(r)
             
             ax_ = if (r == :j) & jstat
-                ax2
+                ax_r
             else ax
             end
 
-            xs = rg[!, margvar];
+            xs = rg[!, :lc] .+ xshift[r];
             ys = rg[!, r];
             lwr = [x[1] for x in rg[!, ciname]];
             upr = [x[2] for x in rg[!, ciname]];
 
             if tnr & (r == :fpr)
-                ys = 1 - ys
+                ys = 1 .- ys
                 lwr = 1 .- lwr
                 upr = 1 .- upr
             end
@@ -117,7 +125,8 @@ export effplot_cat!
 function effplot_cts!(
     layout, rg, margvar, margvarname, tnr, jstat;
     tr = 0.6,
-    limitx = true, fpronly = false,
+    limitx = true,
+    fpronly = false,
     axh = 250,
     axiskwargs...
 )

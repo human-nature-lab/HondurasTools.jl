@@ -12,9 +12,9 @@ function ratecolor(x)
     elseif x == :fpr
         oi[6]
     elseif (x == :peirce) | (x == :j)
-        oi[7]
-    else
         oi[2]
+    else
+        oi[7]
     end
 end
 

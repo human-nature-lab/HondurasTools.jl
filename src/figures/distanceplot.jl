@@ -114,6 +114,9 @@ function distance_roc!(
         l, margins_finite[!, d], varname, ellipse, (:grey, 0.3), true,
         extraelement = true
     )
+
+	# colsize!(l, 1, Auto(3))
+
 	# add points for no path
 	# want a color that stands out from the :berlin color scale
 	# and does not cross J
@@ -138,11 +141,11 @@ function distance_eff!(l, mr; jstat = false, fpronly = false, legend = true)
 	mn, mx = extrema(mg.marginslong[!, mr.margvar])
 
 	# set up xticks
-	digits = 2
-	xtv = round.(Makie.get_tickvalues(WilkinsonTicks(10), identity, mn, mx); digits)
+	digits_ = 2
+	xtv = round.(Makie.get_tickvalues(WilkinsonTicks(10), identity, mn, mx); digits = digits_)
 	xtvl = string.(xtv)
 
-	dff = round(diff(xtv)[1]; digits)
+	dff = round(diff(xtv)[1]; digits = digits_)
 
 	mid1 = (mn + mx) * inv(2)
 
@@ -152,6 +155,7 @@ function distance_eff!(l, mr; jstat = false, fpronly = false, legend = true)
 	ax = effplot_cts!(
 		l, mg_, jstat; dotlegend = true, limitx = false, fpronly, legend
 	)
+	colsize!(l, 1, Auto(3))
 
 	mg_ = deepcopy(mg)
 	select!(mg_.marginslong, Not([:err, :verity]))
@@ -171,16 +175,22 @@ function distance_eff!(l, mr; jstat = false, fpronly = false, legend = true)
 		append!(mg_.marginslong, mj)
 	end
 
+	ii = ifelse(jstat, 3, 2)
+	rt, cl = ifelse(jstat, ([:tpr, :fpr, :j], [oi[5], oi[6], oi[2]]), ([:tpr, :fpr], [oi[5], oi[6]]))
+
+	# i * dff * inv(2), prev in paren
 	df_ = DataFrame(
-		:rate => [:tpr, :fpr, :j], :x => [mx + (i * dff * inv(2)) for i in 1:3],
-		:color => [oi[5], oi[6], oi[2]],
+		:rate => rt, :x => [mx + (i) for i in 1:ii],
+		:color => cl,
 	)
 
 	leftjoin!(mg_.marginslong, df_; on = :rate)
 	x_, y_, c_, clr = eachcol(mg_.marginslong[!, [:x, :response, :ci, :color]])
 	c_ = detuple(c_)
 
-	vlines!(ax, 1; color = :black, linestyle = :dot)
+	mxv = maximum(mg.margins[!, mg_.margvar])
+	println(mxv)
+	vlines!(ax, mxv; color = :black, linestyle = :dot)
 	scatter!(ax, x_, y_; color = clr)
 	rangebars!(ax, x_, c_...; color = clr)
 
@@ -196,6 +206,7 @@ function distance_eff!(l, mr; jstat = false, fpronly = false, legend = true)
 	hideydecorations!(ax_)
 	linkxaxes!(ax, ax_)
 	xlims!(ax_; low = 0, high = maximum(x_) + (minimum(x_) - mx))
+
 	return ax, ax_
 end
 

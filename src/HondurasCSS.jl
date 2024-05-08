@@ -43,6 +43,14 @@ and NiceDisplay
 using StatsFuns: logistic, logit
 export logistic, logit
 
+files_g = [
+    "EModel.jl", "errors.jl",
+    "effects_utilities.jl", "analysis_utilities.jl",
+    "variables.jl"
+];
+
+for x in files_g; include(x) end
+
 files_fg = "figures/" .* [
     "plotting.jl",
     "figure_utilities.jl", "stressfocus.jl",
@@ -62,7 +70,7 @@ files_fg = "figures/" .* [
     "riddle_plot!.jl",
     "homophily_plot.jl",
     # paper figures
-    "figure2.jl"
+    "figure2.jl",
 ];
 for x in files_fg; include(x) end
 
@@ -75,18 +83,11 @@ files_an = "analysis/" .* [
     "stage2.jl",
     "homophily.jl",
     "effects!.jl",
-    "newstrap.jl"
+    "newstrap.jl",
+    "contrast_table.jl"
 ];
 
 for x in files_an; include(x) end
-
-files_g = [
-    "EModel.jl", "errors.jl",
-    "effects_utilities.jl", "analysis_utilities.jl",
-    "variables.jl"
-];
-
-for x in files_g; include(x) end
 
 files_p = "process/" .* [
     "clean_css.jl", "css_process_raw.jl",

@@ -60,59 +60,6 @@ end
 
 export design_dict
 
-"""
-        referencegrid(df::BiData, effectsdicts; rates = rates)
-
-## Description
-
-Apply `referencegrid` to a BiData object.
-"""
-function referencegrid(df::BiData, effectsdicts; rates = rates)
-    return (; [r => referencegrid(df[r], effectsdicts[r]) for r in rates]...)
-end
-
-"""
-        referencegrid(df::AbstractDataFrame, effectsdict)
-
-## Description
-
-Construct a reference grid DataFrame from all possible combinations of the
-input effects dictionary `effectsdict` values.
-"""
-function referencegrid(df::AbstractDataFrame, effectsdict)
-    
-    kys = collect(keys(effectsdict));
-    cp = vec(collect(Iterators.product(values(effectsdict)...)));
-    df = similar(df, length(cp));
-    df = select(df, kys)
-
-    for (i, c) in (enumerate∘eachcol)(df)
-        c .= [e[i] for e in cp]
-    end
-
-    return df
-end
-
-export referencegrid
-
-function apply_referencegrids!(
-    m::EModel, referencegrids;
-    invlink = identity, multithreaded = true
-)
-    if multithreaded
-        #Threads.@threads for r in rates
-        for r in rates
-            effects!(referencegrids[r], m[r]; invlink)
-        end
-    else
-        for r in rates
-            effects!(referencegrids[r], m[r]; invlink)
-        end
-    end
-end
-
-export apply_referencegrids!
-
 function truenegative!(rgs::Union{NamedTuple, BiData})
     rgs[:fpr][!, :response] = 1 .- rgs[:fpr][!, :response]
     rgs[:fpr][!, :ci] = tuple_addinv.(rgs[:fpr][!, :ci])

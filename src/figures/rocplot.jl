@@ -16,11 +16,11 @@ function rocplot!(
 
     rg = deepcopy(rg)
     
-    if !dropkin & (string(kin) ∈ names(rg))
+    if !dropkin
+        kinmarker = true
+    elseif (string(kin) ∈ names(rg))
         @subset! rg .!$kin
         kinmarker = false
-    else
-        kinmarker = true
     end
 
     rocplot_!(
@@ -43,6 +43,8 @@ function rocplot!(
         kinlegend,
         legargs...
     )
+    colsize!(layout, 1, Relative(4/5))
+    #colgap!(layout, 0)
 end
 
 export rocplot!
@@ -134,6 +136,7 @@ function _cat_legend!(
         layout[1, 2], elems, lvls, nms;
         legargs..., orientation = :vertical, nbanks = 1
     )
+    colgap!(layout, -80)
 end
 
 function roclegend!(
@@ -142,6 +145,7 @@ function roclegend!(
     kinlegend = true,
     legargs...
 )
+
     if !cts
         _cat_legend!(
             layout, vbl_vals, varname, ellipse, ellipsecolor,
@@ -192,7 +196,7 @@ function rocplot_!(
 
     rg.color = if !cts
         rg[!, margvar] = categorical(string.(rg[!, margvar]))
-        [oi[levelcode(x)] for x in margins[!, vbl]]
+        [oi[levelcode(x)] for x in rg[!, margvar]]
     else
         rangescale = extrema(rg[!, margvar])
         get(colorschemes[:berlin], rg[!, margvar], rangescale);
