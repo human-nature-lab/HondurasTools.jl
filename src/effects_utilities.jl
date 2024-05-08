@@ -197,3 +197,81 @@ function perceiver_efdicts(dats; kinvals = [false])
 end
 
 export perceiver_efdicts
+
+##
+
+function adj_table(m, ses)
+    ct1 = DataFrame(GLM.coeftable(m));
+    x = coef(m) .± (ses .* 1.96)
+    ct1[!, "Std. Error (Corrected)"] = ses
+    ct1[!, "Lower 95% (Corrected)"] = [minimum(v) for v in x]
+    ct1[!, "Upper 95% (Corrected)"] = [maximum(v) for v in x]
+    ct1[!, "Pr(>|z|) (Corrected)"] = pvalues(m, ses)
+    return ct1
+end
+
+export adj_table
+
+function adjtable(mos, stds, z, r, i)
+    m = mos[i][z][r]
+    ses = stds[z][r][i]
+    ct1 = DataFrame(GLM.coeftable(m));
+    x = coef(m) .± (ses .* 1.96)
+    ct1[!, "Std. Error (Corrected)"] = ses
+    ct1[!, "Lower 95% (Corrected)"] = [minimum(v) for v in x]
+    ct1[!, "Upper 95% (Corrected)"] = [maximum(v) for v in x]
+    ct1[!, "Pr(>|z|) (Corrected)"] = pvalues(m, ses)
+    return ct1
+end
+
+function adjtable(mos, stds, z, i)
+    a = adjtable(mos, stds, z, :tpr, i)
+    b = adjtable(mos, stds, z, :fpr, i)
+    a.rate .= "tpr"
+    b.rate .= "fpr"
+    return vcat(a, b)
+end
+
+export adjtable
+
+function pvalues(m)
+    zstat = coef(m) ./ stderror(m)
+    return 2 .* cdf(Distributions.Normal(), -abs.(zstat))
+end
+
+function pvalues(m, ses)
+    zstat = coef(m) ./ ses
+    return 2 .* cdf(Distributions.Normal(), -abs.(zstat))
+end
+
+export pvalues
+
+function pvalue(est, se)
+    zstat = est * inv(se)
+    return 2 .* cdf(Distributions.Normal(), -abs(zstat))
+end
+
+export pvalue
+
+"""
+Generalize this.
+"""
+function ci(x, se; area = 1.96)
+    return x ± se * area
+end
+
+export ci
+
+function ci!(rgs::Union{NamedTuple, BiData}; x = :response, rates = rates, area = 1.96)
+    for r in rates
+        rgs[r][!, :ci] = ci.(rgs[r][!, x], rgs[r][!, :err]; area)
+    end
+end
+
+export ci!
+
+function ci!(rg::DataFrame; x = :response, area = 1.96)
+        rg[!, :ci] = ci.(rg[!, x], rg[!, :err]; area)
+end
+
+export ci!
