@@ -1,5 +1,55 @@
 # biplot.jl
 
+function margplotdata_setup(
+	dats, margvar;
+	additions = nothing,
+	margresolution = 0.01,
+	stratifykin = true,
+	kin = kin
+)
+	vbltype = eltype(dats.tpr[!, margvar])
+	cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
+
+	vls = (sunique∘skipmissing∘vcat)(dats[:tpr][!, margvar], dats[:fpr][!, margvar]);
+
+	if isnothing(additions)
+		additions = if cts
+			mn, mx = extrema(vls)
+			[margvar => collect(mn:margresolution:mx)]
+		elseif !cts
+			[margvar => sunique(vls)]
+		end
+	end
+
+	ed = usualeffects(dats, additions; stratifykin)
+	rg = referencegrid(dats, ed)
+	return rg
+end
+
+export margplotdata_setup
+
+function margplotdata_calculate(
+	bimodel, pbs, rg, invlink, margvar, margvarname, tnr, iters, confrange; kin
+)
+
+	apply_referencegrids!(bimodel, rg; invlink)
+	ci!(rg)
+	vx = intersect(names(rg.tpr), names(rg.fpr), [string(margvar), string(kin)])
+	for r in rg; sort!(r, vx) end;
+
+	# if pbs run jboot, o.w. just combine the referencegrids
+	rg = processrefgrid(
+		rg, bimodel, margvar, iters, invlink;
+		pbs, confrange
+	);
+	
+	return (
+		rg = rg, margvar = margvar, margvarname = margvarname,
+		tnr = tnr, jstat = ifelse(isnothing(pbs), false, true),
+	);
+end
+
+export margplotdata_calculate
 
 """
 		margplotdata(
@@ -36,37 +86,18 @@ function margplotdata(
 	kin = kin
 )
 
-	vbltype = eltype(dats.tpr[!, margvar])
-	cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
+	rg = margplotdata_setup(
+		dats, margvar;
+		additions,
+		margresolution,
+		stratifykin,
+		kin
+	)
 
-	vls = (sunique∘skipmissing∘vcat)(dats[:tpr][!, margvar], dats[:fpr][!, margvar]);
-
-	if isnothing(additions)
-		additions = if cts
-			mn, mx = extrema(vls)
-			[vbl => collect(mn:margresolution:mx)]
-		elseif !cts
-			[margvar => sunique(vls)]
-		end
-	end
-
-	ed = usualeffects(dats, additions; stratifykin)
-	rg = referencegrid(dats, ed)
-	apply_referencegrids!(bimodel, rg; invlink)
-	ci!(rg)
-	vx = intersect(names(rg.tpr), names(rg.fpr), [string(margvar), string(kin)])
-	for r in rg; sort!(r, vx) end;
-
-	# if pbs run jboot, o.w. just combine the referencegrids
-	rg = processrefgrid(
-		rg, bimodel, margvar, iters, invlink;
-		pbs, confrange
-	);
-	
-	return (
-		rg = rg, margvar = margvar, margvarname = margvarname,
-		tnr = tnr, jstat = ifelse(isnothing(pbs), false, true),
-	);
+	return margplotdata_calculate(
+		bimodel, pbs, rg, invlink,
+		margvar, margvarname, tnr, iters, confrange; kin
+	)
 end
 
 export margplotdata

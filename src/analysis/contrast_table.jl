@@ -19,7 +19,7 @@ function contrast_table(e, additions, dats, m, pbs, iters, invlink)
     ems = vcat(ems...)
     ci!(ems);
 
-    rgb = jboot(
+    @time rgb = jboot(
         e, m, rg, pbs, iters;
         invlink,
         type = :normal

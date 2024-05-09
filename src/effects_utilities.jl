@@ -105,7 +105,7 @@ export usualeffects
 
 Construct the dictionary foundation of the reference grids for most analyses. Include the range of a focal variable(s), `vbls`, observed in the data.
 """
-function usualeffects(dats, vbls; kinvals = [false, true])
+function usualeffects(dats, vbls::Union{Vector{Symbol}, Symbol}; kinvals = [false, true])
     
     if typeof(vbls) <: Symbol
         vbls = [vbls]
