@@ -253,7 +253,7 @@ function bootinterval(θ, qte, se; type = :percentile)
     elseif type == :normal
         θ ± se*1.96
     else
-        error("type not improperly specified")
+        error("type improperly specified")
     end
 end
 
