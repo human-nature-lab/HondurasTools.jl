@@ -29,6 +29,7 @@ function contrast_table(e, additions, dats, m, pbs, iters, invlink)
     cx = DataFrame(
         e => eltype(ems[!, e])[],
         :response => eltype(ems.response)[],
+        :err = eltype(ems.response)[],
         :ci => eltype(ems.ci)[]
     );
         
@@ -48,6 +49,10 @@ function contrast_table(e, additions, dats, m, pbs, iters, invlink)
     return ems
 end
 
+"""
+
+J: manually bootstrap and calculate the contrast (difference) for TPR - FPR.
+"""
 function _contrast_table!(cx, diff_j, e, en, rgb, iters)
     for (i, e1) in en
         for (j, e2) in en
@@ -58,12 +63,13 @@ function _contrast_table!(cx, diff_j, e, en, rgb, iters)
                 ctr = rgb[ix1, :j] - rgb[ix2, :j]
 
                 diff_j .= NaN
-                for i in 1:iters
-                    diff_j[i] = rand(rgb.bs_j[ix1]) - rand(rgb.bs_j[ix2])
+                for q in 1:iters
+                    diff_j[q] = rand(rgb.bs_j[ix1]) - rand(rgb.bs_j[ix2])
                 end
 
-                ci_ = ci(ctr, std(diff_j))
-                push!(cx, [cmb, ctr, ci_])
+                st = std(diff_j)
+                ci_ = ci(ctr, st)
+                push!(cx, [cmb, ctr, st, ci_])
             end
         end
     end
