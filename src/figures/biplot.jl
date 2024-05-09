@@ -29,7 +29,8 @@ end
 export margplotdata_setup
 
 function margplotdata_calculate(
-	bimodel, pbs, rg, invlink, margvar, margvarname, tnr, iters, confrange; kin
+	bimodel, pbs, rg, invlink, margvar, margvarname, tnr, iters, confrange; kin,
+	simpleout = false
 )
 
 	apply_referencegrids!(bimodel, rg; invlink)
@@ -43,10 +44,14 @@ function margplotdata_calculate(
 		pbs, confrange
 	);
 	
-	return (
-		rg = rg, margvar = margvar, margvarname = margvarname,
-		tnr = tnr, jstat = ifelse(isnothing(pbs), false, true),
-	);
+	return if !simpleout
+		(
+			rg = rg, margvar = margvar, margvarname = margvarname,
+			tnr = tnr, jstat = ifelse(isnothing(pbs), false, true),
+		);
+	else
+		rg
+	end
 end
 
 export margplotdata_calculate

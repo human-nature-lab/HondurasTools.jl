@@ -245,6 +245,13 @@ end
 
 export jboot
 
+"""
+        bootinterval(θ, qte, se; type = :percentile)
+
+## Description
+
+Specific method for calculating the boot interval.
+"""
 function bootinterval(θ, qte, se; type = :percentile)
     return if type == :basic
         2θ - qte[2], 2θ - qte[1]
