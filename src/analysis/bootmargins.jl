@@ -45,7 +45,8 @@ function _bootstrap_allocate(refgrids, iters, respvar)
         fpr = Vector{Vector{Float64}}(undef, iters),
     );
 
-    for r in rates
+    Threads.@threads for o in 1:2
+        r = rates[o]
         for i in eachindex(bstimates[:tpr])
             bstimates[r][i] = similar(refgrids[:tpr][!, respvar])
         end
@@ -269,7 +270,7 @@ resample for j
 """
 function _jboot!(rgc, iters)
     for (i, (s, v)) in (enumerate∘zip)(rgc.bs_tpr, rgc.bs_fpr)
-        for j in 1:iters
+        Threads.@threads for j in 1:iters
             vr, sr = rand(v), rand(s)
             rgc.bs_accuracy[i][j] = Point(vr, sr) # (fpr, tpr)
             rgc.bs_j[i][j] = sr - vr # tpr - fpr
