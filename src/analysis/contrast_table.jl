@@ -29,7 +29,7 @@ function contrast_table(e, additions, dats, m, pbs, iters, invlink)
     cx = DataFrame(
         e => eltype(ems[!, e])[],
         :response => eltype(ems.response)[],
-        :err = eltype(ems.response)[],
+        :err => eltype(ems.response)[],
         :ci => eltype(ems.ci)[]
     );
         
