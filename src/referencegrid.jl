@@ -64,7 +64,12 @@ Combine separate rate reference grids.
 """
 function combinerefgrid(rg, vbl, respvar; rates = rates, kin = kin)
 
-    vx = intersect(names(rg.tpr), names(rg.fpr), [string(vbl), string(kin)])
+    vs = if typeof(vbl) <: Symbol
+        [string(vbl), string(kin)]
+    else
+        [string.(vbl)..., string(kin)]
+    end
+    vx = intersect(names(rg.tpr), names(rg.fpr), vs)
     rgc = select(rg[:fpr], Not([:response, :err, :ci]))
     
     @assert rg[:tpr][!, vx] == rg[:fpr][!, vx]
@@ -97,3 +102,39 @@ function processrefgrid(
 end
 
 export processrefgrid
+
+"""
+        j_calculations!(xc, iters)
+
+Calculate the j statistic for the marginal effects of the TPR and FPR models, and bootstrap the standard errors / CIs for J.
+
+`xc`: Combined reference grid, with `tpr`, `fpr` response columns and `err_tpr`, `err_fpr` standard errors.
+
+Multithreaded over rows of `xc`
+"""
+function j_calculations!(xc, iters)
+    xc.err_j .= NaN
+    xc.j .= NaN
+    xc.ci_j = fill((NaN, NaN), nrow(xc));
+
+    dtpr = Distributions.Normal.(xc.tpr, xc.err_tpr);
+    dfpr = Distributions.Normal.(xc.tpr, xc.err_tpr);
+
+    dj = [Vector{Float64}(undef, iters) for _ in 1:nrow(xc)];
+    _j_calculations!(dj, xc.tpr, xc.fpr, xc.j, xc.err_j, xc.ci_j, dtpr, dfpr)
+
+end
+
+function _j_calculations!(dj, tprv, fprv, j, err_j, ci_j, dtpr, dfpr)
+    Threads.@threads for i in eachindex(tprv)
+        dj[i] .= NaN
+        for j in eachindex(dj[i])
+            dj[i][j] = rand(dtpr[i]) - rand(dfpr[i])
+        end
+        j[i] = x = tprv[i] - fprv[i]
+        err_j[i] = s = std(dj[i])
+        ci_j[i] = ci(x, s)
+    end
+end
+
+export j_calculations!
