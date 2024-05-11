@@ -18,6 +18,8 @@ function ratecolor(x)
     end
 end
 
+export ratecolor
+
 """
         chanceline!(ax)
 
