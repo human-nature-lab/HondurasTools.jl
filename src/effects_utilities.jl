@@ -262,9 +262,13 @@ end
 
 export ci
 
-function ci!(rgs::Union{NamedTuple, BiData}; x = :response, rates = rates, area = 1.96)
+function ci!(
+    rgs::Union{NamedTuple, BiData}; x = :response, rates = rates, area = 1.96
+)
     for r in rates
-        rgs[r][!, :ci] = ci.(rgs[r][!, x], rgs[r][!, :err]; area)
+        if !isempty(rgs[r])
+            rgs[r][!, :ci] = ci.(rgs[r][!, x], rgs[r][!, :err]; area)
+        end
     end
 end
 

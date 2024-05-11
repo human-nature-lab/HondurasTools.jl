@@ -39,16 +39,19 @@ export referencegrid
 
 function apply_referencegrids!(
     m::EModel, referencegrids;
-    invlink = identity, multithreaded = true
+    invlink = identity, multithreaded = false
 )
     if multithreaded
-        #Threads.@threads for r in rates
-        for r in rates
-            effects!(referencegrids[r], m[r]; invlink)
+        Threads.@threads for r in rates
+            if !isempty(referencegrids[r])
+                effects!(referencegrids[r], m[r]; invlink)
+            end
         end
     else
         for r in rates
-            effects!(referencegrids[r], m[r]; invlink)
+            if !isempty(referencegrids[r])
+                effects!(referencegrids[r], m[r]; invlink)
+            end
         end
     end
 end
@@ -69,14 +72,22 @@ function combinerefgrid(rg, vbl, respvar; rates = rates, kin = kin)
     else
         [string.(vbl)..., string(kin)]
     end
-    vx = intersect(names(rg.tpr), names(rg.fpr), vs)
+    
+    if !isempty(rg[:tpr]) & !isempty(rg[:fpr])
+        vx = intersect(names(rg.tpr), names(rg.fpr), vs)
+        @assert rg[:tpr][!, vx] == rg[:fpr][!, vx]
+    end
+    
     rgc = select(rg[:fpr], Not([:response, :err, :ci]))
     
-    @assert rg[:tpr][!, vx] == rg[:fpr][!, vx]
-    
-    for r in rates rgc[!, r] = rg[r][!, respvar] end
-    for r in rates rgc[!, "err_" * string(r)] = rg[r][!, :err] end
-    for r in rates rgc[!, "ci_" * string(r)] = rg[r][!, :ci] end
+    for r in rates
+        if !isempty(rg[r])
+            rgc[!, r] = rg[r][!, respvar]
+            rgc[!, "err_" * string(r)] = rg[r][!, :err]
+            rgc[!, "ci_" * string(r)] = rg[r][!, :ci]
+        end
+    end
+
     return rgc
 end
 
@@ -122,7 +133,6 @@ function j_calculations!(xc, iters)
 
     dj = [Vector{Float64}(undef, iters) for _ in 1:nrow(xc)];
     _j_calculations!(dj, xc.tpr, xc.fpr, xc.j, xc.err_j, xc.ci_j, dtpr, dfpr)
-
 end
 
 function _j_calculations!(dj, tprv, fprv, j, err_j, ci_j, dtpr, dfpr)
