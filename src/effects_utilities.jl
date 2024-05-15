@@ -98,6 +98,26 @@ function usualeffects(dats; kinvals = [false, true])
     return (tpr = tpr_dict, fpr = fpr_dict,)
 end
 
+function distmeans(dat; socio = :socio4)
+    d_p = :dists_p
+    d_a = :dists_a
+
+    c1 = dat[!, d_p] .!= 0
+    c2 = dat[!, :dists_p_notinf]
+    ds = dat[c1 .& c2, d_p];
+    distmean_p = (mean∘skipmissing)(ds);
+
+    c1 = dat[!, d_a] .!= 0
+    c2 = dat[!, :dists_a_notinf]
+    c3 = .!dat[!, socio] # only for false pairs
+    ds = dat[c1 .& c2 .& c3, d_a];
+    distmean_a = (mean∘skipmissing)(ds);
+
+    return [d_p => distmean_p, d_a => distmean_a]
+end
+
+export distmeans
+
 export usualeffects
 
 """

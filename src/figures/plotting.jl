@@ -1,5 +1,22 @@
 # plotting.jl
 
+"""
+        improvementline!(ax)
+
+## Description
+
+Add line of equal-ratio (TPR:FPR) increase (decrease) in accuracy.
+"""
+function improvementline!(ax)
+    above = (oi[6], 0.3)
+    below = (oi[3], 0.3)
+
+    lines!(ax, (1:-0.1:0.5), 0:0.1:0.5; linestyle = :solid, color = above)
+    lines!(ax, (0.5:-0.1:0), 0.5:0.1:1; linestyle = :solid, color = below)
+end
+
+export improvementline!
+
 function lineband!(ax, x, y, yl, yu; linecolor = color, label = "")
     band!(ax, x, yl, yu; color = (linecolor, 0.4))
     lines!(ax, x, y; color = (linecolor, 0.8), label = label)

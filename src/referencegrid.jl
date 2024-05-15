@@ -1,19 +1,6 @@
 # referencegrid.jl
 
 """
-        referencegrid(df::BiData, effectsdicts; rates = rates)
-
-## Description
-
-Apply `referencegrid` to a BiData object.
-"""
-function referencegrid(df::BiData, effectsdicts; rates = rates)
-    return (; [r => referencegrid(df[r], effectsdicts[r]) for r in rates]...)
-end
-
-export referencegrid
-
-"""
         referencegrid(df::AbstractDataFrame, effectsdict)
 
 ## Description
@@ -37,114 +24,88 @@ end
 
 export referencegrid
 
-function apply_referencegrids!(
-    m::EModel, referencegrids;
-    invlink = identity, multithreaded = false
-)
-    if multithreaded
-        Threads.@threads for r in rates
-            if !isempty(referencegrids[r])
-                effects!(referencegrids[r], m[r]; invlink)
-            end
-        end
-    else
-        for r in rates
-            if !isempty(referencegrids[r])
-                effects!(referencegrids[r], m[r]; invlink)
-            end
-        end
-    end
+function marginrange(dat, marginvar; margresolution = 0.01, allvalues = false)
+
+	vbltype = eltype(dat[!, marginvar])
+	
+	vls = (sunique∘skipmissing∘vcat)(dat[!, marginvar]);
+	return if ((vbltype <: AbstractFloat) | (vbltype <: Int)) & !allvalues
+		mn, mx = extrema(vls)
+		collect(mn:margresolution:mx)
+	else
+		sunique(vls)
+	end
 end
 
-export apply_referencegrids!
+export marginrange
 
-"""
-        combinerefgrid(rg; rates = rates, kin = kin)
+function margingrid(
+	dat, margvar;
+	additions = nothing,
+	margresolution = 0.01,
+	stratifykin = true,
+	kin = kin
+)
+	vbltype = eltype(dat[!, margvar])
+	cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
 
-## Description
+	vls = (sunique∘skipmissing∘vcat)(dats[:tpr][!, margvar], dats[:fpr][!, margvar]);
 
-Combine separate rate reference grids.
-"""
-function combinerefgrid(rg, vbl, respvar; rates = rates, kin = kin)
+	if isnothing(additions)
+		additions = if cts
+			mn, mx = extrema(vls)
+			[margvar => collect(mn:margresolution:mx)]
+		elseif !cts
+			[margvar => sunique(vls)]
+		end
+	end
 
-    vs = if typeof(vbl) <: Symbol
-        [string(vbl), string(kin)]
-    else
-        [string.(vbl)..., string(kin)]
-    end
-    
-    if !isempty(rg[:tpr]) & !isempty(rg[:fpr])
-        vx = intersect(names(rg.tpr), names(rg.fpr), vs)
-        @assert rg[:tpr][!, vx] == rg[:fpr][!, vx]
-    end
-    
-    rgc = select(rg[:fpr], Not([:response, :err, :ci]))
-    
-    for r in rates
-        if !isempty(rg[r])
-            rgc[!, r] = rg[r][!, respvar]
-            rgc[!, "err_" * string(r)] = rg[r][!, :err]
-            rgc[!, "ci_" * string(r)] = rg[r][!, :ci]
-        end
-    end
-
-    return rgc
+	ed = usualeffects(dats, additions; stratifykin)
+	rg = referencegrid(dats, ed)
+	return rg
 end
 
-export combinerefgrid
+function standarddict(dat; kinvals = false)
+    age = :age;
+    ed = Dict{Symbol, Any}();
+    ed[kin] = kinvals
+    ed[age] = mean(dat[!, age])
+    push!(ed, distmeans(dat)...)
+    
+    return ed
+end
 
-function processrefgrid(
-    rg, bimodel, vbl, iters, invlink;
-    pbs = nothing,
-    respvar = :response,
-    confrange = [0.025, 0.975],
-    type = :normal
+export standarddict
+
+function estimaterates!(
+    rg, bimodel::EModel;
+    typical = mean,
+    invlink = logistic,
+    iters = 10_000
 )
-    rg = if !isnothing(pbs)
-        jboot(
-            vbl, bimodel, rg, pbs, iters; invlink, type,
-            confrange, respvar = :response,
+    for r in[:tpr, :fpr]
+        effects!(
+            rg, bimodel[r];
+            eff_col = r, err_col = Symbol("err_" * string(r)),
+            typical, invlink
         )
-    else
-        combinerefgrid(rg, vbl, respvar)
     end
-
-    return disallowmissing!(rg)
+    
+    if !isnothing(iters)
+        j_calculations!(rg, iters)
+    end
 end
 
-export processrefgrid
+export estimaterates!
 
-"""
-        j_calculations!(xc, iters)
-
-Calculate the j statistic for the marginal effects of the TPR and FPR models, and bootstrap the standard errors / CIs for J.
-
-`xc`: Combined reference grid, with `tpr`, `fpr` response columns and `err_tpr`, `err_fpr` standard errors.
-
-Multithreaded over rows of `xc`
-"""
-function j_calculations!(xc, iters)
-    xc.err_j .= NaN
-    xc.j .= NaN
-    xc.ci_j = fill((NaN, NaN), nrow(xc));
-
-    dtpr = Distributions.Normal.(xc.tpr, xc.err_tpr);
-    dfpr = Distributions.Normal.(xc.tpr, xc.err_tpr);
-
-    dj = [Vector{Float64}(undef, iters) for _ in 1:nrow(xc)];
-    _j_calculations!(dj, xc.tpr, xc.fpr, xc.j, xc.err_j, xc.ci_j, dtpr, dfpr)
-end
-
-function _j_calculations!(dj, tprv, fprv, j, err_j, ci_j, dtpr, dfpr)
-    Threads.@threads for i in eachindex(tprv)
-        dj[i] .= NaN
-        for j in eachindex(dj[i])
-            dj[i][j] = rand(dtpr[i]) - rand(dfpr[i])
+function ci_rates!(rg)
+    for r in [:tpr, :fpr, :j]
+        if string(r) ∈ names(rg)
+            nm = ("ci_" * string(r)) |> Symbol
+            er = ("err_" * string(r)) |> Symbol
+            rg[!, nm] = ci.(rg[!, r], rg[!, er]; area = 1.96)
         end
-        j[i] = x = tprv[i] - fprv[i]
-        err_j[i] = s = std(dj[i])
-        ci_j[i] = ci(x, s)
     end
 end
 
-export j_calculations!
+export ci_rates!

@@ -71,7 +71,10 @@ files_fg = "figures/" .* [
     "homophily_plot.jl",
     # paper figures
     "figure2.jl",
+    "interaction.jl",
+    "contrast_table.jl"
 ];
+
 for x in files_fg; include(x) end
 
 files_an = "analysis/" .* [
@@ -99,5 +102,7 @@ for x in files_p; include(x) end
 
 include("tie_properties.jl")
 include("referencegrid.jl")
+include("j_calculations.jl")
+include("margincalculations.jl")
 
 end # module HondurasCSS
