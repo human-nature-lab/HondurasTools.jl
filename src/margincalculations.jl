@@ -9,10 +9,13 @@
 
 Calculates for most variables, but will not work for distance.
 """
-function addmargins!(margindict, vbldict, bimodel, dat)
+function addmargins!(
+    margindict, vbldict, bimodel, dat;
+    margresolution = 0.001, allvalues = false
+)
     Threads.@threads for p in keys(vbldict)
         e, name = vbldict[p]
-        ed = standarddict(e, dat; kinvals = [false, true])
+        ed = standarddict(dat; kinvals = [false, true])
         ed[e] = marginrange(dat, e; margresolution, allvalues)
         rg = referencegrid(dat, ed)
         estimaterates!(rg, bimodel; iters = 20_000)
