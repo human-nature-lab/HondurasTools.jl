@@ -164,8 +164,25 @@ end
 
 Reverse standardization for a column and a set of transforms. Non-mutating.
 """
-function reversestandard(df, v, transforms)
+function reversestandard(df::AbstractDataFrame, v, transforms)
     y = deepcopy(df[!, v])
+    dt = transforms[v]
+    idx = .!ismissing.(y)
+    vnm = df[idx, v]
+    vnm = disallowmissing(vnm)
+    y[idx] = StatsBase.reconstruct(dt, vnm)
+    return y
+end
+
+"""
+        reversestandard(x, v, transforms)
+
+## Description
+
+Reverse standardization for a column and a set of transforms. Non-mutating.
+"""
+function reversestandard(x::AbstractVector, v, transforms)
+    y = deepcopy(x)
     dt = transforms[v]
     idx = .!ismissing.(y)
     vnm = df[idx, v]
