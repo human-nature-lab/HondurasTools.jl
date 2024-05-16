@@ -30,7 +30,7 @@ Calculate the tradeoff (x) vs. strictchange (y) measures for each. Where x is th
 `rdf`: The marginal effects DataFrame, including each variable with column `variable`.
 
 """
-function ratetradeoffs(rdf, variables)
+function ratetradeoffs(rdf::AbstractDataFrame, variables)
     tradeoffs = Dict{Symbol, Tuple{AbstractFloat, AbstractFloat}}();
     for e in variables
         if Symbol(e) ∈ rdf.variable
@@ -45,5 +45,33 @@ function ratetradeoffs(rdf, variables)
     end
     return tradeoffs
 end
+
+"""
+        ratetradeoffs(rdf, variables)
+
+## Description
+
+Calculate the tradeoff (x) vs. strictchange (y) measures for each. Where x is the transformed (by 45 degrees, to a basis formed by y=x, and y=1-x) maximum fpr difference, and y is the transformed (by 45 degrees, to a basis formed by y=x, and y=1-x) maximum J.
+
+`rdf`: The marginal effects DataFrame, including each variable with column `variable`.
+
+"""
+function ratetradeoffs(md<:Dict, variables)
+    tradeoffs = Dict{Symbol, Tuple{AbstractFloat, AbstractFloat}}();
+    for e in variables
+        m = get(md, e, nothing)
+        if !isnothing(md)
+            rg = m.rg
+
+            jvals = rg[!, :j]
+            fprvals = rg[!, :fpr]
+            
+            tradeoffs[e] = ratetradeoff(jvals, fprvals)
+        else @warn string(e) * " not in md"
+        end
+    end
+    return tradeoffs
+end
+
 
 export ratetradeoffs
