@@ -7,8 +7,8 @@ using Reexport
 
 # add "." when running these here, "." for external usage
 # (total of two dots)
-Pkg.develop(path = "HondurasTools.jl"); # general functions, definitions
-Pkg.develop(path = "NiceDisplay.jl"); # tables, figures, quarto
+Pkg.develop(path = "./HondurasTools.jl"); # general functions, definitions
+Pkg.develop(path = "./NiceDisplay.jl"); # tables, figures, quarto
 
 @reexport using HondurasTools
 @reexport using NiceDisplay
@@ -103,6 +103,7 @@ include("referencegrid.jl")
 include("j_calculations.jl")
 include("margincalculations.jl")
 include("bootellipse.jl")
+include("ratetradeoff.jl")
 
 include("figures/roc_distance.jl")
 
