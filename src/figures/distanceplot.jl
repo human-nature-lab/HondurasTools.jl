@@ -1,213 +1,121 @@
 # distanceplot.jl
 
-"""
-		marg_dist_data(de, d, dname, bimodel, dats, invlink)
-
-## Description
-
-Construct data for geodesic distance marginal plots
-"""
-function marg_dist_data(
-	de, d, dname, bimodel, dats, invlink;
-	iters = 1000,
-	pbs = nothing, transforms = nothing,
-	type = :normal,
-	returnpbs = false,
+function distance_eff!(
+	layout, rg, margvar, margvarname;
+	dropkin = true,
+	legend = true,
+	tnr = true,
+	trp = 0.4,
+	axiskwargs...
 )
 
-	effdict = usualeffects(dats, d)
-	for r in rates
-		effdict[r][de] = 1
-	end
-
-	effdict_nopath = deepcopy(effdict)
-	for r in rates
-		effdict_nopath[r][d] = 0.0
-		effdict_nopath[r][de] = 0
-	end
-
-	refgrids = referencegrid(dats, effdict)
-	apply_referencegrids!(bimodel, refgrids; invlink)
-
-	refgrids2 = referencegrid(dats, effdict_nopath)
-	apply_referencegrids!(bimodel, refgrids2; invlink)
-
-	for e in [refgrids, refgrids2]
-		ci!(e)
-		for r in e
-			sort!(r, [kin, de, d])
-		end
-	end
-
-	rgs = (
-		tpr = vcat(refgrids.tpr, refgrids2.tpr),
-		fpr = vcat(refgrids.fpr, refgrids2.fpr),
-	)
-
-	vbls = [de, d]
-	mrg = bidatajoin(rgs)
-	truenegative!(rgs)
-	mrg_l = bidatacombine(rgs)
-
-	dropmissing!(mrg, [vbls..., kin])
-	dropmissing!(mrg_l, [vbls..., kin])
-
-	# add bootstrap info only to the wide `mrg`
-	if !isnothing(pbs)
-		bs = jboot(
-			vbls, bimodel, rgs, pbs, iters; invlink, type,
-			confrange = [0.025, 0.975], respvar = :response,
-		)
-		disallowmissing!(bs)
-
-		# add bootstrap info
-		us = sunique([kin, vbls..., :dists_p, :dists_a])
-		sort!(mrg, us)
-		sort!(bs, us)
-		@assert mrg[!, us] == bs[!, us]
-
-		mrg = hcat(mrg, select(bs, setdiff(names(bs), names(mrg))))
-	end
-
-	# transform margin variable to original range
-	if !isnothing(transforms)
-		for e in [mrg, mrg_l]
-			reversestandards!(e, [d], transforms)
-		end
-	end
-
-	return if !isnothing(pbs) & returnpbs
-		(
-			margins = mrg, marginslong = mrg_l, margvar = d, existvar = de,
-			varname = dname, pbs = pbs,
-		)
+	# modify rg if kin are to be dropped
+	rg = if dropkin & (string(kin) ∈ names(rg))
+		@subset rg .!$kin
 	else
-		(
-			margins = mrg, marginslong = mrg_l, margvar = d, existvar = de,
-			varname = dname,
-		)
+		deepcopy(rg)
 	end
-end
+	vx = intersect(string(kin), [string(margvar)], names(rg))
+	sort!(rg, vx)
 
-export marg_dist_data
+	# existence variable
+	margvar2 = if margvar == :dists_p
+		:dists_p_notinf
+	elseif margvar == :dists_a
+		:dists_a_notinf
+	end
 
-function distance_roc!(
-	l, mrg;
-	markeropacity = nothing,
-	ellipse = false,
-	#legend = true,
-	fpronly = false
-)
-
-	margins, _, d, de, varname = mrg
-
-	margins_finite = @subset(margins, $de)
-	margins_notfinite = @subset(margins, .!$de)
-	sort!(margins_notfinite, kin)
-
-	ax = rocplot!(
-        l, margins_finite, d, varname;
-        markeropacity, ellipse, legend = false
-    )
-    # legend: variable/color
-    roc_legend!(
-        l, margins_finite[!, d], varname, ellipse, (:grey, 0.3), true,
-        extraelement = true
-    )
-
-	# colsize!(l, 1, Auto(3))
-
-	# add points for no path
-	# want a color that stands out from the :berlin color scale
-	# and does not cross J
-	existcolor = colorschemes[:Anemone][1] # :managua10
-	scatter!(
-		ax,
-		margins_notfinite.fpr, margins_notfinite.tpr;
-		marker = [:rect, :cross], color = existcolor,
-	)
-	return ax
-end
-
-export distance_roc!
-
-function distance_eff!(l, mr; jstat = false, fpronly = false, legend = true)
-	de = mr.existvar
-	mg = deepcopy(mr)
-	@subset!(mg.marginslong, .!($kin))
-	@subset!(mg.margins, .!($kin))
+	# distance range (has path)
+	rg_fin = @subset(rg, $margvar2)
 
 	# extrema for distance
-	mn, mx = extrema(mg.marginslong[!, mr.margvar])
+	mn, mx = extrema(rg_fin[!, margvar])
 
 	# set up xticks
-	digits_ = 2
-	xtv = round.(Makie.get_tickvalues(WilkinsonTicks(10), identity, mn, mx); digits = digits_)
-	xtvl = string.(xtv)
+	# digits_ = 2
+	# xtv = round.(Makie.get_tickvalues(WilkinsonTicks(10), identity, mn, mx); digits = digits_)
+	# xtvl = string.(xtv)
 
-	dff = round(diff(xtv)[1]; digits = digits_)
-
-	mid1 = (mn + mx) * inv(2)
-
-	mg_ = deepcopy(mg)
-	@subset!(mg_.marginslong, $de)
-	@subset!(mg_.margins, $de)
-	ax = effplot_cts!(
-		l, mg_, jstat; dotlegend = true, limitx = false, fpronly, legend
+	ax, ax_r = effplot_cts!(
+		layout[1, 1], rg_fin, margvar, margvarname, tnr;
+		limitx = false,
+		tr = trp,
+		axiskwargs...
 	)
-	colsize!(l, 1, Auto(3))
 
-	mg_ = deepcopy(mg)
-	select!(mg_.marginslong, Not([:err, :verity]))
-	@subset!(mg_.marginslong, .!$de)
-	@subset!(mg_.margins, .!$de)
-	sort!(mg_.marginslong, :rate)
+	colsize!(layout, 1, Auto(3))
 
-	if jstat
-		us = [
-            intersect(names(mg_.marginslong), names(mg_.margins))...,
-            "peirce", "ci_j"
-        ]
+	rg_inf = @subset(rg, .!$margvar2);
 
-		mj = mg_.margins[!, us]
-		rename!(mj, :peirce => :response, :ci_j => :ci)
-		mj.rate .= :j
-		append!(mg_.marginslong, mj)
+	interval = mean(diff(rg_fin[!, margvar]))
+
+	vlines!(ax, mx; color = :black, linestyle = :dot)
+
+	# number of post of no path points, one for each rate mult. by the number
+	# of rows (usually one, possibly two for kin)
+	fpronly = any(["tpr", "ci_tpr"] .∉ Ref(names(rg)))
+	nrates = if !fpronly
+		sum(["tpr", "fpr", "j"] .∈ Ref(names(rg)))
+	else
+		nrates = 1
 	end
 
-	ii = ifelse(jstat, 3, 2)
-	rt, cl = ifelse(jstat, ([:tpr, :fpr, :j], [oi[5], oi[6], oi[2]]), ([:tpr, :fpr], [oi[5], oi[6]]))
+	x_ = fill(NaN, nrow(rg_inf), nrates)
+	for i in eachindex(x_)
+		x_[i] = mx + interval*i
+	end
+	
+	rt = ifelse(fpronly, [:fpr], [:tpr, :fpr, :j])
 
-	# i * dff * inv(2), prev in paren
-	df_ = DataFrame(
-		:rate => rt, :x => [mx + (i) for i in 1:ii],
-		:color => cl,
-	)
+	# (r, x) = collect(zip(rt, eachcol(x_)))[1]
 
-	leftjoin!(mg_.marginslong, df_; on = :rate)
-	x_, y_, c_, clr = eachcol(mg_.marginslong[!, [:x, :response, :ci, :color]])
-	c_ = detuple(c_)
+	for (r, x) in zip(rt, eachcol(x_))
+		x = convert(Vector{AbstractFloat}, x)
+		est = rg_inf[!, r]
+		ci_name = Symbol("ci_" * string(r))
+		lwr = [first(a) for a in rg_inf[!, ci_name]]
+		upr = [last(a) for a in rg_inf[!, ci_name]]
 
-	mxv = maximum(mg.margins[!, mg_.margvar])
-	println(mxv)
-	vlines!(ax, mxv; color = :black, linestyle = :dot)
-	scatter!(ax, x_, y_; color = clr)
-	rangebars!(ax, x_, c_...; color = clr)
+		if tnr * (r == :fpr)
+			est = 1 .- est
+			lwr = 1 .- lwr
+			upr = 1 .- upr
+		end
 
-	mid2 = (sum ∘ extrema)(mg_.marginslong.x) * inv(2)
-	ax.xticks = (xtv, xtvl)
+		ax_current = if r == :j
+			ax_r
+		else
+			ax
+		end
 
+		scatter!(ax_current, x, est; color = ratecolor(r))
+		rangebars!(ax_current, x, lwr, upr; color = ratecolor(r))
+	end
+
+	mid1 = (mn + mx) * inv(2)
+	mid2 = (sum ∘ extrema)(x_) * inv(2)
 	ax_ = Axis(
-		l[1, 1];
+		layout[1, 1];
 		xticks = ([mid1, mid2], ["Yes", "No"]),
 		xlabel = "Path exists",
 		xaxisposition = :top,
 	)
 	hideydecorations!(ax_)
 	linkxaxes!(ax, ax_)
-	xlims!(ax_; low = 0, high = maximum(x_) + (minimum(x_) - mx))
 
-	return ax, ax_
+	xlims!(ax, low = mn)
+	xlims!(ax_, low = mn)
+	if !isnothing(ax_r)
+		xlims!(ax_r, low = mn)
+	end
+
+	jstat = "j" ∈ names(rg)
+	effectslegend!(
+		layout[1, 2], jstat, true, true;
+		fpronly, tr = trp
+	)
+
+	return ax, ax_r
 end
 
 export distance_eff!

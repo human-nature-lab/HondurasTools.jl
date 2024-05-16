@@ -7,8 +7,8 @@ using Reexport
 
 # add "." when running these here, "." for external usage
 # (total of two dots)
-Pkg.develop(path = "./HondurasTools.jl"); # general functions, definitions
-Pkg.develop(path = "./NiceDisplay.jl"); # tables, figures, quarto
+Pkg.develop(path = "HondurasTools.jl"); # general functions, definitions
+Pkg.develop(path = "NiceDisplay.jl"); # tables, figures, quarto
 
 @reexport using HondurasTools
 @reexport using NiceDisplay
@@ -72,7 +72,6 @@ files_fg = "figures/" .* [
     # paper figures
     "figure2.jl",
     "interaction.jl",
-    "contrast_table.jl"
 ];
 
 for x in files_fg; include(x) end
@@ -87,7 +86,6 @@ files_an = "analysis/" .* [
     "homophily.jl",
     "effects!.jl",
     "newstrap.jl",
-    "contrast_table.jl"
 ];
 
 for x in files_an; include(x) end
@@ -104,5 +102,11 @@ include("tie_properties.jl")
 include("referencegrid.jl")
 include("j_calculations.jl")
 include("margincalculations.jl")
+include("bootellipse.jl")
+
+include("figures/roc_distance.jl")
+
+include("figures/interaction.jl")
+include("figures/contrasttable.jl")
 
 end # module HondurasCSS

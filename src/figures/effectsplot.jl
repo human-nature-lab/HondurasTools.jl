@@ -1,12 +1,13 @@
 # effectsplot.jl
 
 function effectsplot!(
-    l, rg, margvar, margvarname, tnr, jstat;
-    fpronly = false,
-    dropkin = true, kin = kin, dotlegend = false,
+    l, rg, margvar, margvarname, tnr;
+    dropkin = true,
+    dotlegend = false,
     axiskwargs...
 )
 
+    # modify rg if kin are to be dropped
     rg = if dropkin & (string(kin) ∈ names(rg))
         @subset rg .!$kin
     else
@@ -18,11 +19,13 @@ function effectsplot!(
     vbltype = eltype(rg[!, margvar])
     cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
 
+    # data plot
     func = ifelse(cts, effplot_cts!, effplot_cat!)
-    func(l[1, 1], rg, margvar, margvarname, tnr, jstat; fpronly, axiskwargs...)
-    # Box(l[1,1], color = (:red, 0.3))
+    func(l[1, 1], rg, margvar, margvarname, tnr; axiskwargs...)
+
+    # legend
+    jstat = "j" ∈ names(rg)
     effectslegend!(l[1, 2], jstat, cts, dotlegend; tr = 0.6)
-    # Box(l[1,2], color = (:blue, 0.3))
     
     colsize!(l, 2, Auto(0.2))
     colgap!(l, 20)
@@ -31,11 +34,13 @@ end
 export effectsplot!
 
 function effplot_cat!(
-    layout, rg, vbl, margvarname, tnr, jstat;
-    fpronly = false,
+    layout, rg, vbl, margvarname, tnr;
     axh = 250,
     axiskwargs...
 )
+
+    jstat = "j" ∈ names(rg)
+    fpronly = any(["tpr", "ci_tpr"] .∉ Ref(names(rg)))
 
     # in case the variable is not coded properly as a categorical
     # e.g., it may be a binary variable
@@ -56,9 +61,11 @@ function effplot_cat!(
         xticks,
         ylabel = "Rate",
         xlabel = margvarname,
-        height = axh)
-    #     axiskwargs...
-    # )
+        height = axh,
+        width = 300,
+        yticklabelcolor = ratecolor(:tpr) + ratecolor(:fpr),
+        axiskwargs...
+    )
 
     if jstat
         # add secondary axis right for J
@@ -70,7 +77,8 @@ function effplot_cat!(
             xlabel = margvarname,
             ylabel = "J",
             yaxisposition = :right,
-            height = 250,
+            height = axh,
+            yticklabelcolor = ratecolor(:j),
             axiskwargs...
         )
 
@@ -123,19 +131,22 @@ end
 export effplot_cat!
 
 function effplot_cts!(
-    layout, rg, margvar, margvarname, tnr, jstat;
-    tr = 0.6,
+    layout, rg, margvar, margvarname, tnr;
+    tr = 0.4,
     limitx = true,
-    fpronly = false,
     axh = 250,
     axiskwargs...
 )
+
+    jstat = "j" ∈ names(rg)
+    fpronly = any(["tpr", "ci_tpr"] .∉ Ref(names(rg)))
 
     ax = Axis(
         layout[1, 1];
         ylabel = "Rate",
         xlabel = margvarname,
         height = axh,
+        yticklabelcolor = ratecolor(:tpr) + ratecolor(:fpr),
         axiskwargs...
     )
 
@@ -150,6 +161,8 @@ function effplot_cts!(
             ylabel = "J",
             yaxisposition = :right,
             height = 250,
+            width = 300,
+            yticklabelcolor = ratecolor(:j),
             axiskwargs...
         )
 
@@ -161,32 +174,30 @@ function effplot_cts!(
 
     # plot the data
     
-    for r in [:tpr, :fpr, :j]
-        if (string(r) ∉ names(rg)) | fpronly
-            continue
-        else
-            ciname = "ci_" * string(r) |> Symbol
-            clr = ratecolor(r)
-            
-            ax_ = if (r == :j) & jstat
-                ax_r
-            else ax
-            end
+    rt = ifelse(fpronly, [:fpr], [:tpr, :fpr, :j])    
 
-            xs = rg[!, margvar];
-            ys = rg[!, r];
-            lwr = [x[1] for x in rg[!, ciname]];
-            upr = [x[2] for x in rg[!, ciname]];
-            
-            if tnr & (r == :fpr)
-                ys = 1 .- ys
-                lwr = 1 .- lwr
-                upr = 1 .- upr
-            end
-
-            lines!(ax_, xs, ys, color = clr)
-            band!(ax_, xs, lwr, upr; color = (clr, tr)) # no method for tuples
+    for r in rt
+        ciname = "ci_" * string(r) |> Symbol
+        clr = ratecolor(r)
+        
+        ax_ = if (r == :j) & jstat
+            ax_r
+        else ax
         end
+
+        xs = rg[!, margvar];
+        ys = rg[!, r];
+        lwr = [x[1] for x in rg[!, ciname]];
+        upr = [x[2] for x in rg[!, ciname]];
+        
+        if tnr & (r == :fpr)
+            ys = 1 .- ys
+            lwr = 1 .- lwr
+            upr = 1 .- upr
+        end
+
+        lines!(ax_, xs, ys, color = clr)
+        band!(ax_, xs, lwr, upr; color = (clr, tr)) # no method for tuples
     end
     
     if limitx
@@ -196,13 +207,17 @@ function effplot_cts!(
         end
     end
 
-    return ax
+    return if jstat
+        ax, ax_r
+    else ax, nothing
+    end
 end
 
 export effplot_cts!
 
 function effectslegend!(
     layout, jstat, cts, dotlegend;
+    fpronly = false,
     tr = 0.6,
     lkwargs = (
         framevisible = false,
@@ -213,8 +228,13 @@ function effectslegend!(
     )
 )
     
-    rts = ifelse(jstat, [:tpr, :fpr, :j], [:tpr, :fpr]);
-    rts_names = ifelse(jstat, ["TPR", "TNR", "J"], ["TPR", "TNR"]);
+    rts, rts_names = if fpronly
+        ([:fpr], ["TNR"])
+    elseif jstat
+        ([:tpr, :fpr, :j], ["TPR", "TNR", "J"])
+    else
+        ([:tpr, :fpr], ["TPR", "TNR"])
+    end
 
     elems = [];
 

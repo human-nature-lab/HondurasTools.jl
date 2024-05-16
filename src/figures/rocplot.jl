@@ -4,7 +4,7 @@ function rocplot!(
     layout,
     rg, margvar, margvarname;
     dropkin = false,
-    ellipsecolor = (:grey, 0.3),
+    ellipsecolor = (yale.grays[end-1], 0.3),
     markeropacity = nothing,
     roctitle = true,
     kinlegend = true,
@@ -95,7 +95,7 @@ function _cat_legend!(
     elems = if !ellipse
         [
             MarkerElement(
-                marker = :rect, color = c, strokecolor = :transparent
+                marker = :circle, color = c, strokecolor = :transparent
             ) for c in wc[1:length(levels(vbl_vals))]
         ]
     else
@@ -119,7 +119,7 @@ function _cat_legend!(
         elems_kin = [
             MarkerElement(;
                 marker = m, color = :black, strokecolor = :transparent
-            ) for m in [:rect, :cross]
+            ) for m in [:circle, :cross]
         ]
 
         lvls_kin = ["No", "Yes"];
@@ -141,7 +141,6 @@ end
 
 function roclegend!(
     layout, vbl_vals, varname, ellipse, ellipsecolor, cts;
-    extraelement = false,
     kinlegend = true,
     legargs...
 )
@@ -152,8 +151,9 @@ function roclegend!(
             kinlegend; legargs...
         )
     else
-        rowsize!(layout, 1, Relative(4.5/5))
+        rowsize!(layout, 1, Relative(3.75/5))
         rangescale = extrema(vbl_vals)
+
         Colorbar(
             layout[1, 1];
             limits = rangescale, colormap = :berlin,
@@ -161,15 +161,28 @@ function roclegend!(
             label = varname,
             tellheight = false
         )
-        if extraelement
-            existcolor = colorschemes[:Anemone][1] # :managua10
-            elems = [MarkerElement(; marker = :circle, color = existcolor)]
-            Legend(
-                layout[2, 1], [elems], ["No path"], "";
-                orientation = :vertical, nbanks = 1,
-                framevisible = false, legargs...
-            )
+        
+        if kinlegend
+            elems = [[
+                MarkerElement(;
+                    marker = m, color = :black, strokecolor = :transparent
+                ) for m in [:circle, :cross]
+            ]]
+    
+            lvls = [["No", "Yes"]];
+            nms = ["Kin tie"]
+        else
+            elems = [elems]
+            lvls = [lvls]
+            nms = [varname]
         end
+    
+        Legend(
+            layout[2, 1], elems, lvls, nms;
+            legargs...,
+            orientation = :vertical,
+            nbanks = 1
+        )
     end
 end
 
@@ -203,16 +216,18 @@ function rocplot_!(
     end;
 
     if kinmarker & (string(kin) ∈ names(rg))
-        rg.marker = ifelse.(rg[!, kin], :cross, :rect);
+        rg.marker = ifelse.(rg[!, kin], :cross, :circle);
     else
         rg.marker .= :circle
     end
     
     ax = Axis(
-        layout;
+        layout[1, 1];
         xlabel = "False positive rate", ylabel = "True positive rate",
-        # aspect = 1
-        height = axsz, width = axsz,
+        xticks = 0:0.25:1,
+        yticks = 0:0.25:1,
+        height = axsz,
+        width = axsz,
         title = ifelse(roctitle, string(margvarname), "")
     )
 
@@ -253,3 +268,51 @@ function rocplot_!(
 end
 
 export rocplot_!
+
+function roclegend_dist!(
+    layout, vbl_vals, varname, ellipse, ellipsecolor, cts;
+    kinlegend = true,
+    legargs...
+)
+
+    rowsize!(layout, 1, Relative(3.75/5))
+    rangescale = extrema(vbl_vals)
+
+    Colorbar(
+        layout[1, 1];
+        limits = rangescale, colormap = :berlin,
+        flipaxis = false, vertical = true,
+        label = varname,
+        tellheight = false
+    )
+    
+    if kinlegend
+        elems = [[
+            MarkerElement(;
+                marker = m, color = :black, strokecolor = :transparent
+            ) for m in [:circle, :cross]
+        ]]
+
+        lvls = [["No", "Yes"]];
+        nms = ["Kin tie"]
+    else
+        elems = [elems]
+        lvls = [lvls]
+        nms = [varname]
+    end
+
+    Legend(
+        layout[2, 1], elems, lvls, nms;
+        legargs...,
+        orientation = :vertical,
+        nbanks = 1
+    )
+
+    existcolor = columbia.secondary[2] # :managua10
+    elems = [MarkerElement(; marker = :circle, color = existcolor)]
+    Legend(
+        extraelement, [elems], ["No path"], "";
+        orientation = :vertical, nbanks = 1,
+        framevisible = false, legargs...
+    )
+end
