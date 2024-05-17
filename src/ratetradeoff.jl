@@ -1,24 +1,26 @@
 # ratetradeoff.jl
 
+@inline rotation(θ) =  [cos(θ) -sin(θ); sin(θ) cos(θ)]
+
 """
         ratetradeoff(jvals, fprvals)
 
 ## Description
 
-Calculate the tradeoff (x) vs. strictchange (y) measure for a variable. Where x is the transformed (by 45 degrees, to a basis formed by y=x, and y=1-x) maximum fpr difference, and y is the transformed (by 45 degrees, to a basis formed by y=x, and y=1-x) maximum J.
+Calculate the tradeoff (x) vs. strictchange (y) measure for a variable, using the maximum and minimum j points.
 
 """
-function ratetradeoff(jvals, fprvals)
-    jmx = maximum(jvals)
-    strict = jmx * (inv∘sqrt)(2)
+function ratetradeoff(fprvals, tprvals; θ = -π/4)
+    pts = Point2f.(fprvals, tprvals)
+    ptst = [rotation(θ) * pt for pt in pts]
+    xt = [pt[1] for pt in ptst]
+    yt = [pt[2] for pt in ptst]
 
-    fmn, fmx = extrema(fprvals)
-    tradeoff = (fmx - fmn) * sqrt(2)
+    xtmn, xtmx = extrema(xt)
+    ytmn, ytmx = extrema(yt)
 
-    return (tradeoff, strict)
+    return Point2f(xtmx - xtmn, ytmx - ytmn)
 end
-
-export ratetradeoff
 
 """
         ratetradeoffs(rdf, variables)
@@ -31,7 +33,7 @@ Calculate the tradeoff (x) vs. strictchange (y) measures for each. Where x is th
 
 """
 function ratetradeoffs(rdf::AbstractDataFrame, variables)
-    tradeoffs = Dict{Symbol, Tuple{AbstractFloat, AbstractFloat}}();
+    tradeoffs = Dict{Symbol, Point2f}();
     for e in variables
         if Symbol(e) ∈ rdf.variable
             idx = rdf[!, :variable] .== e
@@ -47,31 +49,32 @@ function ratetradeoffs(rdf::AbstractDataFrame, variables)
 end
 
 """
-        ratetradeoffs(rdf, variables)
+        ratetradeoffs(md, variables)
 
 ## Description
 
 Calculate the tradeoff (x) vs. strictchange (y) measures for each. Where x is the transformed (by 45 degrees, to a basis formed by y=x, and y=1-x) maximum fpr difference, and y is the transformed (by 45 degrees, to a basis formed by y=x, and y=1-x) maximum J.
 
-`rdf`: The marginal effects DataFrame, including each variable with column `variable`.
+`md`: Is a dictionary of marginal effects DataFrames, including each variable with column `variable`.
 
 """
-function ratetradeoffs(md<:Dict, variables)
-    tradeoffs = Dict{Symbol, Tuple{AbstractFloat, AbstractFloat}}();
+function ratetradeoffs(md::T, variables) where T<:Dict
+    tradeoffs = Dict{Symbol, Point2f}();
     for e in variables
         m = get(md, e, nothing)
         if !isnothing(md)
             rg = m.rg
+            rg = @subset rg .!$kin
 
-            jvals = rg[!, :j]
+            # jvals = rg[!, :j]
             fprvals = rg[!, :fpr]
+            tprvals = rg[!, :tpr]
             
-            tradeoffs[e] = ratetradeoff(jvals, fprvals)
+            tradeoffs[e] = ratetradeoff(fprvals, tprvals; θ = -π/4)
         else @warn string(e) * " not in md"
         end
     end
     return tradeoffs
 end
 
-
-export ratetradeoffs
+export ratetradeoff, ratetradeoffs
