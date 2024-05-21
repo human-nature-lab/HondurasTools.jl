@@ -19,11 +19,7 @@ function distance_eff!(
 	sort!(rg, vx)
 
 	# existence variable
-	margvar2 = if margvar == :dists_p
-		:dists_p_notinf
-	elseif margvar == :dists_a
-		:dists_a_notinf
-	end
+	margvar2 = Symbol(string(margvar) * "_notinf")
 
 	# distance range (has path)
 	rg_fin = @subset(rg, $margvar2)

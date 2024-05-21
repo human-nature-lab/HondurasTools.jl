@@ -10,7 +10,7 @@ function biplot!(
 	l1 = layout[1, 1] = GridLayout();
 	l2 = layout[1, 2] = GridLayout();
 
-	if bpd.margvar ∉ [:dists_p, :dists_a]
+	if bpd.margvar ∉ [:dists_p, :dists_a, :are_related_dists_a]
 		colsize!(layout, 1, Relative(1/2))
 
 		rocplot!(
