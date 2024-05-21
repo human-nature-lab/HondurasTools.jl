@@ -8,7 +8,7 @@ DistMatDict = Dict{Tuple{Int, Int, String}, Matrix{Float64}}
 """
         cssdistances(
             css::T, ndf::T;
-            nets = nets, ids = ids, rl = rl,
+            ids = ids,
             ego_n = :perceiver, alters_n = :alters,
             post = true) where T <: AbstractDataFrame
 
@@ -20,8 +20,11 @@ Use `ndf` to construct distances between alters, and perceiver to alters in css.
 """
 function cssdistances(
     css::T, ndf::T;
-    nets = nets, ids = ids, rl = rl,
-    ego_n = :perceiver, alters_n = :alters,
+    ids = ids,
+    ego_n = :perceiver,
+    alters_n = :alters,
+    alter1 = :alter1,
+    alter2 = :alter2,
     post = true
 ) where T <: AbstractDataFrame
     
@@ -33,8 +36,8 @@ function cssdistances(
     rels = sunique(ndf.relation)
     relnames = rels .* "_dists";
 
-    cc = select(css, :perceiver, :village_code, :village_name, :relation);
-    cc[!, alters_n] = [[e1, e2] for (e1, e2) in zip(css.alter1, css.alter2)];
+    cc = select(css, :perceiver, :village_code, :relation);
+    cc[!, alters_n] = [[e1, e2] for (e1, e2) in zip(css[!, alter1], css[!, alter2])];
 
     ndf_ = ndf[!, [:wave, ids.vc, :relation, :graph, :names]];
 
@@ -224,7 +227,7 @@ function _distances_post(cc, css, relnames)
 
     css = hcat(
         css,
-        select(cc1, Not([:perceiver, :village_code, :village_name, :relation, :alters]))
+        select(cc1, Not([:perceiver, :village_code, :relation, :alters]))
     );
 
     ## set distance to 0 for infinite or NaN distances
@@ -238,7 +241,9 @@ function _distances_post(cc, css, relnames)
     for x in [
         :dists_p, :dists_a, :union_dists_p, :union_dists_a, :are_related_dists_p, :are_related_dists_a
     ]
-        distance_interaction!(css, x)
+        if string(x) ∈ names(css)
+            distance_interaction!(css, x)
+        end
     end
 
     return css

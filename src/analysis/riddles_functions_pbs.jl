@@ -243,10 +243,12 @@ end
 ## Description
 
 Make stage 2 data. See function for details on variables included.
+
+efdicts = perceiver_efdicts(dats; kinvals)
+bef_ = refgrid_stage1(dats, regvars, efdicts; rates = rates)
 """
-function stage2data(dats, otc, addvars, regvars; rates = rates, kinvals = false)
-    efdicts = perceiver_efdicts(dats; kinvals)
-    bef_ = refgrid_stage1(dats, regvars, efdicts; rates = rates)
+
+function stage2data(bef_, otc, addvars, regvars; rates = rates)
 
 	rvg1 = [setdiff([regvars..., :kin431], [:degree])..., [:dists_p]...]
 	rvg2 = [setdiff([regvars..., :kin431], [:degree])..., [:dists_p, :dists_a]...]

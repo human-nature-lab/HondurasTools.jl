@@ -43,6 +43,10 @@ and NiceDisplay
 using StatsFuns: logistic, logit
 export logistic, logit
 
+import GLM.Normal
+
+##
+
 files_g = [
     "EModel.jl", "errors.jl",
     "effects_utilities.jl", "analysis_utilities.jl",
@@ -107,7 +111,7 @@ include("ratetradeoff.jl")
 
 include("figures/roc_distance.jl")
 
-include("figures/interaction.jl")
-include("figures/contrasttable.jl")
+# include("figures/contrasttable.jl")
+include("tpr_fpr.jl")
 
 end # module HondurasCSS

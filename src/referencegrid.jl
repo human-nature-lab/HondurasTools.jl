@@ -68,7 +68,9 @@ end
 function standarddict(dat; kinvals = false)
     age = :age;
     ed = Dict{Symbol, Any}();
-    ed[kin] = kinvals
+    if !isnothing(kinvals)
+        ed[kin] = kinvals
+    end
     ed[age] = mean(dat[!, age])
     push!(ed, distmeans(dat)...)
     
@@ -94,6 +96,22 @@ function estimaterates!(
     if !isnothing(iters)
         j_calculations!(rg, iters)
     end
+end
+
+function estimaterates!(
+    rg, model::RegressionModel;
+    r = :tpr,
+    typical = mean,
+    invlink = logistic,
+    iters = 0,
+)
+    
+    effects!(
+        rg, model;
+        eff_col = r, err_col = Symbol("err_" * string(r)),
+        typical, invlink
+    )
+    
 end
 
 export estimaterates!

@@ -39,3 +39,21 @@ function stage1_bs!(rgb, mthreads, βset, θset, rates, iters, invlink)
 end
 
 export stage1_bs!
+
+function stage2_bs!(efset, rgb, fx_bs, mthreads, K, L, invlink)
+    for l in eachindex(1:L)
+        # Threads.@threads :static 
+        for k in eachindex(1:K)
+            tid = Threads.threadid()
+            mthreads[tid] = fit(LinearMixedModel, fx_bs[k], rgb)
+            effects!(
+                efset[l], mthreads[tid];
+                eff_col = "tpr" * "_" * string(k),
+                err_col = Symbol("err_" * "tpr"),
+                invlink
+            )
+        end
+    end
+end
+
+export stage2_bs!
