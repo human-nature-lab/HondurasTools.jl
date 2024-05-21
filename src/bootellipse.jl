@@ -34,10 +34,16 @@ Add bootstrapped Σ to calculate confidence ellipse to the margins dictionary.
 """
 function addΣ!(marginsdict)
 	for (_, (rg, _)) in marginsdict
-		if "tpr" ∈ names(rg)
-			rg.Σ = [bs_cov(estextract(rx, :tpr), estextract(rx, :fpr)) for rx in eachrow(rg)];
-		end
+		addΣ!(rg)
 	end
+end
+
+export addΣ!
+
+function addΣ!(rg::AbstractDataFrame)
+    if "tpr" ∈ names(rg)
+        rg.Σ = [bs_cov(estextract(rx, :tpr), estextract(rx, :fpr)) for rx in eachrow(rg)];
+    end
 end
 
 export addΣ!
