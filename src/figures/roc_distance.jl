@@ -25,11 +25,7 @@ function distance_roc!(
 )
 
 	# existence variable
-	margvar2 = if margvar == :dists_p
-		:dists_p_notinf
-	elseif margvar == :dists_a
-		:dists_a_notinf
-	end
+	margvar2 = Symbol(string(margvar) * "_notinf")
 
 	ellipse = ifelse("Σ" ∈ names(rg), true, false)
 	
