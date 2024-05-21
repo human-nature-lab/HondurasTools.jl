@@ -52,11 +52,13 @@ function distance_roc!(
 	existcolor = columbia.secondary[1]
 	cmap = ColorScheme([existcolor])
 
+	mkr = [ifelse(m, :cross, :circle) for m in margins_notfinite[!, kin]]
+
 	# plot the discrete portion (no path)
 	scatter!(
 		ax,
 		margins_notfinite[!, :fpr], margins_notfinite[!, :tpr];
-		marker = [:circle, :cross], color = existcolor,
+		marker = mkr, color = existcolor,
 	)
 
     # legend: variable/color
@@ -105,7 +107,6 @@ function distance_roc!(
 				marker = m, color = :black, strokecolor = :transparent
 			) for m in [:circle, :cross]
 		]]
-
 		lvls = [["No", "Yes"]];
 		nms = ["Kin tie"]
 	else
