@@ -132,20 +132,7 @@ export make_figure1
 
 # %%
 
-function make_bf(dats, effectsdicts)
-    bef = referencegrid(dats, effectsdicts);
-    bf = deepcopy(bef[:fpr])
-    for r in [:tpr, :fpr, :j]
-        bf[!, r] .= NaN
-        bf[!, Symbol(string(r) * "_err")] .= NaN
-    end
-    return bf
-end
-
-function setup_figure2(m1, df; invlink = logistic, socio = socio)
-
-    # dictionary of variable values / ranges for the reference grid
-    df = dropmissing(df, [:relation, kin, :dists_p, :dists_a])
+function setup_figure2(bimodel, df; invlink = logistic, socio = socio)
 
     # calculate marginal effects
     prds = [
@@ -154,47 +141,26 @@ function setup_figure2(m1, df; invlink = logistic, socio = socio)
         :age, :man,
         :educated,
         :degree_centrality,
-        :dists_p_notinf, :dists_p
+        :dists_p_notinf, :dists_p,
+        :dists_a_notinf, :dists_a
     ];
 
-    dats = let
-        crt2 = @subset df $socio
-        crf2 = @subset df .!$socio
-        
-        dropmissing!(crt2, prds);
-        dropmissing!(crf2, prds);
+    df = dropmissing(df, prds)
 
-        sort!(crt2, [:perceiver, :order]);
-        sort!(crf2, [:perceiver, :order]);
-        bidata(crt2, crf2)
-    end;
-
-    d1 = Dict(
+    ed = Dict(
         :relation => sunique(df[!, :relation]),
         kin => sunique(df[!, kin]),
         :dists_p => df[df[!, :dists_p] .!= 0, :dists_p] |> mean,
-        :age => (mean∘skipmissing)(df[!, :age])
+        :dists_a => df[df[!, :dists_a] .!= 0, :dists_a] |> mean,
+        :age => mean(df[!, :age])
     )
 
-    df_ = @subset(df, .!($socio)); # only false ties -> range is correct
-    d2 = deepcopy(d1)
-    d2[:dists_a] = df_[df_[!, :dists_a] .!= 0, :dists_a] |> mean
+    rg = referencegrid(df, ed)
+    estimaterates!(rg, bimodel; invlink, iters = 20_000)
+    ci_rates!(rg)
 
-    effectsdicts = (tpr = d1, fpr = d2, );
-
-    # construct reference grids    
-    bf = make_bf(dats, effectsdicts)
-    bieffects!(bf, m1, invlink; rates)
-
-    # marginal effects across models
-    for q in rates
-        bf[!, Symbol(string(q) * "_ci")] = ci.(
-            bf[!, q], bf[!, Symbol(string(q)*"_err")]
-        )
-    end
-
-    bf.tnr = 1 .- bf.fpr;
-    bf.tnr_ci = tuple_addinv.(bf[!, :fpr_ci]);
+    rg.tnr = 1 .- rg.fpr;
+    rg.ci_tnr = tuple_addinv.(rg[!, :ci_fpr]);
 
     # relation-truth-subject-level TPR and FPR (model free)
     # adjusted estimates from "model 1"
@@ -225,60 +191,50 @@ function setup_figure2(m1, df; invlink = logistic, socio = socio)
     ];
     rename!(sbar, :type1 => :fpr)
 
-    inames = intersect(names(bf), names(sbar));
+    inames = intersect(names(rg), names(sbar));
     for x in string.(rates)
-        rename!(bf, x => x*"_adj")
+        rename!(rg, x => x*"_adj")
     end
 
-    leftjoin!(sbar, bf; on = [kin, :relation])
+    leftjoin!(sbar, rg; on = [kin, :relation])
+
+    # bivariate density kernels
+    sbar.dens = Vector{BivariateKDE}(undef, nrow(sbar));
+    for i in 1:nrow(sbar)
+        sbar.dens[i] = kde((sbar.fpr[i], sbar.tpr[i]))
+    end
 
     return sbar
 end
 
 export setup_figure2
 
-function make_figure2(sbar, bpd)
+function make_figure2(sbar, bpd; nlevels = 10, colormap = berlin)
     
     fg = Figure();
     l = fg[1, 1] = GridLayout();
-    l1_ = l[1, 1] = GridLayout();
-
-    # plot bivariate distribution
-    perceivercontour!(
-        l1_, sbar; kin = :kin431, nlevels = 10, colormap = :berlin,
-    );
-    colsize!(l1_, 3, Relative(1/6))
-
+    l1_ = l[1, :] = GridLayout();
     l2_ = l[2, :] = GridLayout();
-    l21 = l2_[1, 1] = GridLayout();
-    l22 = l2_[1, 2] = GridLayout();
-
-    # Box(l2_[1,2], color = (:blue, 0.3))
-    # Box(l22[1,1], color = (:red, 0.3))
-    # Box(l22[1,2], color = (:red, 0.3))
-
-    colsize!(l2_, 1, Relative(1/2))
-
-    rocplot!(
-        l21,
-        bpd.rg, bpd.margvar, bpd.margvarname;
-        ellipsecolor = (:grey, 0.3),
-        markeropacity = nothing,
-        extramargin = true
-    )    
-
-    effectsplot!(
-        l22, bpd.rg, bpd.margvar, bpd.margvarname, bpd.tnr, bpd.jstat;
-        dropkin = true, kin = kin
+    
+    perceivercontour!(
+        l1_, sbar; kin, nlevels, colormap,
+    );
+    
+    biplot!(
+        l2_, bpd;
+        ellipsecolor = (yale.grays[end-1], 0.4),
+        dropkin_eff = true,
+        tnr = true,
+        kinlegend = false
     )
-
-    caption = "Coefficient plot. Coefficients for TPR (blue) and FPR (red) models. Coefficients are reported if they show up as significant in at least one of the two models. All numeric covariates are standardized to the unit range. Coefficients are unadjusted from logistic model. Observe that alter-alter distances only appear in FPR model."
 
     # rowsize!(l, 1, Relative(2/3))
     labelpanels!([l1_, l2_])
 
-    # w,h
-    resize!(fg, 900, 1200)
+    colsize!(l1_, 3, Relative(1/6))
+    colsize!(l2_, 1, Relative(1/2))
+
+    resize!(fg, 1000, 1000) # w,h
     @show resize_to_layout!(fg)
     fg
 

@@ -13,15 +13,10 @@ estimates from some selected `EModel`.
 function perceivercontour!(
     lo, sbar;
     kin = kin,
-    nlevels = 10, colormap = :berlin,
+    nlevels = 10,
+    colormap = :berlin,
     axsz = 250
 )
-
-    # bivariate density kernels
-    sbar.dens = Vector{BivariateKDE}(undef, nrow(sbar));
-    for i in 1:nrow(sbar)
-        sbar.dens[i] = kde((sbar.fpr[i], sbar.tpr[i]))
-    end
 
     # one color range for all four plots (extrema over all densities)
     lv = range(
@@ -118,7 +113,10 @@ function perceivercontour!(
         improvementline!(ax);
 
         # distribution
-        co = contour!(ax, r.dens; levels = lv, colormap)
+        co = contour!(
+            ax, r.dens.x, r.dens.y, r.dens.density;
+            levels = lv, colormap
+        )
         push!(cos, co)
 
         # marginal means
@@ -184,17 +182,10 @@ function bivariate_perceiver!(
     lxx = plo[1, 1:2] = GridLayout();
     lo = lxx[1, 1] = GridLayout();
 
-    # Panel A, B
-    
     los, cos, lo1, lop, lop2, ll = perceivercontour!(
         lo, sbar; kin, nlevels, colormap
     )
 
-    # panel B
-    # marginal effects plot
-    
-    # end legend
-    
     labelpanels!([los[[1, 2]]..., l2])
 end
 

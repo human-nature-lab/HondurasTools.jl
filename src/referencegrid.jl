@@ -127,3 +127,41 @@ function ci_rates!(rg)
 end
 
 export ci_rates!
+
+
+"""
+        referencegridunit(
+            dat, variables, efdict; sortvars = [:village_code, :perceiver]
+        )
+
+
+## Description
+
+Create a reference grid from the unique values of specified units with specified variable values (`variables`). Units will be repeated if repeated measurement variables are included (e.g., `relation`).
+
+"""
+function referencegridunit(
+    dat, variables, effectsdict; sortvars = [:village_code, :perceiver]
+)
+
+    # data sufficient to define unique cognizers
+    df = unique(dat[!, variables])
+
+    # check that rows in effects DataFrame equals number of perceivers
+    # set the design for the marginal means
+
+    # add variables fixed across all observations (units)
+    for (k, v) in effectsdict
+        if length(v) == 1
+            df[!, k] = fill(v, nrow(df))
+        else
+            @assert v == unique(df[!, k])
+        end
+    end
+
+    sort!(df, sortvars)
+
+    return df
+end
+
+export referencegridunit

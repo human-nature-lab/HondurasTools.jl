@@ -9,7 +9,7 @@
 function ratecolor(x)
     return if x == :tpr
         yale.blues[3]
-    elseif x == :fpr
+    elseif (x == :fpr) | (x == :tnr)
         # yale.accent[2]
         columbia.secondary[1]
     elseif (x == :peirce) | (x == :j)

@@ -4,7 +4,8 @@ function biplot!(
 	layout, bpd;
 	ellipsecolor = (yale.grays[end-1], 0.4),
 	dropkin_eff = true,
-	tnr = true
+	tnr = true,
+	kinlegend = true
 )
 
 	l1 = layout[1, 1] = GridLayout();
@@ -18,7 +19,8 @@ function biplot!(
 			bpd.rg, bpd.margvar, bpd.margvarname;
 			ellipsecolor,
 			markeropacity = nothing,
-		)    
+			kinlegend
+		)
 
 		effectsplot!(
 			l2, bpd.rg, bpd.margvar, bpd.margvarname, tnr;

@@ -151,7 +151,9 @@ function roclegend!(
             kinlegend; legargs...
         )
     else
-        rowsize!(layout, 1, Relative(3.75/5))
+        if kinlegend
+            rowsize!(layout, 1, Relative(3.75/5))
+        end
         rangescale = extrema(vbl_vals)
 
         Colorbar(
@@ -171,18 +173,13 @@ function roclegend!(
     
             lvls = [["No", "Yes"]];
             nms = ["Kin tie"]
-        else
-            elems = [elems]
-            lvls = [lvls]
-            nms = [varname]
-        end
-    
-        Legend(
-            layout[2, 1], elems, lvls, nms;
-            legargs...,
-            orientation = :vertical,
-            nbanks = 1
-        )
+            Legend(
+                layout[2, 1], elems, lvls, nms;
+                legargs...,
+                orientation = :vertical,
+                nbanks = 1
+            )
+        end    
     end
 end
 
