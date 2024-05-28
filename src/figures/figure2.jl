@@ -219,25 +219,49 @@ function make_figure2(sbar, bpd; nlevels = 10, colormap = berlin)
     perceivercontour!(
         l1_, sbar; kin, nlevels, colormap,
     );
-    
-    biplot!(
-        l2_, bpd;
-        ellipsecolor = (yale.grays[end-1], 0.4),
-        dropkin_eff = true,
-        tnr = true,
-        kinlegend = false
+
+    ellipsecolor = (yale.grays[end-1], 0.3)
+    dropkin_eff = true
+    tnr = true
+    kinlegend = false
+
+    l1 = l2_[1, 1] = GridLayout();
+    ll = l2_[1, 2] = GridLayout();
+	l2 = l2_[1, 3] = GridLayout();
+
+    rocplot!(
+        l1,
+        bpd.rg, bpd.margvar, bpd.margvarname;
+        ellipsecolor,
+        markeropacity = 0.8,
+        kinlegend,
+        dolegend = false
     )
 
-    # rowsize!(l, 1, Relative(2/3))
+    ll1 = ll[1, 1] = GridLayout()
+    ll2 = ll[2, 1] = GridLayout()
+    rowsize!(ll, 1, Relative(2.2/3))
+
+    roclegend!(
+        ll1, bpd.rg[!, bpd.margvar], bpd.margvarname, true, ellipsecolor, true;
+        kinlegend = false,
+    )
+
+    effectsplot!(
+        l2, bpd.rg, bpd.margvar, bpd.margvarname, tnr;
+        dropkin = dropkin_eff,
+        dolegend = false
+    )
+
+    effectslegend!(ll2[1, 1], true, true, false; tr = 0.6)
+    #     colsize!(l, 2, Auto(0.2))
+    #     colgap!(l, 20)
+
     labelpanels!([l1_, l2_])
-
-    colsize!(l1_, 3, Relative(1/6))
-    colsize!(l2_, 1, Relative(1/2))
-
-    resize!(fg, 1000, 1000) # w,h
-    @show resize_to_layout!(fg)
-    fg
-
+    
+    rowsize!(l, 1, Relative(2/3))
+    #colsize!(l2_, 1, Relative(2/3))
+    
     return fg
 end
 

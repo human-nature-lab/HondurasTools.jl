@@ -15,7 +15,7 @@ function perceivercontour!(
     kin = kin,
     nlevels = 10,
     colormap = :berlin,
-    axsz = 250
+    axsz = 325
 )
 
     # one color range for all four plots (extrema over all densities)
@@ -133,12 +133,13 @@ function perceivercontour!(
 
     linkaxes!(axs...)
 
-    lol = lo[1:2, 3] = GridLayout();
+    lol = lo[3, 1:2] = GridLayout();
+    rowsize!(lo, 3, Relative(0.2/5))
 
     Colorbar(
-        lol[1:2, 1];
+        lol[1, 1];
         limits = extrema(lv), colormap,
-        flipaxis = false, vertical = true,
+        flipaxis = false, vertical = false,
         label = "Density"
     )
 
@@ -152,16 +153,17 @@ function perceivercontour!(
     leg_titles = ["Adjusted"];
 
     Legend(
-        lol[3, 1],
+        lol[1, 2],
         [group_color],
         [color_leg],
         leg_titles,
         tellheight = false, tellwidth = false,
-        orientation = :vertical,
+        orientation = :horizontal,
         # titleposition = :left,
         nbanks = 1, framevisible = false
     )
 
+    colsize!(lol, 1, Relative(4/5))
     # set equal axes
     # colsize!(lo, 1, Aspect(1, 1.0))
     # colsize!(lo, 2, Aspect(1, 1.0))

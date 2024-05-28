@@ -9,6 +9,7 @@ function rocplot!(
     roctitle = true,
     kinlegend = true,
     extramargin = false,
+    dolegend = true,
     legargs = (framevisible = false, tellheight = false, tellwidth = false,)
 )
 
@@ -37,14 +38,16 @@ function rocplot!(
 
     vbltype = eltype(rg[!, margvar])
     cts = (vbltype <: AbstractFloat) | (vbltype <: Int)
-    lx = layout[1, 2] = GridLayout()
-    roclegend!(
-        lx, rg[!, margvar], margvarname, ellipse, ellipsecolor, cts;
-        kinlegend,
-        legargs...
-    )
-    colsize!(layout, 1, Relative(4/5))
-    #colgap!(layout, 0)
+    if dolegend
+        lx = layout[1, 2] = GridLayout()
+        roclegend!(
+            lx, rg[!, margvar], margvarname, ellipse, ellipsecolor, cts;
+            kinlegend,
+            legargs...
+        )
+        colsize!(layout, 1, Relative(4/5))
+        #colgap!(layout, 0)
+    end
 end
 
 export rocplot!

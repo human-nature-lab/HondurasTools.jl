@@ -4,6 +4,7 @@ function effectsplot!(
     l, rg, margvar, margvarname, tnr;
     dropkin = true,
     dotlegend = false,
+    dolegend = true,
     axiskwargs...
 )
 
@@ -25,10 +26,12 @@ function effectsplot!(
 
     # legend
     jstat = "j" ∈ names(rg)
-    effectslegend!(l[1, 2], jstat, cts, dotlegend; tr = 0.6)
+    if dolegend
+        effectslegend!(l[1, 2], jstat, cts, dotlegend; tr = 0.6)
+        colsize!(l, 2, Auto(0.2))
+        colgap!(l, 20)
+    end
     
-    colsize!(l, 2, Auto(0.2))
-    colgap!(l, 20)
 end
 
 export effectsplot!
