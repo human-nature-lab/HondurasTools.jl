@@ -108,6 +108,7 @@ include("j_calculations.jl")
 include("margincalculations.jl")
 include("bootellipse.jl")
 include("ratetradeoff.jl")
+include("adjustedcoeftable.jl")
 
 include("figures/roc_distance.jl")
 
