@@ -299,3 +299,20 @@ function ci!(rg::DataFrame; x = :response, area = 1.96)
 end
 
 export ci!
+
+function varcov(βs)
+    num_β = length(βs)
+    vcmat = fill(NaN, num_β, num_β)
+    for i in eachindex(1:size(vcmat, 1))
+        for j in eachindex(1:size(vcmat, 2))
+            vcmat[i, j] = if i == j
+                var(βs[i])
+            else
+                cov(βs[i], βs[j])
+            end
+        end
+    end
+    return vcmat
+end
+
+export varcov

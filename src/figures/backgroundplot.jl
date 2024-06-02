@@ -7,12 +7,15 @@ function fullplot!(
     yale = yale,
     rts = [0.2, (2/3)*0.2, (2/3)^2*0.2, (2/3)^3*0.2]
 )
+
+    mgrey = yale.grays[3]
+
     # keeping this preserves the shape
     poly!(
         ax,
         Circle(Point2f(0, 0), outerdist);
         color = (:white, 0.0), ##
-        strokecolor = (yale.mgrey, 0.0),
+        strokecolor = (mgrey, 0.0),
         strokewidth = 12,
     )
 
@@ -64,6 +67,8 @@ function sampleableplot!(
     rts = [0.2, (2/3)*0.2, (2/3)^2*0.2, (2/3)^3*0.2]
 )
 
+    mgrey = yale.grays[3]
+
     g2 = g23[1];
     g3 = g23[2];
 
@@ -93,7 +98,7 @@ function sampleableplot!(
         ax,
         Circle(Point2f(0, 0), outerdist);
         color = (:white, 0.0), ##
-        strokecolor = (yale.mgrey, 0.0),
+        strokecolor = (mgrey, 0.0),
         strokewidth = 12,
     )
 
@@ -150,6 +155,7 @@ function sampledplot!(
     rts = [0.2, (2/3)*0.2, (2/3)^2*0.2, (2/3)^3*0.2]
 )
 
+    mgrey = yale.grays[3]
     truecolor = (oi[1], 1.0)
     falsecolor = (oi[end-1])
 
@@ -160,7 +166,7 @@ function sampledplot!(
         push!(linestyle1, get_prop(g2, e, :socio) == true ? :solid : :dash)
         push!(
             edge_color1,
-            get_prop(g2, e, :css) == true ? (oi[2], 1.0) : (yale.mgrey, 0.1)
+            get_prop(g2, e, :css) == true ? (oi[2], 1.0) : (mgrey, 0.1)
         )
     end
 
@@ -171,7 +177,7 @@ function sampledplot!(
     linestyle = Symbol[]
     edge_color = Any[]
 
-    truetiecolor = (yale.mgrey, 0.3)
+    truetiecolor = (mgrey, 0.3)
 
     for e in edges(g2)
         push!(linestyle, get_prop(g2, e, :socio) == true ? :solid : :dash)
@@ -194,7 +200,7 @@ function sampledplot!(
         ax,
         Circle(Point2f(0, 0), outerdist);
         color = (:white, 0.0), ##
-        strokecolor = (yale.mgrey, 0.0),
+        strokecolor = (mgrey, 0.0),
         strokewidth = 12,
     )
 

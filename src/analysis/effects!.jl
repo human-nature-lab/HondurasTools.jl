@@ -11,6 +11,10 @@ import Effects:effects!,typify,_difference_method!,something,_responsename
 ## Description
 
 Alternate version of effects! where the variance-covariance matrix is, `vcmat`, is specified explicitly.
+
+`vcov` argument in package-defined version does not take a matrix, but a function that produces the matrix based on a single argument (the model itself).
+
+Consequently, it is not (easily, at least) suitable for 2nd stage adjustment.
 """
 function effects!(
     reference_grid::DataFrame, model::RegressionModel, vcmat;
@@ -33,6 +37,26 @@ function effects!(
     # XXX remove DataFrames dependency
     # this doesn't work for a DataFrame and isn't mutating
     # return (; reference_grid..., depvar => eff, err_col => err)
+end
+
+export effects!
+
+"""
+Alternate version that does not write to the dataframe
+"""
+function effects!(yhat, reference_grid::DataFrame, model::RegressionModel;
+    typical=mean, invlink=identity,
+    vcov=StatsBase.vcov)
+    # right now this is written for a RegressionModel and implicitly assumes
+    # the existence of an appropriate formula method
+    form = formula(model)
+    form_typical = typify(reference_grid, form, modelmatrix(model); typical=typical)
+    X = modelcols(form_typical, reference_grid)
+    eff = X * coef(model)
+    err = sqrt.(diag(X * vcov(model) * X'))
+    _difference_method!(eff, err, model, invlink)
+    yhat .= eff
+    # ε .= err
 end
 
 export effects!
