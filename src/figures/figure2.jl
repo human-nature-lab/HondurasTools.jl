@@ -35,7 +35,7 @@ function make_figure1(css, cr, ndf4)
             markersize,
             strokecolor = :transparent,
             marker = :circle,
-        ) for (markersize, color) in zip([10, 30], [:black, yale.blue])
+        ) for (markersize, color) in zip([10, 30], [:black, yale.blues[1]])
     ]
 
     color_leg = [
@@ -98,7 +98,7 @@ function make_figure1(css, cr, ndf4)
         LineElement(;
             color,
             linestyle = x
-        ) for (color, x) in zip([oi[1], oi[6], yale.mgrey], [:dashdot, :dashdot, :solid])
+        ) for (color, x) in zip([oi[1], oi[6], yale.grays[3]], [:dashdot, :dashdot, :solid])
     ]
 
     line_color_leg = ["Correct", "Incorrect", "(Not elicited)"]
