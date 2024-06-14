@@ -32,3 +32,55 @@ function _j_calculations!(dj, tprv, fprv, j, err_j, dtpr, dfpr)
 end
 
 export j_calculations!
+
+function j_calculations_pb!(rx, bm, βset, invlink, K; bivar = true)
+
+    # store estimates at each bootstrap iteration
+    ŷs = (
+        tpr = [fill(NaN, size(rx, 1)) for _ in eachindex(1:K)],
+        fpr = [fill(NaN, size(rx, 1)) for _ in eachindex(1:K)]
+    )
+    js = [fill(NaN, size(rx, 1)) for _ in eachindex(1:K)]
+    
+    _j_calculations_pb!(ŷs, rx, bm, βset, invlink, K)
+
+    for (k, (a, b)) in (enumerate∘zip)(ŷs.tpr, ŷs.fpr)
+        js[k] .= a + b
+    end
+    jst = (reduce)(hcat, js)
+
+    return if !bivar
+        std(eachcol(jst))
+    else
+        std(eachcol(jst)), _post_j_caluclations_pb(ŷs)
+    end
+end
+
+export j_calculations_pb!
+
+function _j_calculations_pb!(ŷs, rx, bm, βset, invlink, K; rates = rates)
+    for k in eachindex(1:K)
+        for r in rates
+            MixedModels.setβ!(bm[r], βset[r][k, :β])
+            MixedModels.setθ!(bm[r], βset[r][k, :θ])
+
+            # we don't care about the standard errors from effects
+            effects!(ŷs[r][k], rx, bm[r]; invlink)
+        end
+    end
+end
+
+# tpr, fpr
+function _post_j_caluclations_pb(ŷs)
+    ax = reduce(hcat, ŷs.tpr)
+    bx = reduce(hcat, ŷs.fpr)
+    tpl = Matrix{Point2f}(undef, size(ax))
+
+    # (fpr, tpr)
+    for (i, (c1, c2)) in (enumerate∘zip)(eachcol(bx), eachcol(ax))
+        for (j, (x, y)) in (enumerate∘zip)(c1, c2)
+            tpl[j, i] = Point2f(x, y)
+        end
+    end
+    return tpl
+end

@@ -170,6 +170,8 @@ function var_add!(
     append!(cts, ct)
 end
 
+export var_add!
+
 function var_add!(
     cts, e, mrgvarname, df; rounddigits = 2, dosort = true
 )

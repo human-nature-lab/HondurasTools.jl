@@ -53,6 +53,28 @@ end
 
 export newstrap2_lm!
 
+function pbs_process(pbs)
+    A = @chain pbs.tpr.β begin
+        DataFrame()
+        groupby(:iter)
+        combine([x => Ref => x for x in [:coefname, :β]]...)
+    end
+
+    A.θ = pbs.tpr.θ
+
+    B = @chain pbs.fpr.β begin
+        DataFrame()
+        groupby(:iter)
+        combine([x => Ref => x for x in [:coefname, :β]]...)
+    end
+
+    B.θ = pbs.fpr.θ
+
+    return (tpr = A, fpr = B)
+end
+
+export pbs_process
+
 function newstrap!(ŷs, rx, bm2, βset, K, invlink)
     for k in eachindex(1:K)
         for r in rates

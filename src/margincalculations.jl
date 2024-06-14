@@ -26,6 +26,25 @@ end
 
 export addmargins!
 
+function altermargins_bs!(
+    margindict, bm, βset, invlink, K; bivar = true
+)
+
+    bms = [deepcopy(bm) for _ in eachindex(1:length(margindict))]
+    kys = (collect∘keys)(margindict)
+
+    # for (i, p) in (enumerate∘eachindex)(kys)
+    Threads.@threads for i in eachindex(1:length(margindict))
+        p = kys[i]
+        e, _ = margindict[p]
+        ses, bv = j_calculations_pb!(e, bms[i], βset, invlink, K; bivar)
+        e[!, :err_j_bs] = ses
+        e[!, :bivar_bs] = eachrow(bv)
+    end
+end
+
+export altermargins_bs!
+
 """
         margindistgrid(d_; margresolution = 0.01, allvalues = true)
 
