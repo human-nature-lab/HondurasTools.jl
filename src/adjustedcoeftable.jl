@@ -1,17 +1,31 @@
 # adjustedcoeftable.jl
 
-function adjustedcoeftable(m, varcovmat)
+function adjustedcoeftable(m, varcovmat; overwrite = false)
+
+    # add "Adj." to name if we don't want to overwrite.
+    se_name = ifelse(!overwrite, "Std. Error Adj.", "Std. Error")
+    p_name = ifelse(!overwrite, "Pr(>|z|) Adj.", "Pr(>|z|)")
+    l_name = ifelse(!overwrite, "Lower 95% Adj.", "Lower 95%")
+    u_name = ifelse(!overwrite, "Upper 95% Adj.", "Upper 95%")
+
     m_c = coeftable(m) |> DataFrame;
-    m_c[!, "Std. Error Adj."] = sqrt.(diag(varcovmat));
+    
+    # adjusted se
+    m_c[!, se_name] = sqrt.(diag(varcovmat));
 
-    m_c[!, "Pr(>|z|) Adj."] = pvalue.(m_c[!, "Coef."], m_c[!, "Std. Error Adj."])
+    # adjusted p
+    m_c[!, p_name] = pvalue.(m_c[!, "Coef."], m_c[!, se_name])
 
-    m_c[!, "Lower 95% Adj."] .= NaN
-    m_c[!, "Upper 95% Adj."] .= NaN
+    # adjusted confidence intervals
+    m_c[!, l_name] .= NaN
+    m_c[!, u_name] .= NaN
 
-    for (i, (e1, e2)) in (enumerate∘zip)(m_c[!, "Coef."], m_c[!, "Std. Error Adj."])
-        m_c[i, "Lower 95% Adj."], m_c[i, "Upper 95% Adj."] = ci(e1, e2)
+    for (i, (e1, e2)) in (enumerate∘zip)(
+        m_c[!, "Coef."], m_c[!, se_name]
+    )
+        m_c[i, l_name], m_c[i, u_name] = ci(e1, e2)
     end
+
     return m_c
 end
 
