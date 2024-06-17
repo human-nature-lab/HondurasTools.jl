@@ -63,6 +63,7 @@ function getellipsepoints(cx, cy, rx, ry, θ)
 	(x,y)
 end
 
+# via https://discourse.julialang.org/t/plot-ellipse-in-makie/82814
 function getellipsepoints(μ, Σ; confidence = 0.95)
 	quant = quantile(Chisq(2), confidence) |> sqrt
 	cx = μ[1]
