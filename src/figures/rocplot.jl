@@ -139,7 +139,8 @@ function _cat_legend!(
         layout[1, 2], elems, lvls, nms;
         legargs..., orientation = :vertical, nbanks = 1
     )
-    colgap!(layout, -80)
+    
+    # colgap!(layout, -80)
 end
 
 function roclegend!(

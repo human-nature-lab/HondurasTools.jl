@@ -76,6 +76,7 @@ files_fg = "figures/" .* [
     # paper figures
     "figure2.jl",
     "interaction.jl",
+    "contrasttable.jl"
 ];
 
 for x in files_fg; include(x) end
@@ -89,7 +90,7 @@ files_an = "analysis/" .* [
     "stage2.jl",
     "homophily.jl",
     "effects!.jl",
-    "newstrap.jl",
+    "newstrap.jl"
 ];
 
 for x in files_an; include(x) end
