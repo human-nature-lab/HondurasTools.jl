@@ -150,7 +150,12 @@ function var_add!(
 )
 
     rg, mrgvarname = md[e]
-    df_ = @subset rg .!$kin
+    
+    df_ = if e != kin
+        @subset rg .!$kin
+    else
+        deepcopy(rg)
+    end
 
     if (eltype(df_[!, e]) <: AbstractFloat) & !allcomb
         @subset! df_ $e .∈ Ref(extrema(df_[!, e]))
