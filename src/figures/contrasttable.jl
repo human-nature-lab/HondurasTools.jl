@@ -151,7 +151,9 @@ function var_add!(
 
     rg, mrgvarname = md[e]
     
-    df_ = if e != kin
+    df_ = if (string(kin) ∉ names(rg))
+        deepcopy(rg)
+    elseif (e != kin)
         @subset rg .!$kin
     else
         deepcopy(rg)
