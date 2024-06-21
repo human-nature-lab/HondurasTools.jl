@@ -28,20 +28,20 @@ Generate a contrast contrast table from a set of formatted (combined for TPR and
 
 Preparation for convertion to Typst table.
 """
-function contrasttable(cts)
+function contrasttable(cts; cidigits = 3, pdigits = 4)
     dfe = deepcopy(cts);
 
     vs = ["tpr", "fpr", "j"]
     for v in vs
         dfe[!, "p_"*v] = ifelse(
             eltype(dfe[!, v]) <: AbstractFloat,
-            round.(pvalue.(dfe[!, v], dfe[!, "err_" * v]); digits = 4),
+            round.(pvalue.(dfe[!, v], dfe[!, "err_" * v]); digits = pdigits),
             v
         )
     end
     vs = [:ci_tpr, :ci_fpr, :ci_j, :tpr, :fpr, :j]
     for v in vs
-        dfe[!, v] = round.(dfe[!, v]; digits = 3);
+        dfe[!, v] = round.(dfe[!, v]; digits = cidigits);
     end
 
     # nicer contrast names for binary variables
