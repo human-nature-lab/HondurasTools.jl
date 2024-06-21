@@ -22,7 +22,7 @@ function vecdiff(x)
 end
 
 """
-    contrasttable(cts)
+    contrasttable(cts; cidigits = 3, pdigits = 4)
 
 Generate a contrast contrast table from a set of formatted (combined for TPR and FPR, with J calculations performed already) reference grids that have been passed through emmpairs, `cts`, or have contrasts calculated already.
 
