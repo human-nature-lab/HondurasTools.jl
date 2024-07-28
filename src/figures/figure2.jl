@@ -257,7 +257,7 @@ function make_figure2(sbar, bpd; nlevels = 10, colormap = berlin)
     #     colsize!(l, 2, Auto(0.2))
     #     colgap!(l, 20)
 
-    labelpanels!([l1_, l2_])
+    labelpanels!([l1_, l2_]; lbs = :uppercase)
     
     rowsize!(l, 1, Relative(2/3))
     #colsize!(l2_, 1, Relative(2/3))
