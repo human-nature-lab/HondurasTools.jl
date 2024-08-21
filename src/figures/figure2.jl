@@ -209,7 +209,9 @@ end
 
 export setup_figure2
 
-function make_figure2(sbar, bpd; nlevels = 10, colormap = berlin)
+function make_figure2(
+    sbar, bpd; nlevels = 10, colormap = berlin
+)
     
     fg = Figure();
     l = fg[1, 1] = GridLayout();
@@ -257,7 +259,7 @@ function make_figure2(sbar, bpd; nlevels = 10, colormap = berlin)
     #     colsize!(l, 2, Auto(0.2))
     #     colgap!(l, 20)
 
-    labelpanels!([l1_, l2_]; lbs = :uppercase)
+    labelpanels!([l1_, l2_])
     
     rowsize!(l, 1, Relative(2/3))
     #colsize!(l2_, 1, Relative(2/3))

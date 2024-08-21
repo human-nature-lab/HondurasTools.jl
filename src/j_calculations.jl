@@ -33,6 +33,16 @@ end
 
 export j_calculations!
 
+"""
+        j_calculations_pb!(rx, bm, βset, invlink, K; bivar = true)
+
+## Description
+
+`rx`: reference grid
+`bm`: Tuple of models for TPR and FPR
+`βset`: processed mixedmodel parametric bootstrap output
+
+"""
 function j_calculations_pb!(rx, bm, βset, invlink, K; bivar = true)
 
     # store estimates at each bootstrap iteration

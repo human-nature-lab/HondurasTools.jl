@@ -167,3 +167,20 @@ function linksetup(ndf4_, rhv4, sl;)
 end;
 
 export linksetup
+
+function linkproperties!(edf, rhv4, sl)
+    for (a, alter) in enumerate([:alter1, :alter2])
+        leftjoin!(edf, rhv4[!, [:name, sl...]], on = [alter => :name]);
+        for v in sl
+            rename!(edf, v => (string(v) * "_a" * string(a)) |> Symbol)
+        end
+    end
+
+    # cases where no path exists between i, j
+    edf[!, :inf] .= false;
+    edf[isinf.(edf.dist), :inf] .= true;
+    edf[isinf.(edf.dist), :dist] .= 0.0;
+    edf[!, :notinf] .= .!edf[!, :inf]
+end
+
+export linkproperties!

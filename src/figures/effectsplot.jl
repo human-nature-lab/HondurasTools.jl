@@ -5,6 +5,8 @@ function effectsplot!(
     dropkin = true,
     dotlegend = false,
     dolegend = true,
+    axh = 250,
+    axw = nothing,
     axiskwargs...
 )
 
@@ -22,7 +24,7 @@ function effectsplot!(
 
     # data plot
     func = ifelse(cts, effplot_cts!, effplot_cat!)
-    func(l[1, 1], rg, margvar, margvarname, tnr; axiskwargs...)
+    func(l[1, 1], rg, margvar, margvarname, tnr; axw, axh, axiskwargs...)
 
     # legend
     jstat = "j" ∈ names(rg)
@@ -39,8 +41,13 @@ export effectsplot!
 function effplot_cat!(
     layout, rg, vbl, margvarname, tnr;
     axh = 250,
+    axw = 300,
     axiskwargs...
 )
+
+    if isnothing(axw)
+        axw = 300
+    end
 
     jstat = "j" ∈ names(rg)
     fpronly = any(["tpr", "ci_tpr"] .∉ Ref(names(rg)))
@@ -65,7 +72,7 @@ function effplot_cat!(
         ylabel = "Rate",
         xlabel = margvarname,
         height = axh,
-        width = 300,
+        width = axw,
         yticklabelcolor = ratecolor(:tpr) + ratecolor(:fpr),
         axiskwargs...
     )
@@ -81,6 +88,7 @@ function effplot_cat!(
             ylabel = "J",
             yaxisposition = :right,
             height = axh,
+            width = axw,
             yticklabelcolor = ratecolor(:j),
             axiskwargs...
         )
@@ -138,20 +146,33 @@ function effplot_cts!(
     tr = 0.4,
     limitx = true,
     axh = 250,
+    axw = nothing,
     axiskwargs...
 )
 
     jstat = "j" ∈ names(rg)
     fpronly = any(["tpr", "ci_tpr"] .∉ Ref(names(rg)))
 
-    ax = Axis(
-        layout[1, 1];
-        ylabel = "Rate",
-        xlabel = margvarname,
-        height = axh,
-        yticklabelcolor = ratecolor(:tpr) + ratecolor(:fpr),
-        axiskwargs...
-    )
+    ax = if isnothing(axw)
+        Axis(
+            layout[1, 1];
+            ylabel = "Rate",
+            xlabel = margvarname,
+            height = axh,
+            yticklabelcolor = ratecolor(:tpr) + ratecolor(:fpr),
+            axiskwargs...
+        )
+    else
+        Axis(
+            layout[1, 1];
+            ylabel = "Rate",
+            xlabel = margvarname,
+            height = axh,
+            width = axw,
+            yticklabelcolor = ratecolor(:tpr) + ratecolor(:fpr),
+            axiskwargs...
+        )
+    end
 
     if jstat
         # add secondary axis right for J

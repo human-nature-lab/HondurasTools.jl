@@ -3,6 +3,7 @@
 function rocplot!(
     layout,
     rg, margvar, margvarname;
+    axsz = 250,
     dropkin = false,
     ellipsecolor = (yale.grays[end-1], 0.3),
     markeropacity = nothing,
@@ -10,7 +11,7 @@ function rocplot!(
     kinlegend = true,
     extramargin = false,
     dolegend = true,
-    legargs = (framevisible = false, tellheight = false, tellwidth = false,)
+    legargs = (framevisible = false, tellheight = false, tellwidth = false, orientation = :vertical, nbanks = 1)
 )
 
     ellipse = ifelse("Σ" ∈ names(rg), true, false);
@@ -32,7 +33,7 @@ function rocplot!(
         roctitle,
         kinmarker = kinmarker,
         kin = kin,
-        axsz = 250,
+        axsz,
         extramargin,
     )
 
@@ -46,7 +47,7 @@ function rocplot!(
             legargs...
         )
         colsize!(layout, 1, Relative(4/5))
-        #colgap!(layout, 0)
+        colgap!(layout, 0)
     end
 end
 
@@ -138,10 +139,11 @@ function _cat_legend!(
 
     Legend(
         layout[1, 2], elems, lvls, nms;
-        legargs..., orientation = :vertical, nbanks = 1
+        legargs...,
     )
     
-    # colgap!(layout, -80)
+    # this may need adjustment for some plots
+    #colgap!(layout, -80)
 end
 
 function roclegend!(
