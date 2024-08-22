@@ -7,8 +7,8 @@ using Reexport
 
 # add "." when running these here, "." for external usage
 # (total of two dots)
-# Pkg.develop(path = "HondurasTools.jl"); # general functions, definitions
-# Pkg.develop(path = "NiceDisplay.jl"); # tables, figures, quarto
+# Pkg.develop(path = "./HondurasTools.jl"); # general functions, definitions
+# Pkg.develop(path = "./NiceDisplay.jl"); # tables, figures, quarto
 
 # transition to
 # https://github.com/human-nature-lab/HondurasTools.jl
