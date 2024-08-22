@@ -88,7 +88,7 @@ end
 
 export bic, aic
 
-import StatsModels:vif # from module
+import GLM:vif # from module
 
 function vif(m::EModel)
     return (tpr = vif(m.tpr), fpr = vif(m.fpr),)
