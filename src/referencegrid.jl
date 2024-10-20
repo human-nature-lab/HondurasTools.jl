@@ -26,9 +26,9 @@ export referencegrid
 
 function marginrange(dat, marginvar; margresolution = 0.01, allvalues = false)
 
-	vbltype = eltype(dat[!, marginvar])
+	vbltype = (nonmissingtype∘eltype)(dat[!, marginvar])
 	
-	vls = (sunique∘skipmissing∘vcat)(dat[!, marginvar]);
+	vls = (sunique∘skipmissing)(dat[!, marginvar]);
 	return if ((vbltype <: AbstractFloat) | (vbltype <: Int)) & !allvalues
 		mn, mx = extrema(vls)
 		collect(mn:margresolution:mx)
