@@ -274,7 +274,11 @@ end
 export pvalue
 
 """
-Generalize this.
+        ci(x, se; area = 1.96)
+
+## Description
+
+Calculate the confidence interval from the estimates and the standard error.
 """
 function ci(x, se; area = 1.96)
     return x ± se * area
