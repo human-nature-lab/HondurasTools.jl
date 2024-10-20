@@ -13,6 +13,7 @@ function addmargins!(
     margindict, vbldict, bimodel, dat;
     margresolution = 0.001, allvalues = false
 )
+    # for p in keys(vbldict)
     Threads.@threads for p in keys(vbldict)
         e, name = vbldict[p]
         ed = standarddict(dat; kinvals = [false, true])
@@ -22,6 +23,46 @@ function addmargins!(
         ci_rates!(rg)
         margindict[e] = (rg = rg, name = name,)
     end
+end
+
+function _innermargins!(
+    margindict, vbldict, dat, kinvals, margresolution, allvalues,
+    bms, bimodel, invlink, K, bivar, βset, L
+)
+    Threads.@threads for i in L
+        e, name = vbldict[i]
+        ed = standarddict(dat; kinvals)
+        ed[e] = marginrange(dat, e; margresolution, allvalues)
+        rg = referencegrid(dat, ed)
+        
+        # iters = nothing since j will be bootstrapped
+        estimaterates!(rg, bimodel; iters = nothing)
+        rg[!, :j] = rg[!, :tpr] - rg[!, :fpr]
+        ses, bv = j_calculations_pb!(rg, bms[i], βset, invlink, K; bivar)
+        rg[!, :err_j] = ses
+        rg[!, :ci_j] = ci.(rg[!, :j], rg[!, :err_j])
+        rg[!, :ci_tpr] = ci.(rg[!, :tpr], rg[!, :err_tpr])
+        rg[!, :ci_fpr] = ci.(rg[!, :fpr], rg[!, :err_fpr])
+        rg[!, :Σ] = cov.(eachrow(bv))
+
+        margindict[e] = (rg = rg, name = name,)
+    end
+end
+
+function addmargins!(
+    margindict, vbldict, bimodel, pbs, dat, K, invlink;
+    margresolution = 0.001, allvalues = false,
+    kinvals = [false, true],
+    bivar = true
+)
+    L = eachindex(vbldict)
+    bms = [deepcopy(bimodel) for _ in L]
+    βset = pbs_process(pbs)
+
+    _innermargins!(
+        margindict, vbldict, dat, kinvals, margresolution, allvalues,
+        bms, bimodel, invlink, K, bivar, βset, L
+    )
 end
 
 export addmargins!
@@ -38,8 +79,9 @@ function altermargins_bs!(
         p = kys[i]
         e, _ = margindict[p]
         ses, bv = j_calculations_pb!(e, bms[i], βset, invlink, K; bivar)
-        e[!, :err_j_bs] = ses
-        e[!, :bivar_bs] = eachrow(bv)
+        e[!, :err_j] = ses
+        e[!, :ci_j] = ci.(e[!, :j], e[!, :err_j])
+        e[!, :Σ] = eachrow(bv)
     end
 end
 
