@@ -242,3 +242,9 @@ function detuple(tpl::Vector{T}) where T <: Tuple
 end
 
 export detuple
+
+function tieset(df, x, y)
+    return [Set([a, b]) for (a,b) in zip(df[!, x], df[!, y])]
+end
+
+export tieset
