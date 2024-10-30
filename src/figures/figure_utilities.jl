@@ -48,3 +48,9 @@ function improvementline!(ax; tr = 0.9, linestyle = :dash)
     lines!(ax, (0.5:-0.1:0), 0.5:0.1:1; linestyle, color = (yale.accent[1], tr))
     lines!(ax, (1:-0.1:0.5), 0:0.1:0.5; linestyle, color = (yale.accent[2], tr))
 end
+
+function save2(name, fg)
+    save(name, fg; pt_per_unit = 2)
+end
+
+export save2
