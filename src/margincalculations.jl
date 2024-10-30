@@ -116,3 +116,38 @@ function margindistgrid(
 end
 
 export margindistgrid
+
+"""
+        addmargins_dist!(
+            margindict,
+            d_p, name, bimodel, pbs, dat, invlink;
+            margresolution = 0.001, allvalues = true, bivar = true
+        )
+
+## Description
+
+- Add margin calculations for a distance variable, which is complicated by its definition through an interaction.
+"""
+function addmargins_dist!(
+    margindict,
+    distvars, name, bimodel, pbs, dat, invlink;
+    margresolution = 0.001, allvalues = true, bivar = true
+)
+
+    K = length(pbs.tpr)
+    bms = deepcopy(bimodel)
+    rg = margindistgrid(distvars, dat; margresolution, allvalues)
+    
+    βset = pbs_process(pbs)
+    estimaterates!(rg, bimodel; iters = nothing)
+    rg[!, :j] = rg[!, :tpr] - rg[!, :fpr]
+    ses, bv = j_calculations_pb!(rg, bms, βset, invlink, K; bivar)
+    rg[!, :err_j] = ses
+    rg[!, :ci_j] = ci.(rg[!, :j], rg[!, :err_j])
+    rg[!, :ci_tpr] = ci.(rg[!, :tpr], rg[!, :err_tpr])
+    rg[!, :ci_fpr] = ci.(rg[!, :fpr], rg[!, :err_fpr])
+    rg[!, :Σ] = cov.(eachrow(bv))
+    margindict[distvars[1]] = (rg = rg, name = name,)
+end
+
+export addmargins_dist!
