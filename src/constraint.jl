@@ -23,19 +23,27 @@ end
 
 ## Description
 
+Constraint for (i,j), defined in Burt (1993).
 """
 function dyadicconstraint(g, i, j)
-    (pij(g, i, j) + psum(g, i, j))^2
+    return (investment(g, i, j) + investment_sum(g, i, j))^2
 end
 
 """
-energy i invests into j.
+        investment(g, i, j)
+
+## Description
+
+The energy i invests into j.
+
+Generalize from `has_edge` to include non-binary ties.
 """
-function pij(g, i, j)
-    return (has_edge(g, i, j) + has_edge(g, j, i)) * inv(_pij_denom(g, i))
+function investment(g, i, j)
+    numer = has_edge(g, i, j) + has_edge(g, j, i)
+    return numer * inv(_investment_denom(g, i))
 end
 
-function _pij_denom(g, i)
+function _investment_denom(g, i)
     c = 0
     for k in neighbors(g, i)
         c += has_edge(g, i, k) + has_edge(g, k, i)
@@ -43,11 +51,11 @@ function _pij_denom(g, i)
     return c
 end
 
-function psum(g, i, j)
+function investment_sum(g, i, j)
     c = 0
     for q in neighbors(g, i)
         if q != j
-            c += pij(g, i, q) * pij(g, q, j)
+            c += investment(g, i, q) * investment(g, q, j)
         end
     end
     return c
