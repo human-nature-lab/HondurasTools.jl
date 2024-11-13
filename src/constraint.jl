@@ -5,7 +5,7 @@
 
 ## Description
 
-Network constraint as defined in Burt (1993).
+Network constraint as defined in Burt (1993). Here, larger constraint implies a fewer structural holes (and, on the theory, less social capital).
 
 Currently defined only for unweighted (binary) graphs.
 
