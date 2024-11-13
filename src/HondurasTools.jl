@@ -50,6 +50,7 @@ module HondurasTools
     include("addsymmetric.jl")
     include("jointnetwork.jl")
     include("constraint.jl")
+    include("tiestrength.jl")
 
     # network processing
     include("networkinfo.jl")

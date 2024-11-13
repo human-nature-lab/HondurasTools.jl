@@ -1,6 +1,6 @@
 # constraint.jl
 
-doc"""
+"""
         constraint(g, i)
 
 ## Description
