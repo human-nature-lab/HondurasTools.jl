@@ -2,6 +2,136 @@
 
 @inline valproc(x) = string(round(x; digits = 1))
 
+"""
+        sloperad(pts)
+
+## Description
+
+Calculate the slope in radians given two points.
+
+"""
+function sloperad(pts)
+    x1, y1 = pts[1]; x2, y2 = pts[2]
+    return (y2 - y1) / (x2 - x1) |> atan
+end
+
+"""
+        roc_panel!(fgloc)
+
+## Description
+
+Make the ROC space explainer panel.
+
+- `fgloc`: _e.g._, `fg[1, 1]`, for a Figure or GridLayout object.
+"""
+function roc_panel!(fgloc)
+    ax = Axis(
+        fgloc,
+        ylabel = "True positive rate", xlabel = "False positive rate",
+        aspect = 1
+    )
+    xlims!(ax, 0, 1)
+    ylims!(ax, 0, 1)
+
+    ul = Point2f[(0, 0), (0, 1), (1, 1)]
+    poly!(ax, ul, color = (oi[3], 0.5), strokewidth = 0)
+    rl = Point2f[(0, 0), (1, 0), (1, 1)]
+    poly!(ax, rl, color = (oi[end-1], 0.5), strokewidth = 0)
+
+    lw = 2
+    x1 = 0:0.1:1; y1 = 0:0.1:1; y2 = 1:-0.1:0;
+    lines!(ax, x1, y1; color = :black, linewidth = lw)
+    # lines!(ax, x1, y2; color = :black, linewidth = lw, linestyle = :dash)
+
+    for xm in -0.8:0.2:0.8
+        lines!(ax, x1 .- xm, y2; color = (:black, 1), linewidth = 0.2)
+        lines!(ax, x1 .- xm, y1; color = (:black, 1), linewidth = 0.1, linestyle = :dot)
+    end
+
+    ε = 0.01
+    text!(ax, 0.7-ε, 0.7+ε; rotation = π/4, text = "Chance accuracy")
+
+    pts1 = [Point(0.25, 0.5), Point(0.5, 0.25)];
+
+    let
+        x, y = pts1[1]
+        a = Point(x, y); b = Point(x, x)
+        c = ifelse(x < y, :darkgreen, :darkred)
+        lines!(ax, [a, b]; color = (c, 1), linestyle = :dash)
+
+        x, y = pts1[2]
+        a = Point(x, y); b = Point(x, x)
+        c = ifelse(x < y, :darkgreen, :darkred)
+        lines!(ax, [a, b]; color = (c, 1), linestyle = :dash)
+    end
+
+    lines!(ax, pts1, linewidth = lw*2, color = oi[end])
+    scatter!(ax, pts1, markersize = 15, color = [:black, :red])
+    text!(
+        ax, 0.25+ε, 0.5+ε; rotation = sloperad(pts1),
+        text = "Pure performance change"
+    )
+
+    pts1m = Point(0.25-ε*2, 0.5), Point(0.25-ε*2, 0.25);
+    bracket!(
+        ax, pts1m, text = "J > 0", orientation = :down, rotation = 0,
+        textoffset = 20
+    )
+    pts1m_ = Point(0.5+ε*2, 0.5), Point(0.5+ε*2, 0.25);
+    bracket!(
+        ax, pts1m_, text = "J < 0", orientation = :up, rotation = 0,
+        textoffset = 20
+    )
+
+    # 
+    pts2 = [Point(0.3, 0.6), Point(0.55, 0.85)];
+    lines!(ax, pts2, linewidth = lw*2, color = oi[end])
+    scatter!(ax, pts2, markersize = 15, color = [:black, :red])
+    text!(
+        ax, 0.3-ε, 0.6+ε; rotation = sloperad(pts2),
+        text = "Pure error tradeoff"
+    )
+
+    #
+    pts3 = [Point(0.45, 0.6), Point(0.75, 0.475)];
+
+    norm(pts3[1] - pts3[2])
+
+    lines!(ax, pts3, linewidth = lw*2, color = oi[end])
+    scatter!(ax, pts3, markersize = 15, color = [:black, :red])
+    text!(
+        ax, pts3[1][1]+ε, pts3[1][2]+ε; rotation = sloperad(pts3),
+        text = "Impure change"
+    )
+
+    #
+    elem_1 = [
+        MarkerElement(
+            color = :black, marker = :circle, markersize = 15, strokecolor = :black
+        ),
+        MarkerElement(
+            color = :red, marker = :circle, markersize = 15, strokecolor = :black
+        ),
+    ];
+
+    elem_2 = [
+        MarkerElement(
+            color = (oi[3], 0.5), marker = :rect, markersize = 30,
+            stroke = :black, strokewidth = 1
+        ),
+        MarkerElement(
+            color = (oi[end-1], 0.5), marker = :rect, markersize = 30,
+            stroke = :black, strokewidth = 1
+        ),
+    ];
+
+    Legend(fg[1, 2],
+        [elem_1, elem_2],
+        [["Level 1", "Level 2"], ["Above chance", "Below chance"]],
+        ["Attribute", "Performance"], framevisible = false
+    );
+end
+
 function make_figure1(css, cr, ndf4)
 
     Random.seed!(2024)
@@ -15,16 +145,32 @@ function make_figure1(css, cr, ndf4)
     end
     tiemean = NamedTuple(tiemean[1, :]);
 
-
     fg = Figure(figure_padding = 0);
-    lo = fg[1:2,1] = GridLayout()
+    lo = fg[1:2,1] = GridLayout();
     plo = lo[1:2, 1:3] = GridLayout();
+    l2 = fg[1,3] = GridLayout();
+    
     rowsize!(lo, 1, Relative(4.5/5))
 
     los, ps = backgroundplot!(plo, css, ndf4; diagnostic = false)
     
     for i in 1:3; colsize!(plo, i, Aspect(1, 1)) end
 
+    background_legend!(plo)
+
+    roc_panel!(l2[1,1])
+
+    colsize!(lo, 1, Aspect(1, 3))
+    rowsize!(plo, 2, Relative(1.2/5))
+    rowgap!(plo, -50)
+    colgap!(plo, -80)
+
+    return fg
+end
+
+export make_figure1
+
+function background_legend!(plo)
     tellwidth = false; tellheight = false;
     valign = :center
 
@@ -115,20 +261,7 @@ function make_figure1(css, cr, ndf4)
         valign,
         nbanks = 1, framevisible = false
     )
-
-    # Box(plo[2,1], color = (:red, 0.))
-    # Box(plo[2,2], color = (:green, 0.))
-    # Box(plo[2,3], color = (:blue, 0.))
-
-    colsize!(lo, 1, Aspect(1, 3))
-    rowsize!(plo, 2, Relative(1.2/5))
-    rowgap!(plo, -50)
-    colgap!(plo, -80)
-
-    return fg
 end
-
-export make_figure1
 
 # %%
 
