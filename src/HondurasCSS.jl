@@ -78,7 +78,7 @@ files_fg = "figures/" .* [
     "riddle_plot!.jl",
     "homophily_plot.jl",
     # paper figures
-    "figure2.jl",
+    "figure1.jl",
     "interaction.jl",
     "contrasttable.jl"
 ];
