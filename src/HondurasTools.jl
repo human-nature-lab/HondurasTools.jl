@@ -49,6 +49,7 @@ module HondurasTools
     # network utilities
     include("addsymmetric.jl")
     include("jointnetwork.jl")
+    include("constraint.jl")
 
     # network processing
     include("networkinfo.jl")
