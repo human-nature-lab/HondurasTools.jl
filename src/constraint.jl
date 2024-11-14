@@ -13,19 +13,31 @@ Currently defined only for unweighted (binary) graphs.
 function constraint(g, i)
     c = 0
     for j in neighbors(g, i)
-        c += dyadicconstraint(g, i, j)
+        c += dyadconstraint(g, i, j)
     end
     return c
 end
 
+export constraint
+
 """
-        dyadicconstraint(g, i, j)
+        dyadconstraint(g, i, j)
 
 ## Description
 
 Constraint for (i,j), defined in Burt (1993).
 """
-function dyadicconstraint(g, i, j)
+function dyadconstraint(g, i, j)
+    return _dyadconstraint(g, i, j)
+end
+
+function dyadconstraint(g, e)
+    return _dyadconstraint(g, src(e), dst(e))
+end
+
+export dyadconstraint
+
+function _dyadconstraint(g, i, j)
     return (investment(g, i, j) + investment_sum(g, i, j))^2
 end
 
@@ -60,5 +72,3 @@ function investment_sum(g, i, j)
     end
     return c
 end
-
-export constraint
