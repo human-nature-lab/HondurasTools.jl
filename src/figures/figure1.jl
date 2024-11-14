@@ -24,11 +24,12 @@ Make the ROC space explainer panel.
 
 - `fgloc`: _e.g._, `fg[1, 1]`, for a Figure or GridLayout object.
 """
-function roc_panel!(fgloc)
+function roc_panel!(fgloc, l_loc)
     ax = Axis(
         fgloc,
         ylabel = "True positive rate", xlabel = "False positive rate",
-        aspect = 1
+        aspect = 1,
+        # height = 100
     )
     xlims!(ax, 0, 1)
     ylims!(ax, 0, 1)
@@ -125,54 +126,42 @@ function roc_panel!(fgloc)
         ),
     ];
 
-    Legend(fg[1, 2],
+    Legend(l_loc,
         [elem_1, elem_2],
         [["Level 1", "Level 2"], ["Above chance", "Below chance"]],
         ["Attribute", "Performance"], framevisible = false
     );
 end
 
-function make_figure1(css, cr, ndf4)
-
+function make_figure1(fprm)
     Random.seed!(2024)
 
-    tiemean = @chain cr begin
-        dropmissing([:relation, :response, socio])
-        groupby([:perceiver, :relation])
-        combine(nrow => :count)
-        # groupby([:relation])
-        combine([:count => valproc∘x => string(x) for x in [mean, median, mode]]...)
-    end
-    tiemean = NamedTuple(tiemean[1, :]);
-
     fg = Figure(figure_padding = 0);
-    lo = fg[1:2,1] = GridLayout();
-    plo = lo[1:2, 1:3] = GridLayout();
-    l2 = fg[1,3] = GridLayout();
+    flo = fg[1:2, 1:3] = GridLayout();
+    plo = flo[1:2, 1:2] = GridLayout();
+    l_diagram = plo[2, 2] = GridLayout();
+    l_leg = flo[1:2, 3] = GridLayout();
     
-    rowsize!(lo, 1, Relative(4.5/5))
+    los = backgroundplot!(plo, fprm; diagnostic = false)
+    for i in 1:2; colsize!(flo, i, Aspect(1, 1.0)) end
+    # for i in 1:2; rowsize!(flo, i, Aspect(1, 1.0)) end
+    background_legend!(l_leg[1,1])
 
-    los, ps = backgroundplot!(plo, css, ndf4; diagnostic = false)
-    
-    for i in 1:3; colsize!(plo, i, Aspect(1, 1)) end
+    roc_panel!(l_diagram[1, 1], l_leg[2, 1])
 
-    background_legend!(plo)
+    labelpanels!([los..., l_diagram]; lbs = :lowercase)
 
-    roc_panel!(l2[1,1])
-
-    colsize!(lo, 1, Aspect(1, 3))
-    rowsize!(plo, 2, Relative(1.2/5))
-    rowgap!(plo, -50)
-    colgap!(plo, -80)
-
-    return fg
+    # rowgap!(plo, -50)
+    # colgap!(plo, -80)
+    return fg, flo, plo, l_leg
 end
 
 export make_figure1
 
-function background_legend!(plo)
-    tellwidth = false; tellheight = false;
-    valign = :center
+function background_legend!(ly)
+    tellwidth = false;
+    tellheight = false;
+    valign = :top
 
     # legend 1
     group_color = [
@@ -189,18 +178,18 @@ function background_legend!(plo)
         "Survey respondent (\"Cognizer\")"
     ];
 
-    Legend(
-        plo[2, 1],
-        [group_color],
-        [color_leg],
-        ["Node type"];
-        tellheight,
-        tellwidth,
-        orientation = :horizontal,
-        titleposition = :left,
-        valign,
-        nbanks = 2, framevisible = false
-    )
+    # Legend(
+    #     ly[1, 1],
+    #     [group_color],
+    #     [color_leg],
+    #     ["Node type"];
+    #     tellheight,
+    #     tellwidth,
+    #     orientation = :vertical,
+    #     titleposition = :top,
+    #     valign,
+    #     nbanks = 1, framevisible = false
+    # )
 
     # legend 2
     rts = [0.2*4, (2/3)*0.2*3, (2/3)^2*0.2*2, (2/3)^3*0.2, 0];
@@ -217,18 +206,18 @@ function background_legend!(plo)
 
     space_leg = vcat(string.(1:4), ">4");
 
-    Legend(
-        plo[2, 2],
-        [space_color],
-        [space_leg],
-        ["Cognizer distance"];
-        tellheight,
-        tellwidth,
-        orientation = :horizontal,
-        titleposition = :left,
-        valign,
-        nbanks = 3, framevisible = false
-    )
+    # Legend(
+    #     ly[2, 1],
+    #     [space_color],
+    #     [space_leg],
+    #     ["Cognizer distance"];
+    #     tellheight,
+    #     tellwidth,
+    #     orientation = :vertical,
+    #     titleposition = :top,
+    #     valign,
+    #     nbanks = 3, framevisible = false
+    # )
 
     # legend 3
     line_style = [
@@ -250,16 +239,17 @@ function background_legend!(plo)
     line_color_leg = ["Correct", "Incorrect", "(Not elicited)"]
 
     Legend(
-        plo[2, 3],
-        [line_style, line_color],
-        [line_leg, line_color_leg],
-        ["Tie exists in network", "Response"];
+        ly[1, 1],
+        [group_color, space_color, line_style, line_color],
+        [color_leg, space_leg, line_leg, line_color_leg],
+        ["Node type", "Cognizer distance", "Tie exists in network", "Response"];
         tellheight,
         tellwidth,
         orientation = :vertical,
-        titleposition = :left,
+        titleposition = :top,
         valign,
-        nbanks = 1, framevisible = false
+        nbanks = 1,
+        framevisible = false
     )
 end
 

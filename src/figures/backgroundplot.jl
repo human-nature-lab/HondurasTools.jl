@@ -251,32 +251,50 @@ export sampledplot!
 
 @inline crmp(x) = log(x+1)
 
-function backgroundplot!(plo, css, ndf4; diagnostic = false)
+function figure1data(css, cr, ndf4)
     graphs = fill(MetaGraph(), 3);
     poses = Vector{Vector{Tuple{Float64, Float64}}}(undef, 3);
     gdses = Vector{Vector{Float64}}(undef, 3);
-    
-    ville = 17; # pick a reasonable village for example
 
     prm = (
         gt = socio, # ground truth variable
         maxdist = 4, # max number of rings out
         # to help shape the rings in the image, distance for outer ring
         outerdist = 5.0,
+        ville = 17 # pick a reasonable village for example
     );
 
-    # pull the graph from ndf
-    idx = findfirst((ndf4.relation .== rl.u) .& (ndf4.village_code .== ville));
-    graphs[1] = ndf4.graph[idx];
-    g = deepcopy(graphs[1]);
-    vtx = names(graphs[1]);
+    v, cssvu, = data_handling!(graphs, css, ndf4, prm)
 
-    # check focal node responses
-    # to see if it is a reasonable choice
+    tiemean = @chain cr begin
+        dropmissing([:relation, :response, socio])
+        groupby([:perceiver, :relation])
+        combine(nrow => :count)
+        # groupby([:relation])
+        combine([:count => valproc∘x => string(x) for x in [mean, median, mode]]...)
+    end
+    tiemean = NamedTuple(tiemean[1, :]);
 
+    prm = (
+        gt = socio, # ground truth variable
+        maxdist = 4, # max number of rings out
+        # to help shape the rings in the image, distance for outer ring
+        outerdist = 5.0,
+        ville = 17, # pick a reasonable village for example,
+        v = v,
+        cssvu = cssvu,
+        graphs = graphs, poses = poses, gdses = gdses,
+        tiemean = tiemean
+    );
+
+    return prm
+end
+
+export figure1data
+
+function data_handling!(graphs, css, ndf4, prm)
     css_c = @chain css begin
-        # @subset :perceiver .== focusname
-        @subset :village_code .== ville
+        @subset :village_code .== prm.ville
         groupby([:perceiver, (prm.gt), :response])
         combine(nrow => :n)
         sort(:n; rev = true)
@@ -284,11 +302,57 @@ function backgroundplot!(plo, css, ndf4; diagnostic = false)
         combine(:n => Ref => :n)
     end
 
-    # hand select nice examples
+    # select nice examples
     good = @rsubset css_c (minimum(:n) .> 3) & (length(:n) == 4)
 
+    # check focal node responses
+    # to see if it is a reasonable choice
+
+    # pull the graph from ndf
+    idx = findfirst(
+        (ndf4.relation .== rl.u) .& (ndf4.village_code .== prm.ville)
+    );
+    graphs[1] = ndf4.graph[idx];
+
     focusname = good.perceiver[2]
-    v = g[focusname, :name];
+    v = graphs[1][focusname, :name];
+
+    cssvu = @subset(css, :perceiver .== focusname);
+    cssvu[!, :correct] .= cssvu.response .== cssvu[!, prm.gt];
+
+    return v, cssvu
+end
+
+function backgroundplot!(plo, fprm; diagnostic = false)
+
+    inner_plotting!(fprm, diagnostic)
+
+    # define Axis objects
+    los = [];
+    axs = [];
+
+    for i in [[1,1], [1,2], [2,1]]
+        lo = plo[i...] = GridLayout()
+        ax = Axis(lo[1, 1]; backgroundcolor = :transparent, aspect = 1)
+        hidedecorations!(ax)
+        hidespines!(ax)
+        push!(axs, ax)
+        push!(los, lo)
+    end
+
+    node_color, node_size = node_properties(fprm.graphs[1], fprm.v)
+    
+    fullplot!(axs[1], fprm.poses[1], fprm.graphs[1], node_color, node_size)
+    sampleableplot!(axs[2], fprm.poses[2], fprm.graphs[2:3], fprm.v)
+    sampledplot!(axs[3], fprm.poses[2], fprm.graphs[2], fprm.v)
+    return los
+end
+
+export backgroundplot!
+
+function inner_plotting!(fprm, diagnostic)
+
+    g = deepcopy(fprm.graphs[1])
 
     # diagnostics
     if diagnostic
@@ -299,105 +363,48 @@ function backgroundplot!(plo, css, ndf4; diagnostic = false)
         # just observe village network to confirm that it is a good village
         graphplot(g, node_color = cl)
     end
-            
-    graphs[1], poses[1], gdses[1] = focuslayout(
-        graphs[1], v;
-        iter = 500, tol = 0.0001, maxdist = prm.maxdist, compress = crmp
+       
+    # define the graphs
+    fprm.graphs[1], fprm.poses[1], fprm.gdses[1] = focuslayout(
+        fprm.graphs[1], fprm.v;
+        iter = 500, tol = 0.0001, maxdist = fprm.maxdist, compress = crmp
     )
 
-    graphs[2], poses[2], gdses[2] = focuslayout(
-        g, v; # use original graph
-        iter = 500, tol = 0.0001, prm.maxdist
+    fprm.graphs[2], fprm.poses[2], fprm.gdses[2] = focuslayout(
+        g, fprm.v; # use original graph
+        iter = 500, tol = 0.0001, fprm.maxdist
     );
 
-    graphs[3] = deepcopy(graphs[2]);
+    fprm.graphs[3] = deepcopy(fprm.graphs[2]);
 
-    poses[3] = deepcopy(poses[1])
-    gdses[3] = deepcopy(gdses[1]);
+    fprm.poses[3] = deepcopy(fprm.poses[1])
+    fprm.gdses[3] = deepcopy(fprm.gdses[1]);
 
-    # additionally ignore nodes that are beyond the desired distance
+    # additionally, ignore nodes that are beyond the desired distance
 
-    vtx2 = names(graphs[2]);
+    vtx2 = names(fprm.graphs[2]);
 
-    for edge in edges(graphs[2])
-        set_prop!(graphs[2], edge, :socio, true)
-        set_prop!(graphs[2], edge, :css, false)
+    for edge in edges(fprm.graphs[2])
+        set_prop!(fprm.graphs[2], edge, :socio, true)
+        set_prop!(fprm.graphs[2], edge, :css, false)
     end
 
-    cssvu = @subset(css, :perceiver .== focusname);
-    cssvu[!, :correct] .= cssvu.response .== cssvu[!, prm.gt];
-
     # some in network but not surveyed -> real and not css
-    for r in eachrow(cssvu)
+    for r in eachrow(fprm.cssvu)
         a1 = findfirst(r.alter1 .== vtx2)
         a2 = findfirst(r.alter2 .== vtx2)
         if !isnothing(a1) & !isnothing(a2)
             a1, a2 = sort([a1, a2])
 
-            if !has_edge(graphs[2], a1, a2)
-                add_edge!(graphs[2], a1, a2)
+            if !has_edge(fprm.graphs[2], a1, a2)
+                add_edge!(fprm.graphs[2], a1, a2)
             end
 
-            set_prop!(graphs[2], a1, a2, :socio, r[prm.gt])
-            set_prop!(graphs[2], a1, a2, :css, true)
-            set_prop!(graphs[2], a1, a2, :correct, r.correct)
+            set_prop!(fprm.graphs[2], a1, a2, :socio, r[fprm.gt])
+            set_prop!(fprm.graphs[2], a1, a2, :css, true)
+            set_prop!(fprm.graphs[2], a1, a2, :correct, r.correct)
         else
             @show a1, a2
         end
     end;
-
-    los = [];
-    axs = [];
-
-    for i in 1:3
-        lo = plo[1, i] = GridLayout()
-        ax = Axis(lo[1, 1]; backgroundcolor = :transparent)
-        hidedecorations!(ax)
-        hidespines!(ax)
-        push!(axs, ax)
-        push!(los, lo)
-    end
-
-    node_color, node_size = node_properties(graphs[1], v)
-    
-    cnt = 0
-    for (label, ax, psh) in zip(["a", "b", "c"], axs, [1.5, 1.5, 1.5])
-        cnt += 1
-        # Label(
-        #     layout[1, 1, TopLeft()],
-        #     label,
-        #     fontsize = 26,
-        #     font = :bold,
-        #     padding = (0, 0, 0, 0),
-        #     halign = :right
-        # )
-
-        ytr = maximum(abs.([a[2] for a in poses[1]] |> extrema))
-        xtr = maximum(abs.([a[1] for a in poses[1]] |> extrema))
-        text!(
-            ax, 
-            label, position = Point2f(-xtr+psh, ytr-0.5),
-            align = (:center, :center),
-            fontsize = 26, font = :bold
-        )
-    end
-
-    # plot limits
-    
-    
-    # for (i, ax) in enumerate(axs)
-    # xtr = maximum(abs.([a[1] for a in poses[1]] |> extrema))+0.2
-    # ytr = maximum(abs.([a[2] for a in poses[1]] |> extrema))+0.2
-    #     xextrema = (-xtr, xtr)
-    #     yextrema = (-ytr, ytr)
-    #     xlims!(ax, xextrema)
-    #     ylims!(ax, yextrema)
-    # end
-
-    fullplot!(axs[1], poses[1], graphs[1], node_color, node_size)
-    sampleableplot!(axs[2], poses[2], graphs[2:3], v)
-    sampledplot!(axs[3], poses[2], graphs[2], v)
-    return los, poses
 end
-
-export backgroundplot!
