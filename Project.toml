@@ -4,6 +4,7 @@ authors = ["emfeltham <eric.feltham@yale.edu>"]
 version = "0.1.0"
 
 [deps]
+ColorVectorSpace = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 Effects = "8f03c58b-bd97-4933-a826-f71b64d2cca2"
 GLM = "38e38edf-8417-5370-95a0-9cbb8c7f171a"
 GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"

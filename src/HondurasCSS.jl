@@ -49,6 +49,8 @@ export logistic, logit
 
 import GLM.Normal
 
+using ColorVectorSpace
+
 ##
 
 files_g = [
