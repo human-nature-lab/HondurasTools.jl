@@ -167,11 +167,10 @@ end
 export tradeoffdata
 
 function scatter_ratio!(lp, tdf)
-    yticks_ = (eachindex(tdf[!, :name]), tdf[!, :Name]);
     ax = Axis(
         lp,
         xlabel = "Performance-tradeoff ratio (ΔJ/ΔPPB)",
-        yticks = yticks_,
+        yticks = ([],[]),
         xticks = 0:0.5:2.5
     );
         
