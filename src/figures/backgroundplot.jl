@@ -323,7 +323,11 @@ function data_handling!(graphs, css, ndf4, prm)
     return v, cssvu
 end
 
-function backgroundplot!(plo, fprm; diagnostic = false)
+function backgroundplot!(
+    plo, fprm;
+    lxs = [[1, 1], [1, 2], [1, 3]],
+    diagnostic = false
+)
 
     inner_plotting!(fprm, diagnostic)
 
@@ -331,7 +335,7 @@ function backgroundplot!(plo, fprm; diagnostic = false)
     los = [];
     axs = [];
 
-    for i in [[1,1], [1,2], [2,1]]
+    for i in lxs
         lo = plo[i...] = GridLayout()
         ax = Axis(lo[1, 1]; backgroundcolor = :transparent, aspect = 1)
         hidedecorations!(ax)
