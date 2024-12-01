@@ -81,8 +81,10 @@ files_fg = "figures/" .* [
     "homophily_plot.jl",
     # paper figures
     "figure1.jl",
+    "figure2",
     "interaction.jl",
-    "contrasttable.jl"
+    "contrasttable.jl",
+    "roc_space.jl"
 ];
 
 for x in files_fg; include(x) end

@@ -49,6 +49,21 @@ function improvementline!(ax; tr = 0.9, linestyle = :dash)
     lines!(ax, (1:-0.1:0.5), 0:0.1:0.5; linestyle, color = (yale.accent[2], tr))
 end
 
+@inline valproc(x) = string(round(x; digits = 1))
+
+"""
+        sloperad(pts)
+
+## Description
+
+Calculate the slope in radians given two points.
+
+"""
+function sloperad(pts)
+    x1, y1 = pts[1]; x2, y2 = pts[2]
+    return (y2 - y1) / (x2 - x1) |> atan
+end
+
 function save2(name, fg)
     save(name, fg; pt_per_unit = 2)
 end
