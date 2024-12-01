@@ -9,9 +9,9 @@ Make the ROC space explainer panel.
 
 - `fgloc`: _e.g._, `fg[1, 1]`, for a Figure or GridLayout object.
 """
-function roc_panel!(fgloc, l_loc)
+function roc_panel!(figure_loc, legend_loc)
     ax = Axis(
-        fgloc,
+        figure_loc,
         ylabel = "True positive rate", xlabel = "False positive rate",
         aspect = 1,
         # height = 100
@@ -111,7 +111,8 @@ function roc_panel!(fgloc, l_loc)
         ),
     ];
 
-    Legend(l_loc,
+    Legend(
+        legend_loc,
         [elem_1, elem_2],
         [["Level 1", "Level 2"], ["Above chance", "Below chance"]],
         ["Attribute", "Performance"], framevisible = false
