@@ -82,6 +82,7 @@ files_fg = "figures/" .* [
     # paper figures
     "figure1.jl",
     "figure_bivar.jl",
+    "figure4_alt.jl",
     "figure4.jl",
     "interaction.jl",
     "contrasttable.jl",
