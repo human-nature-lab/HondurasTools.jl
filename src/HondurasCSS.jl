@@ -81,7 +81,8 @@ files_fg = "figures/" .* [
     "homophily_plot.jl",
     # paper figures
     "figure1.jl",
-    "figure2.jl",
+    "figure_bivar.jl",
+    "figure4.jl",
     "interaction.jl",
     "contrasttable.jl",
     "roc_space.jl"

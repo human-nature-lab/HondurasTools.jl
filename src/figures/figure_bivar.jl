@@ -1,6 +1,6 @@
 # figure2.jl
 
-function setup_figure2(bimodel, df; invlink = logistic, socio = socio)
+function setup_figure_bivar(bimodel, df; invlink = logistic, socio = socio)
 
     # calculate marginal effects
     prds = [
@@ -75,9 +75,9 @@ function setup_figure2(bimodel, df; invlink = logistic, socio = socio)
     return sbar
 end
 
-export setup_figure2
+export setup_figure_bivar
 
-function make_figure2(
+function figure_bivar(
     sbar, bpd; nlevels = 10, colormap = berlin
 )
     
@@ -135,4 +135,4 @@ function make_figure2(
     return fg
 end
 
-export make_figure2
+export figure_bivar

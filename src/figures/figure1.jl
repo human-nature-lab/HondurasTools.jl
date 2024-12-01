@@ -115,18 +115,4 @@ function background_legend!(layout_legend)
         nbanks = 1,
         framevisible = false
     )
-
-    # Legend(
-    #     layout_legend[1, 1],
-    #     [group_color, space_color, line_style, line_color],
-    #     [color_leg, space_leg, line_leg, line_color_leg],
-    #     ["Node type", "Cognizer distance", "Tie exists in network", "Response"];
-    #     tellheight,
-    #     tellwidth,
-    #     orientation = :horizontal,
-    #     titleposition = :top,
-    #     valign,
-    #     nbanks = 1,
-    #     framevisible = false
-    # )
 end
