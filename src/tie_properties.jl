@@ -129,7 +129,7 @@ function tievariables(
     end
 
     # binary and categorical variables
-    cssalt.man_a = gendercat.(cssalt.man_a1, cssalt.man_a2);
+    cssalt.man_a = passmissing(gendercat).(cssalt.man_a1, cssalt.man_a2);
 
     cssalt.religion_c_a = passmissing(ifelse).(cssalt.religion_c_a1 .== cssalt.religion_c_a2, "Same", "Mixed")
 
@@ -152,7 +152,7 @@ function tievariables(
     select!(cssalt, names(cssalt)[.!(occursin.("_a1", names(cssalt)) .| occursin.("_a2", names(cssalt)))])
 
     # test
-    if !(cssalt.alter1 == cr.alter1) | !(cssalt.alter2 == cr.alter2)
+    if !(cssalt.alter1 == css.alter1) | !(cssalt.alter2 == css.alter2)
         error("row mismatch")
     end
     return cssalt
