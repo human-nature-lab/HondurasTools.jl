@@ -126,4 +126,6 @@ include("figures/roc_distance.jl")
 # include("figures/contrasttable.jl")
 include("tpr_fpr.jl")
 
+include("process/utilities.jl")
+
 end # module HondurasCSS

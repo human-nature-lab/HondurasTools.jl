@@ -268,3 +268,65 @@ function binarize_gt!(
 end
 
 export binarize_gt, binarize_gt!
+
+"""
+        groundtruthprocess!(gt)
+
+## Description
+
+Binarize according to union rule (count Alter-value or "Yes").
+"""
+function groundtruthprocess!(gt)
+    vs = Symbol.(names(gt)[6:end]);
+
+    # lose which alter information
+    for v in vs
+        replace!(gt[!,v], [x => "Alter" for x in ["Alter 1", "Alter 2"]]...)
+    end
+
+    # make categorical
+    for v in vs
+        gt[!,v] = categorical(gt[!,v], ordered = true)
+        levels!(gt[!,v], ["No", "Alter", "Yes"])
+    end
+
+    gt.relation = categorical(gt.relation);
+
+    # Convert to binary. Leave the three-valued variables as tagged "_full".
+    for x in vs
+        y = Symbol(string(x) * "_full")
+        gt[!, y] = gt[!, x]
+        # union rule: count Alter-value or "Yes"
+        gt[!, x] = binarize_gt(gt, x);
+    end
+end
+
+export groundtruthprocess!
+
+"""
+        vsmerge!(
+            df, gt; vs = [:socio4, :socio431, :kin4, :kin431, :union4, :union431, :any4, :any431]
+        )
+
+## Description
+
+Merge selected variables, `vs`, into df, checking order on `xs`. Rely on the fact that the order is the same.
+
+- `vs`: variables to copy to `df`
+"""
+function vsmerge!(
+    df, gt;
+    vs = [:socio4, :socio431, :kin4, :kin431, :union4, :union431, :any4, :any431],
+    xs = [:perceiver, :alter1, :alter2, :relation]
+)
+    # important check prior to hcat (check that order is the same)
+    for x in xs
+        @assert df[!, x] == gt[!, x]
+    end
+
+    for x in vs
+        df[!, x] = gt[!, x]
+    end
+end
+
+export vsmerge!
