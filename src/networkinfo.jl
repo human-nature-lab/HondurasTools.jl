@@ -363,3 +363,25 @@ function pairmean!(crj, v)
 end
 
 export pairmean!
+
+"""
+        addnetworkdata!(df, ndf)
+
+## Description
+
+Add the network data.
+"""
+function addnetworkdata!(df, ndf)
+    # preallocated in css
+    for (k, _) in node_fund
+        df[!, k] = missings(Float64, nrow(df))
+    end
+
+    for (k, _) in g_fund
+        df[!, k] = missings(Float64, nrow(df))
+    end
+
+    join_ndf_cr!(df, ndf; rels = ["free_time", "personal_private"]);
+end;
+
+export addnetworkdata!
