@@ -286,6 +286,19 @@ end
 
 export ci
 
+function civec(x, se; area = 1.96)
+    return x .- (se .* area), x .+ (se * area)
+end
+
+export civec
+
+function addci!(df, v, se; area = 1.96)
+    df[!, :lower] = df[!, v] .- (df[!, se] .* area);
+    df[!, :upper] = df[!, v] .+ (df[!, se] .* area);
+end
+
+export addci!
+
 function ci!(
     rgs::Union{NamedTuple, BiData}; x = :response, rates = rates, area = 1.96
 )

@@ -7,12 +7,12 @@
 
 """
 function ratecolor(x)
-    return if x == :tpr
+    return if (x == :tpr) | (string(x) == "TPR")
         yale.blues[3]
-    elseif (x == :fpr) | (x == :tnr)
+    elseif (x == :fpr) | (x == :tnr) | (string(x) == "FPR")
         # yale.accent[2]
         columbia.secondary[1]
-    elseif (x == :peirce) | (x == :j)
+    elseif (x == :peirce) | (x == :j) | (string(x) == "J")
         yale.blues[3]-columbia.secondary[1]
         # yale.accent[1]
     else
