@@ -235,7 +235,6 @@ end
 
 export process_nvariable, process_nvariable!
 
-
 """
         neighborprops(g::AbstractGraph, v::Int; property = :name)
 
