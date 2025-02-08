@@ -1,5 +1,8 @@
 # tiestrength.jl
 
+# there is a common neighbors function in Graphs.jl
+# probably use that
+
 """
         tiestrength(g, i, j)
 
