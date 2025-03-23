@@ -30,7 +30,10 @@ export tuple_addinv
 
 Return sorted unique object.
 """
-sunique(x) = (sort∘unique)(x)
+function sunique(x)
+    (sort∘unique)(x)
+end
+
 export sunique
 
 """
