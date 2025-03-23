@@ -16,6 +16,9 @@ using Reexport
 @reexport using HondurasTools
 @reexport using NiceDisplay
 
+using Graphs
+using GraphMakie
+
 import HondurasTools.sortedges!
 
 # other dependencies
