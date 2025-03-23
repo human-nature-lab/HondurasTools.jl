@@ -18,3 +18,6 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 StandardizedPredictors = "5064a6a7-f8c2-40e2-8bdc-797ec6f1ae18"
 StatsFuns = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
+
+[compat]
+NiceDisplay = "1.0.0"

@@ -1,7 +1,6 @@
 module HondurasCSS
 
 import Base.getindex
-
 import Pkg
 using Reexport
 
@@ -38,16 +37,12 @@ and NiceDisplay
 
 # modeling
 @reexport using GLM
+import GLM.Normal
 @reexport using MixedModels
-
-# @reexport using Lasso
 @reexport using Effects
-# StandardizedPredictors # no longer using this
 
 using StatsFuns: logistic, logit
 export logistic, logit
-
-import GLM.Normal
 
 using ColorVectorSpace
 
