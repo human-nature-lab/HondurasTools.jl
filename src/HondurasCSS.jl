@@ -1,15 +1,19 @@
 module HondurasCSS
 
+# version notes
+# We need this older version of MixedModels to ensure consistent compatibility with models
+# that we've run.
+# Pkg.add(name="MixedModels", version="4.14.0")  # Pre-xtol_zero_abs version
+
 import Base.getindex
 import Pkg
 using Reexport
 
 # add "." when running these here, "." for external usage
 # (total of two dots)
-# Pkg.develop(path = "./HondurasTools.jl"); # general functions, definitions
-# Pkg.develop(path = "./NiceDisplay.jl"); # tables, figures, quarto
+Pkg.develop(path = "./HondurasTools.jl"); # general functions, definitions
+Pkg.develop(path = "./NiceDisplay.jl"); # tables, figures
 
-# transition to
 # https://github.com/human-nature-lab/HondurasTools.jl
 # https://github.com/emfeltham/NiceDisplay.jl
 
