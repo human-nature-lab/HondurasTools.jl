@@ -147,11 +147,19 @@ function effplot_cts!(
     limitx = true,
     axh = 250,
     axw = nothing,
+    dropkin = true,
+    coloredticks = true,
     axiskwargs...
 )
 
     jstat = "j" ∈ names(rg)
     fpronly = any(["tpr", "ci_tpr"] .∉ Ref(names(rg)))
+
+    tickcolor = if coloredticks
+        ratecolor(:tpr) + ratecolor(:fpr)
+    else
+        :black
+    end
 
     ax = if isnothing(axw)
         Axis(
@@ -159,7 +167,7 @@ function effplot_cts!(
             ylabel = "Rate",
             xlabel = margvarname,
             height = axh,
-            yticklabelcolor = ratecolor(:tpr) + ratecolor(:fpr),
+            yticklabelcolor = tickcolor,
             axiskwargs...
         )
     else
@@ -169,7 +177,7 @@ function effplot_cts!(
             xlabel = margvarname,
             height = axh,
             width = axw,
-            yticklabelcolor = ratecolor(:tpr) + ratecolor(:fpr),
+            yticklabelcolor = tickcolor,
             axiskwargs...
         )
     end
@@ -200,29 +208,61 @@ function effplot_cts!(
     
     rt = ifelse(fpronly, [:fpr], [:tpr, :fpr, :j])    
 
-    for r in rt
-        ciname = "ci_" * string(r) |> Symbol
-        clr = ratecolor(r)
+    if ("kin431" ∈ names(rg)) & !dropkin
+        gr = groupby(rg, :kin431)
+        for (ky, g) in pairs(gr)
+            lsty = ifelse(ky.kin431, :dot, :solid)
+            
+            for r in rt
+                ciname = "ci_" * string(r) |> Symbol
+                clr = ratecolor(r)
+                
+                ax_ = if (r == :j) & jstat
+                    ax_r
+                else ax
+                end
         
-        ax_ = if (r == :j) & jstat
-            ax_r
-        else ax
-        end
-
-        xs = rg[!, margvar];
-        ys = rg[!, r];
-        lwr = [x[1] for x in rg[!, ciname]];
-        upr = [x[2] for x in rg[!, ciname]];
+                xs = g[!, margvar];
+                ys = g[!, r];
+                lwr = [x[1] for x in g[!, ciname]];
+                upr = [x[2] for x in g[!, ciname]];
+                
+                if tnr & (r == :fpr)
+                    ys = 1 .- ys
+                    lwr = 1 .- lwr
+                    upr = 1 .- upr
+                end
         
-        if tnr & (r == :fpr)
-            ys = 1 .- ys
-            lwr = 1 .- lwr
-            upr = 1 .- upr
+                lines!(ax_, xs, ys, color = clr, linestyle = lsty)
+                band!(ax_, xs, lwr, upr; color = (clr, tr)) # no method for tuples
+            end
         end
-
-        lines!(ax_, xs, ys, color = clr)
-        band!(ax_, xs, lwr, upr; color = (clr, tr)) # no method for tuples
+    else
+        for r in rt
+            ciname = "ci_" * string(r) |> Symbol
+            clr = ratecolor(r)
+            
+            ax_ = if (r == :j) & jstat
+                ax_r
+            else ax
+            end
+    
+            xs = rg[!, margvar];
+            ys = rg[!, r];
+            lwr = [x[1] for x in rg[!, ciname]];
+            upr = [x[2] for x in rg[!, ciname]];
+            
+            if tnr & (r == :fpr)
+                ys = 1 .- ys
+                lwr = 1 .- lwr
+                upr = 1 .- upr
+            end
+    
+            lines!(ax_, xs, ys, color = clr)
+            band!(ax_, xs, lwr, upr; color = (clr, tr)) # no method for tuples
+        end
     end
+
     
     if limitx
         xlims!(ax, extrema(rg[!, margvar]))

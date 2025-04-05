@@ -6,6 +6,7 @@ function rocplot!(
     axsz = 250,
     dropkin = false,
     ellipsecolor = (yale.grays[end-1], 0.3),
+    ellipsehull = nothing,
     markeropacity = nothing,
     roctitle = true,
     kinlegend = true,
@@ -30,6 +31,7 @@ function rocplot!(
         markeropacity,
         ellipse,
         ellipsecolor,
+        ellipsehull,
         roctitle,
         kinmarker = kinmarker,
         kin = kin,
@@ -195,6 +197,7 @@ function rocplot_!(
     markeropacity = nothing,
     ellipse = false,
     ellipsecolor = (:grey, 0.3),
+    ellipsehull = nothing,
     roctitle = true,
     kinmarker = true,
     kin = kin,
@@ -250,12 +253,13 @@ function rocplot_!(
     end
     
     # (optionally) plot confidence ellipse
-    if ellipse
-        for (fp, tp, Σ) in zip(rg.fpr, rg.tpr, rg.Σ)
-            poly!(
-                Point2f.(zip(getellipsepoints(Point(fp, tp), Σ)...,));
-                color = ellipsecolor
-            )
+    if ellipse & isnothing(ellipsehull)
+        poly!(rg.ellipse_points; color = ellipsecolor)
+    end
+
+    if ellipse & !isnothing(ellipsehull)
+        for x in ellipsehull # nonkin, kin
+            poly!(x.vertices; color = ellipsecolor)
         end
     end
 

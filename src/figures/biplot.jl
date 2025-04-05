@@ -3,9 +3,10 @@
 function biplot!(
 	layout, bpd;
 	ellipsecolor = (yale.grays[end-1], 0.4),
+	ellipsehull = nothing,
 	dropkin_eff = true,
 	tnr = true,
-	kinlegend = true
+	kinlegend = true,
 )
 
 	l1 = layout[1, 1] = GridLayout();
@@ -18,6 +19,7 @@ function biplot!(
 			l1,
 			bpd.rg, bpd.margvar, bpd.margvarname;
 			ellipsecolor,
+			ellipsehull,
 			markeropacity = nothing,
 			kinlegend
 		)
@@ -33,11 +35,15 @@ function biplot!(
 		distance_roc!(
 			l1,
 			bpd.rg, bpd.margvar, bpd.margvarname;
+			markeropacity = 1,
+			ellipsecolor,
+			ellipsehull
 		)
 
 		distance_eff!(
 			l2, bpd.rg, bpd.margvar, bpd.margvarname;
-			dropkin = dropkin_eff
+			dropkin = dropkin_eff,
+			coloredticks = true,
 		)
 	end
 	

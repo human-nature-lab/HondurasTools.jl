@@ -22,13 +22,14 @@ function vecdiff(x)
 end
 
 """
-    contrasttable(cts; cidigits = 3, pdigits = 4)
+    contrasttable(cts; cidigits = 3, pdigits = 3)
 
-Generate a contrast contrast table from a set of formatted (combined for TPR and FPR, with J calculations performed already) reference grids that have been passed through emmpairs, `cts`, or have contrasts calculated already.
+- Generate a contrast contrast table from a set of formatted (combined for TPR and FPR, with J calculations performed already) reference grids that have been passed through emmpairs, `cts`, or have contrasts calculated already.
+- P-values are truncated for NHB-style reporting.
+- Preparation for convertion to Typst table.
 
-Preparation for convertion to Typst table.
 """
-function contrasttable(cts; cidigits = 3, pdigits = 4)
+function contrasttable(cts; cidigits = 2, pdigits = 3)
     dfe = deepcopy(cts);
 
     vs = ["tpr", "fpr", "j"]
@@ -39,6 +40,15 @@ function contrasttable(cts; cidigits = 3, pdigits = 4)
             v
         )
     end
+
+    for vn in [:tpr, :fpr, :j, :err_tpr, :err_fpr, :err_j]
+        dfe[!, vn] = dfe[!, vn] .* 100
+    end
+
+    for v in [:ci_tpr, :ci_fpr, :ci_j]
+        dfe[!, v] = [x .* 100 for x in dfe[!, v]]
+    end
+
     vs = [:ci_tpr, :ci_fpr, :ci_j, :tpr, :fpr, :j]
     for v in vs
         dfe[!, v] = round.(dfe[!, v]; digits = cidigits);
@@ -53,6 +63,14 @@ function contrasttable(cts; cidigits = 3, pdigits = 4)
 
     dfe.Subject = ifelse.(occursin.("_a", string.(dfe[!, "vbl"])), "Tie", "Respondent")
     select!(dfe, Not(:vbl))
+
+    # NHB p-value reporting
+    for pn in [:p_tpr, :p_fpr, :p_j]
+        pmin_loc = dfe[!, pn] .< 0.001;
+        dfe[!, pn] = string.(dfe[!, pn])
+        replace!(dfe[!, pn], "NaN" => "")
+        dfe[pmin_loc, pn] .= "\\<0.001"
+    end
 
     dfl = stack(dfe, Not([:Contrast, :Subject, :Variable]));
 
@@ -90,6 +108,16 @@ function contrasttable(cts; cidigits = 3, pdigits = 4)
 
     dout.vardiff = .!vecdiff(dout.Variable)
     dout.Variable[.!vecdiff(dout.Variable)] .= ""
+
+    # fix NaN cases
+    dout.FPR = replace.(dout.FPR, "NaN" => "")
+    dout.TPR = replace.(dout.TPR, "NaN" => "")
+    dout.J = replace.(dout.J, "NaN" => "")
+
+    dout.FPR = replace.(dout.FPR, "(, )" => "")
+    dout.TPR = replace.(dout.TPR, "(, )" => "")
+    dout.J = replace.(dout.J, "(, )" => "")
+
     return dout
 end
 

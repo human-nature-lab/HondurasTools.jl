@@ -1,37 +1,73 @@
 # figure4.jl
 
-function figure4!(los, vars, md)
+function figure4!(los, vars, md, ellipsecolor, hulls)
 	for (i, e) in enumerate(vars)
 		rg, margvarname = md[e]
 		tp = (
 			rg = rg, margvar = e, margvarname = margvarname,
 			tnr = true, jstat = true
 		);
-		# biplot!(los[i], tp)
+		
+        mv = tp.margvar
 
-        if tp.margvar ∉ [:dists_p, :dists_a, :are_related_dists_a]
+        eh = if isnothing(hulls)
+            nothing
+        else
+            get(hulls, mv, nothing)
+        end
+
+        if mv ∈ [ # if categorical do not use hull, just directly use points
+            :religion_c
+            :man
+            :man_a
+            :educated_a
+            :educated
+            :relation
+            :religion_c_a
+            :isindigenous
+            :isindigenous_a
+            :kin431
+            :coffee_cultivation
+        ]
+            eh = nothing
+        end
+
+
+        if mv ∉ [:dists_p, :dists_a, :are_related_dists_a]
             rocplot!(
                 los[i],
-                tp.rg, tp.margvar, tp.margvarname;
+                tp.rg, mv, tp.margvarname;
+                ellipsecolor,
+                ellipsehull = eh,
                 markeropacity = 0.8,
                 kinlegend = true,
                 dolegend = true
             )
-        else
+        elseif mv ∈ [:dists_p, :are_related_dists_a]
+            
             distance_roc!(
                 los[i],
-                tp.rg, tp.margvar, tp.margvarname
+                tp.rg, mv, tp.margvarname;
+                ellipsecolor,
+                ellipsehull = eh,
+                markeropacity = 1,
+            )
+        elseif mv == :dists_a
+            distance_eff!(
+                los[i], tp.rg, mv, tp.margvarname;
+                dropkin = false,
+                coloredticks = false
             )
         end
 	end
 end
 
 """
-        make_figure4!(fg)
+        make_figure4!(fg, md, wd, transforms; ellipsecolor = (:grey, 0.4), hulls = nothing)
 
 ## Description
 """
-function make_figure4!(fg, md, wd, transforms)
+function make_figure4!(fg, md, wd, transforms; ellipsecolor = (:grey, 0.4), hulls = nothing)
     vars = [
         :relation, :man_a, :degree_mean_a,
         :religion_c_a, :wealth_d1_4_diff_a, :wealth_d1_4_mean_a,
@@ -78,7 +114,7 @@ function make_figure4!(fg, md, wd, transforms)
             end
         end
     end
-    figure4!(los, vars, md)
+    figure4!(los, vars, md, ellipsecolor, hulls)
 
     los = GridLayout[];
     cnt = 0
@@ -93,7 +129,7 @@ function make_figure4!(fg, md, wd, transforms)
     end
 
     los2 = [GridLayout(lo2a[1,1]), GridLayout(lo2a[1,2])]
-    figure4!(los2, [:dists_p, :dists_a], md)
+    figure4!(los2, [:dists_p, :dists_a], md, ellipsecolor, hulls)
 
     vt = :wealth_d1_4_mean_a
     vk = :wealth_d1_4

@@ -18,6 +18,7 @@ function distance_roc!(
     layout,
     rg, margvar, margvarname;
     ellipsecolor = (yale.grays[end], 0.3),
+	ellipsehull = nothing,
     markeropacity = nothing,
     roctitle = true,
     kinlegend = true,
@@ -38,6 +39,7 @@ function distance_roc!(
 		markeropacity,
 		ellipse,
 		ellipsecolor,
+		ellipsehull,
 		roctitle,
 		kinmarker = true,
 		axsz = 250,

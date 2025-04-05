@@ -1,25 +1,20 @@
 # figure4 (alt).jl
 
-function figure4_alt!(los, vars, md)
+function figure4_alt!(los, vars, md; ellipsecolor = (yale.grays[end-2], 0.75), ellipsehulls = nothing)
 	for (i, e) in enumerate(vars)
 		rg, margvarname = md[e]
 		tp = (
 			rg = rg, margvar = e, margvarname = margvarname,
 			tnr = true, jstat = true
 		);
-		biplot!(los[i], tp)
+		hull = get(ellipsehulls,e,nothing)
+		biplot!(los[i], tp; ellipsecolor, ellipsehull = hull)
 	end
 
 	labelpanels!(los)
 end
 
-function make_figure4_alt!(fg, md, transforms)
-	vars = [
-		:relation, :man_a,
-		:age_mean_a, :age_diff_a,
-		:degree_mean_a, :degree_diff_a,
-		:dists_p, :dists_a
-	];
+function make_figure4_alt!(fg, md, transforms, vars; ellipsecolor = (yale.grays[end-2], 0.75), ellipsehulls = nothing)
 
 	# back-transform relevant cts. variables
 	for e in [
@@ -55,7 +50,7 @@ function make_figure4_alt!(fg, md, transforms)
 			end
 		end
 	end
-	figure4_alt!(los, vars, md)
+	figure4_alt!(los, vars, md; ellipsecolor, ellipsehulls)
 end
 
 export make_figure4_alt!
