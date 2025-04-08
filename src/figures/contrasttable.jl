@@ -134,6 +134,7 @@ function contrast_table_rg(rg, e; emptyval = NaN)
         df_tpr = select(df_, e, :tpr, :err_tpr)
         x1 = empairs(df_tpr; eff_col = :tpr, err_col = :err_tpr)
         x1.ci_tpr = ci.(x1.tpr, x1.err_tpr)
+
     end
 
     if c2
