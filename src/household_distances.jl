@@ -142,6 +142,6 @@ function hh_distances(css, hc)
     leftjoin!(css, crd_a, on = [:village_code, :building_id_a1, :building_id_a2]; matchmissing = :notequal);
     css.hh_dist_pa_mean = (css.hh_dist_pa1 + css.hh_dist_pa2) .* inv(2);
 
-    BSON.bson(savepath * "household_distances" * date_stamp * ".bson", (css))
+    BSON.bson(hc.writepath * "household_distances" * date_stamp * ".bson", prepare_for_bson(css))
     return css
 end
