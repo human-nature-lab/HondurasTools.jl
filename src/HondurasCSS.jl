@@ -1,78 +1,71 @@
+"""
+HondurasCSS
+
+Module for analyzing social cognitive data from Honduras research project.
+Provides tools for processing, analyzing, and visualizing network perception data.
+"""
 module HondurasCSS
 
-# version notes
-# We need this older version of MixedModels to ensure consistent compatibility with models
-# that we've run.
-# Pkg.add(name="MixedModels", version="4.14.0")  # Pre-xtol_zero_abs version
-
+# Standard library imports
 import Base.getindex
-import Pkg
+
+# Package management
+# Note: For reproducibility, use MixedModels v4.14.0 (pre-xtol_zero_abs)
+# Pkg.add(name="MixedModels", version="4.14.0")
+
+# Core dependencies with re-exports
 using Reexport
-
-# add "." when running these here, "." for external usage
-# (total of two dots)
-# Pkg.develop(path = "./HondurasTools.jl"); # general functions, definitions
-# Pkg.develop(path = "./NiceDisplay.jl"); # tables, figures
-
-# https://github.com/human-nature-lab/HondurasTools.jl
-# https://github.com/emfeltham/NiceDisplay.jl
-
 @reexport using HondurasTools
 @reexport using NiceDisplay
-
 @reexport using NiceDisplay.Graphs
 @reexport using NiceDisplay.GraphMakie
 
-import HondurasTools.sortedges!
-
-# other dependencies
-using GeometryBasics
-using Random
-
-import MultivariateStats # stressfocus.jl
-import NiceDisplay.LinearAlgebra:norm
-
-using KernelDensity
-
-#=
-Only include packages that are not already exported by HondurasTools
-and NiceDisplay
-=#
-
-# CairoMakie, AlgebraOfGraphics # exported from NiceDisplay
-# DataFrames, DataFramesMeta # exported from NiceDisplay
-
-# modeling
+# Modeling packages
 @reexport using GLM
-import GLM.Normal
 @reexport using MixedModels
 @reexport using Effects
 
+# Statistical and visualization packages
+using GeometryBasics
+using Random
+using KernelDensity
 using StatsFuns: logistic, logit
-export logistic, logit
-
 using ColorVectorSpace
 
-##
+# Specific imports
+import HondurasTools.sortedges!
+import MultivariateStats
+import NiceDisplay.LinearAlgebra: norm
+import GLM.Normal
 
-files_g = [
-    "EModel.jl", "errors.jl",
-    "effects_utilities.jl", "analysis_utilities.jl",
+# Additional exports
+export logistic, logit
+
+import BSON
+
+# File organization by category
+const CORE_FILES = [
+    "EModel.jl",
+    "errors.jl",
+    "effects_utilities.jl",
+    "analysis_utilities.jl",
     "variables.jl"
-];
+]
 
-for x in files_g; include(x) end
-
-files_fg = "figures/" .* [
+const FIGURE_FILES = [
     "plotting.jl",
-    "figure_utilities.jl", "stressfocus.jl",
+    "figure_utilities.jl",
+    "stressfocus.jl",
     "unitbarplot.jl",
     "backgroundplot.jl",
     "rocplot.jl",
     "effectsplot.jl",
-    "biplot.jl", "interface_plot.jl",
-    "roc-style.jl", "roc-pred.jl",
-    "tiedist.jl", "pairdist.jl",
+    "biplot.jl",
+    "interface_plot.jl",
+    "roc-style.jl",
+    "roc-pred.jl",
+    "tiedist.jl",
+    "pairdist.jl",
     "clustdiff.jl",
     "individualpredictions!.jl",
     "bivariate_perceiver.jl",
@@ -81,7 +74,7 @@ files_fg = "figures/" .* [
     "stage2_figure.jl",
     "riddle_plot!.jl",
     "homophily_plot.jl",
-    # paper figures
+    # Paper figures
     "figure1.jl",
     "figure_bivar.jl",
     "figure4_alt.jl",
@@ -89,12 +82,12 @@ files_fg = "figures/" .* [
     "interaction.jl",
     "contrasttable.jl",
     "roc_space.jl"
-];
+]
 
-for x in files_fg; include(x) end
-
-files_an = "analysis/" .* [
-    "accuracies.jl", "accuracy_functions.jl", "bootmargins.jl",
+const ANALYSIS_FILES = [
+    "accuracies.jl",
+    "accuracy_functions.jl",
+    "bootmargins.jl",
     "riddles_functions.jl",
     "riddles_functions_pbs.jl",
     "parametricbootstrap2.jl",
@@ -103,18 +96,34 @@ files_an = "analysis/" .* [
     "homophily.jl",
     "effects!.jl",
     "newstrap.jl"
-];
+]
 
-for x in files_an; include(x) end
-
-files_p = "process/" .* [
-    "clean_css.jl", "css_process_raw.jl",
-    "cssdistances_without_ndf.jl", "cssdistances.jl",
+const PROCESS_FILES = [
+    "clean_css.jl",
+    "css_process_raw.jl",
+    "cssdistances_without_ndf.jl",
+    "cssdistances.jl",
     "groundtruth.jl"
-];
+]
 
-for x in files_p; include(x) end
+# Load files by category
+for file in CORE_FILES
+    include(file)
+end
 
+for file in FIGURE_FILES
+    include(joinpath("figures", file))
+end
+
+for file in ANALYSIS_FILES
+    include(joinpath("analysis", file))
+end
+
+for file in PROCESS_FILES
+    include(joinpath("process", file))
+end
+
+# Load additional standalone files
 include("tie_properties.jl")
 include("referencegrid.jl")
 include("j_calculations.jl")
@@ -122,12 +131,25 @@ include("margincalculations.jl")
 include("bootellipse.jl")
 include("ratetradeoff.jl")
 include("adjustedcoeftable.jl")
-
-include("figures/roc_distance.jl")
-
-# include("figures/contrasttable.jl")
+include(joinpath("figures", "roc_distance.jl"))
 include("tpr_fpr.jl")
+include(joinpath("process", "utilities.jl"))
 
-include("process/utilities.jl")
+# Final processing functions (generates the working data)
+include("process/final processing.jl")
+
+export HondurasConfig, hondurasconfig
+export main, demographics, create_combined_demographics, create_css_data
+
+const pers_vars = [
+    :extraversion,
+    :agreeableness,
+    :conscientiousness,
+    :neuroticism,
+    :openness_to_experience,
+];
+
+export pers_vars
+
 
 end # module HondurasCSS
