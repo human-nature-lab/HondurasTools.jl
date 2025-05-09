@@ -1,10 +1,38 @@
+<<<<<<< HEAD
+name = "HondurasCSS"
+uuid = "86995ca9-cb84-4024-835f-b9ba116fef75"
+authors = ["emfeltham <eric.feltham@yale.edu>"]
+=======
 name = "HondurasTools"
 uuid = "53a3418b-e4dc-4b79-9710-56922bb5ab08"
 authors = ["Eric Martin Feltham <eric.feltham@yale.edu>"]
+>>>>>>> 3ba3fa7f29a36d6dc40d3a08e970a52450813c46
 version = "0.1.0"
 
 [deps]
 BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
+<<<<<<< HEAD
+ColorVectorSpace = "c3611d14-8923-5661-9e6a-0046d554d3a4"
+Effects = "8f03c58b-bd97-4933-a826-f71b64d2cca2"
+GLM = "38e38edf-8417-5370-95a0-9cbb8c7f171a"
+GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
+HondurasTools = "53a3418b-e4dc-4b79-9710-56922bb5ab08"
+KernelDensity = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
+MixedModels = "ff71e718-51f3-5ec2-a782-8ffcbfa3c316"
+MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
+NiceDisplay = "7d3b42f7-c40e-4233-afc8-58239d6810c5"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+StatsFuns = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
+
+[compat]
+BSON = "0.3.9"
+HondurasTools = "0.1.0"
+KernelDensity = "0.6.9"
+NiceDisplay = "1.0.0"
+Pkg = "1.11.0"
+=======
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
@@ -29,3 +57,4 @@ StatsModels = "3eaba693-59b7-5ba5-a881-562e759f1c8d"
 [compat]
 BSON = "0.3.9"
 Distances = "0.10.12"
+>>>>>>> 3ba3fa7f29a36d6dc40d3a08e970a52450813c46
