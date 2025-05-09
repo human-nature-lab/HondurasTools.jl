@@ -963,58 +963,6 @@ println("Starting Honduras data processing: \$(hc.date_stamp)")
     return nothing
 end
 
-"""
-    prepare_for_bson(df)
-    
-Convert problematic column types to BSON-compatible formats.
-Handles all InlineStrings variants and other problematic types.
-"""
-function prepare_for_bson(df)
-    df_copy = copy(df)
-    
-    for col in names(df_copy)
-        col_type = eltype(df_copy[!, col])
-        type_str = string(col_type)
-        
-        # Case 1: Direct InlineStrings
-        if occursin("InlineStrings", type_str)
-            if occursin("CategoricalValue", type_str)
-                # Handle categorical columns with InlineStrings
-                df_copy[!, col] = categorical(passmissing(String).(df_copy[!, col]))
-            else
-                # Handle regular InlineStrings columns
-                df_copy[!, col] = passmissing(String).(df_copy[!, col])
-            end
-        
-        # Case 2: Any type - check and convert each element
-        elseif col_type == Any
-            # Process each cell individually
-            for i in 1:nrow(df_copy)
-                val = df_copy[i, col]
-                
-                # Skip missing values
-                if ismissing(val)
-                    continue
-                end
-                
-                # Check if the value contains InlineStrings
-                if typeof(val) <: CSV.InlineStrings.InlineString
-                    df_copy[i, col] = String(val)
-                elseif val isa Vector && !isempty(val) && eltype(val) <: CSV.InlineStrings.InlineString
-                    df_copy[i, col] = String.(val)
-                end
-            end
-        
-        # Case 3: Union{Missing, Nothing, Int64} - normalize Nothing to missing
-        elseif Union{Missing, Nothing, Int64} == col_type
-            # Convert Nothing to missing for consistency
-            df_copy[!, col] = [v === nothing ? missing : v for v in df_copy[!, col]]
-        end
-    end
-    
-    return df_copy
-end
-
 # proceess and save individual demographic files
 function demographics(hc)
     resp, rd, r4 = process_respondent_data(hc);
@@ -1155,6 +1103,28 @@ function load_dataset(path, key, dataset_name)
     end
 end
 
+function create_network_data(hc::HondurasConfig)
+    # Process network data
+    @info "Processing network connections data..."
+    con, ndf = process_network_data(hc)
+    
+    # Filter to wave 4 network data
+    @info "Extracting wave 4 network data..."
+    ndf4 = @subset ndf :wave .== 4
+    
+    # Save connection data
+    @info "Saving connection data to: $con_path"
+    # con_path = hc.write_path * "connections_data_" * hc.date_stamp * ".bson"
+    # BSON.bson(con_path, Dict(:con => prepare_for_bson(con)))
+    con_path = hc.write_path * "connections_data_" * hc.date_stamp * ".jld2"
+    JLD2.save_object(con_path, con)
+    
+    # Save network information
+    net_path = hc.write_path * "network_info_" * hc.date_stamp * ".bson"
+    @info "Saving network metrics to: $net_path"
+    BSON.bson(net_path, Dict(:ndf => prepare_for_bson(ndf)))
+end
+
 """
     create_css_data(hc::HondurasConfig)
 
@@ -1204,11 +1174,9 @@ function create_css_data(hc::HondurasConfig)
     @info "Saving connection data to: $con_path"
     BSON.bson(con_path, Dict(:con => prepare_for_bson(con)))
     
-    # Save network information
     net_path = hc.write_path * "network_info_" * hc.date_stamp * ".bson"
-    @info "Saving network metrics to: $net_path"
-    BSON.bson(net_path, Dict(:ndf => prepare_for_bson(ndf)))
-    
+    ndf = load_dataset(net_path, :ndf, "network data")
+
     # Process CSS perception data
     @info "Processing CSS perception data..."
     css, gt = process_css_data(ndf, con, hc; savedistances = true)
