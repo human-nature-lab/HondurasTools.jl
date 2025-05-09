@@ -877,91 +877,7 @@ function add_population_to_cr!(cr, rhv4)
 end
 
 ## Main Execution
-
 # ==========================================================
-
-"""
-main()
-
-Main execution function that runs the entire data processing pipeline.
-"""
-function main(hc)
-println("Starting Honduras data processing: \$(hc.date_stamp)")
-
-    # Process respondent data
-    resp, rd, r4 = process_respondent_data(hc)
-
-    # Save respondent structures
-    BSON.bson(hc.write_path * "respondent_structs_" * hc.date_stamp * ".bson", Dict(:rd => rd))
-
-    # Save wave 4 respondent data
-    BSON.bson(hc.write_path * "respondent_w4_" * hc.date_stamp * ".bson", Dict(:r4 => r4))
-    
-    # Process household data
-    hh, h4, hd = process_household_data(rd, hc)
-
-    # Save household structures
-    BSON.bson(hc.write_path * "household_structs_" * hc.date_stamp * ".bson", Dict(:hd => hd))
-
-    # Save wave 4 household data
-    BSON.bson(hc.write_path * "household_w4_" * hc.date_stamp * ".bson", Dict(:h4 => h4))
-
-    # Process microbiome data
-    mb = process_microbiome_data(hc)
-
-    # Save microbiome data
-    BSON.bson(hc.write_path * "microbiome_data_" * hc.date_stamp * ".bson", Dict(:mb => mb))
-    
-    # Process village data
-    vill, v4, vd = process_village_data(hc)
-
-    # Save village structures
-    BSON.bson(hc.write_path * "village_structs_" * hc.date_stamp * ".bson", Dict(:vd => vd))
-
-    # Save wave 4 village data
-    BSON.bson(hc.write_path * "village_w4_" * hc.date_stamp * ".bson", Dict(:v4 => v4))
-    
-    # Process cooperation data
-    cop, ihr = process_cooperation_data(hc)
-
-    # Save IHR data
-    BSON.bson(hc.write_path * "ihr_data_" * hc.date_stamp * ".bson", Dict(:ihr => ihr))
-    
-    # Process cooperation data for joining
-    coplate = process_cooperation_rounds(cop)
-
-    # Create combined dataset
-    rhv4 = create_combined_dataset(r4, h4, v4, mb, coplate, hc; savedict = true)
-    
-    # Save combined dataset
-    BSON.bson(hc.write_path * "rhv4_" * hc.date_stamp * ".bson", Dict(:rhv4 => rhv4))
-
-    # Process network data
-    con, ndf = process_network_data(hc)
-
-    # Save connection data
-    BSON.bson(hc.write_path * "connections_data_" * hc.date_stamp * ".bson", Dict(:con => con))
-
-    # Save network information
-    BSON.bson(hc.write_path * "network_info_" * hc.date_stamp * ".bson", Dict(:ndf => ndf))
-    
-    # Process CSS data
-    css, gt = process_css_data(ndf, con, hc; savedistances = true)
-
-    # Save ground truth and CSS data
-    BSON.bson(hc.write_path * "ground_truth_" * hc.date_stamp * ".bson", Dict(:gt => gt))
-    BSON.bson(hc.write_path * "css_dis_" * hc.date_stamp * ".bson", Dict(:css => css))
-
-    # Create final CSS research dataset
-    cr = create_css_research_dataset(css, rhv4, ndf, ndf4)
-
-    # Save main working data for the CSS project
-    BSON.bson(hc.write_path * "cr_" * hc.date_stamp * ".bson", Dict(:cr => cr))
-    
-    println("Data processing complete! Output files saved to: $(hc.write_path)")
-    
-    return nothing
-end
 
 # proceess and save individual demographic files
 function demographics(hc)
@@ -1103,26 +1019,56 @@ function load_dataset(path, key, dataset_name)
     end
 end
 
+"""
+    create_network_data(hc::HondurasConfig)
+
+Process and save network data for the Honduras CSS project.
+
+This function processes raw network data to create two key datasets:
+1. Connection data (`con`): Detailed network connection information between individuals
+2. Network information (`ndf`): Network metrics and structural properties
+
+The connection data is saved as a JLD2 file for faster loading due to its large size,
+while the network information is saved as a BSON file.
+
+# Arguments
+- `hc::HondurasConfig`: Configuration object containing paths and settings for data processing
+
+# Returns
+- `Nothing`
+
+# Data Produced
+- Connections data: Detailed dyadic information about network ties
+- Network information: Graph metrics, centrality measures, and network structural properties
+
+# Notes
+- Connection data was previously saved as BSON but switched to JLD2 for better performance
+- The network information dataset is smaller and remains in BSON format
+- Both datasets are timestamped with the date specified in the config
+"""
 function create_network_data(hc::HondurasConfig)
-    # Process network data
+    # Process raw network data to create connection and network information datasets
     @info "Processing network connections data..."
     con, ndf = process_network_data(hc)
     
-    # Filter to wave 4 network data
-    @info "Extracting wave 4 network data..."
-    ndf4 = @subset ndf :wave .== 4
-    
-    # Save connection data
-    @info "Saving connection data to: $con_path"
-    # con_path = hc.write_path * "connections_data_" * hc.date_stamp * ".bson"
-    # BSON.bson(con_path, Dict(:con => prepare_for_bson(con)))
+    # Save connection data (detailed network ties)
+    # Uses JLD2 format for better performance with large files
     con_path = hc.write_path * "connections_data_" * hc.date_stamp * ".jld2"
+    @info "Saving connection data to: $con_path"
     JLD2.save_object(con_path, con)
     
-    # Save network information
+    # Note: Previous BSON approach commented out for reference
+    # con_path = hc.write_path * "connections_data_" * hc.date_stamp * ".bson"
+    # BSON.bson(con_path, Dict(:con => prepare_for_bson(con)))
+    
+    # Save network information (metrics and structural properties)
+    # Uses BSON format as this file is smaller
     net_path = hc.write_path * "network_info_" * hc.date_stamp * ".bson"
     @info "Saving network metrics to: $net_path"
     BSON.bson(net_path, Dict(:ndf => prepare_for_bson(ndf)))
+
+    @info "Network data saved"
+    return nothing
 end
 
 """
@@ -1162,7 +1108,7 @@ function create_css_data(hc::HondurasConfig)
     rhv4 = load_dataset(rhv4_path, :rhv4, "combined demographics")
     
     con_path = hc.write_path * "connections_data_" * hc.date_stamp * ".jld2"
-    con = JLD2.load_object(con_path, con)
+    con = JLD2.load_object(con_path)
     
     net_path = hc.write_path * "network_info_" * hc.date_stamp * ".bson"
     ndf = load_dataset(net_path, :ndf, "network data")
@@ -1193,33 +1139,61 @@ function create_css_data(hc::HondurasConfig)
     return nothing
 end
 
-function create_cr(hc::HondurasConfig)
+"""
+    create_cr(hc::HondurasConfig)
 
-    # Load the css data
+Create the final CSS (Cognitive Social Structures) research dataset by integrating
+multiple data sources.
+
+This function loads CSS data, demographic data, and network data, then combines them
+into a comprehensive research dataset. It saves the final dataset as a JLD2 file
+for efficient storage and fast loading.
+
+# Arguments
+- `hc::HondurasConfig`: Configuration object containing paths and settings for data processing
+
+# Returns
+- `DataFrame`: The complete CSS research dataset with demographic and network metrics
+
+# Data Sources
+- CSS data: Contains cognitive social structure measurements
+- Demographic data (rhv4): Contains respondent, household, and village characteristics
+- Network data (ndf): Contains network metrics and relationships
+
+# Notes
+- Previously used BSON but switched to JLD2 for better performance with large files
+- Network data is filtered to include only wave 4
+"""
+function create_cr(hc::HondurasConfig)
+    # Load the CSS data (cognitive social structures)
     css_path = hc.write_path * "css_dis_" * hc.date_stamp * ".bson"
-    @info "Loading css data from: $css_path"
+    @info "Loading CSS data from: $css_path"
     css = load_dataset(css_path, :css, "css data")
 
-    # Load the combined demographic dataset
+    # Load the combined demographic dataset (respondents, households, villages)
     rhv4_path = hc.write_path * "rhv4_" * hc.date_stamp * ".bson"
     @info "Loading demographic data from: $rhv4_path"
     rhv4 = load_dataset(rhv4_path, :rhv4, "combined demographics")
     
-    # network info
+    # Load network information and metrics
     net_path = hc.write_path * "network_info_" * hc.date_stamp * ".bson"
     @info "Loading network data from: $net_path"
     ndf = load_dataset(net_path, :ndf, "network data")
-    ndf4 = @subset ndf :wave .== 4;
-
-    # Create final CSS research dataset with demographics and network metrics
+    
+    # Filter network data to include only wave 4
+    ndf4 = @subset ndf :wave .== 4
+    
+    # Create final CSS research dataset by integrating all data sources
     @info "Creating final research dataset..."
     cr = create_css_research_dataset(css, rhv4, ndf, ndf4)
     
-    # Save main working data for the CSS project
+    # Save the research dataset using JLD2 for better performance
+    cr_path = hc.write_path * "cr_" * hc.date_stamp * ".jld2"
     @info "Saving CSS research dataset to: $cr_path"
+    
+    # NOTE: Previous BSON approach commented out for reference
     # cr_path = hc.write_path * "cr_" * hc.date_stamp * ".bson"
     # BSON.bson(cr_path, Dict(:cr => prepare_for_bson(cr)))
-    cr_path = hc.write_path * "cr_" * hc.date_stamp * ".jld2"
     JLD2.save_object(cr_path, cr)
     
     @info "CSS data processing complete! All files saved to: $(hc.write_path)"
