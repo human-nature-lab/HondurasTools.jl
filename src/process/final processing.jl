@@ -1197,7 +1197,7 @@ function create_css_data(hc::HondurasConfig)
     
     # Filter to wave 4 network data
     @info "Extracting wave 4 network data..."
-    ndf4 = @subset ndf :wave .== 4
+    # ndf4 = @subset ndf :wave .== 4
     
     # Save connection data
     con_path = hc.write_path * "connections_data_" * hc.date_stamp * ".bson"
@@ -1259,10 +1259,10 @@ function create_cr(hc::HondurasConfig)
     
     # Save main working data for the CSS project
     @info "Saving CSS research dataset to: $cr_path"
-    #cr_path = hc.write_path * "cr_" * hc.date_stamp * ".bson"
-    # BSON.bson(cr_path, Dict(:cr => prepare_for_bson(cr)))
-    cr_path = hc.write_path * "cr_" * hc.date_stamp * ".jld2"
-    JLD2.save_object(cr_path, cr)
+    cr_path = hc.write_path * "cr_" * hc.date_stamp * ".bson"
+    BSON.bson(cr_path, Dict(:cr => prepare_for_bson(cr)))
+    # cr_path = hc.write_path * "cr_" * hc.date_stamp * ".jld2"
+    # JLD2.save_object(cr_path, cr)
     
     @info "CSS data processing complete! All files saved to: $(hc.write_path)"
     return cr

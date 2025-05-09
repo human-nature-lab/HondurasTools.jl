@@ -9,7 +9,7 @@ module HondurasTools
     @reexport using Skipper
 
     @reexport import CSV, JSONTables
-    @reexport using JLD2
+    # @reexport using JLD2
     using BSON
 
     @reexport using StatsBase, Statistics, Distributions
