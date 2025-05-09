@@ -100,6 +100,11 @@ function add_dists!(
     return cred
 end
 
+"""
+        hh_distances(css, hc)
+
+Calculate and add household distances to the css data.
+"""
 function hh_distances(css, hc)
 
     # load wave 4 HH data
