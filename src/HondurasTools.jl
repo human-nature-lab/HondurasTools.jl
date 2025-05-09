@@ -10,12 +10,15 @@ module HondurasTools
 
     @reexport import CSV, JSONTables
     @reexport using JLD2
+    using BSON
 
     @reexport using StatsBase, Statistics, Distributions
     @reexport using StatsModels
     @reexport using Distributions, LinearAlgebra
 
     @reexport using Graphs, MetaGraphs, GraphDataFrameBridge
+
+    import Distances.haversine
 
     # utilities
     include("utilities.jl")
@@ -45,6 +48,8 @@ module HondurasTools
     include("process_household.jl")
     include("process_village.jl")
     include("processing.jl")
+    include("household_pairs.jl")
+    include("household_distances.jl")
 
     # network utilities
     include("addsymmetric.jl")
@@ -70,6 +75,10 @@ module HondurasTools
 
     # data date
     dte = "2024-02-18"
+
+    # household distances
+    export household_distances, distance_df
+    export add_building_info!, hh_distances
 
     export npath, datapath, dte
 end

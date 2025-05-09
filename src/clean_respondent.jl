@@ -186,6 +186,27 @@ function clean_respondent(
 
         replace!(rf.indigenous, "Other" => missing)
         binarize!(rf, :isindigenous)
+
+        
+        rf.notindigenous = .!(rf.isindigenous);
+
+        v_indigenous = @chain rf begin
+            groupby([:village_code])
+            combine(
+                nrow => :n,
+                :isindigenous => sum∘skipmissing => :isindigenous_sum,
+                :notindigenous => sum∘skipmissing => :notindigenous_sum,
+            )
+            @transform(:isindigenous_pct = :isindigenous_sum .* inv.(:isindigenous_sum + :notindigenous_sum))
+            @subset :village_code .!= 0
+        end;
+
+        select!(v_indigenous, Not([:notindigenous_sum, :isindigenous_sum]))
+
+        dropmissing!(v_indigenous, :village_code);
+        leftjoin!(rf, v_indigenous, on = :village_code, matchmissing=:notequal);
+
+        rf.maj_indigenous = rf.isindigenous_pct .>= 0.5;
     end;
 
     # religion
@@ -203,6 +224,36 @@ function clean_respondent(
     if :religion ∈ rf_desc.variable
         rf.protestant = passmissing(ifelse).(rf.religion .== "Protestant", true, false);
         rf.catholic = passmissing(ifelse).(rf.religion .== "Catholic", true, false);
+
+        rf.religion_c = deepcopy(rf.religion);
+        replace!(rf.religion_c, "Mormon" => missing, "Other" => missing);
+
+        rcath = @chain rf begin
+            select([:village_code, :religion_c])
+            @transform(:iscatholic = :religion_c .== "Catholic")
+            groupby(:village_code)
+            combine(nrow => :n, :iscatholic => sum∘skipmissing => :iscatholic)
+            @transform(:pct_catholic = :iscatholic .* inv.(:n))
+        end
+        leftjoin!(rf, rcath, on = :village_code, matchmissing=:notequal)
+        # percentages
+        rf.maj_catholic = rf.pct_catholic .>= 0.5;
+    end
+
+    # add cleaner religious attendance variable
+    if :relig_attend ∈ rf_desc.variable
+        rf.relig_weekly = recode(
+            rf.relig_attend,
+            "Never or almost never" => "<= Monthly",
+            "Once or twice a year" => "<= Monthly",
+            "Once a month" => "<= Monthly",
+            "Once per week" => ">= Weekly",
+            "More than once per week" => ">= Weekly"
+            );
+        
+            rf.relig_weekly = passmissing(ifelse).(
+                rf.relig_weekly .== ">= Weekly", true, false
+        );
     end
     
     # Do you plan to leave this village in the next 12 months (staying somewhere else for 3 months or longer)?
@@ -386,6 +437,25 @@ function clean_respondent(
         end
     end;
 
+    # simplified occupations
+    rf.occ_simp = recode(rf.occupation,
+        "Armed/police forces" => "Other",
+        "Care work" => "Care work",
+        "Dont_Know" => missing,
+        "Emp. service/goods co." => "Other",
+        "Farm owner" => "Other",
+        "Merchant/bus. owner" => "Other",
+        "Other" => "Other",
+        "Profession" => "Other",
+        "Retired/pensioned" => "Other",
+        "Student" => "Other",
+        "Trades" => "Other",
+        "Unemp. disabled" => "Other",
+        "Unemp. looking" => "Other",
+        "Unemp: not looking" => "Other",
+        "Work in field" => "Work in field"
+    );
+
     # ignore i- variables
     # select!(rf, Not([:i0200, :i0300, :i0400, :i0500, :i0600, :i0700]));
 
@@ -559,6 +629,15 @@ function clean_respondent(
     let nosel = [:b1000]
         select!(rf, Not(nosel))
     end
+
+    # add village population
+    pp = @chain rf begin
+        groupby([:village_code, :wave])
+        combine(nrow => :population)
+        dropmissing()
+    end
+
+    leftjoin!(rf, pp, on = [:village_code, :wave], matchmissing=:notequal)
 
     return rf
 end

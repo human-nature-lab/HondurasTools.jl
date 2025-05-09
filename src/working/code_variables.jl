@@ -119,7 +119,10 @@ function code_variables!(df)
                 "More than secondary"
             ]
         );
+        # create integer variable
+        df.schoolyears = levelcode.(df.school); # questionable?
     end
+
 
     if "educated" ∈ ns
         df.educated = categorical(df.educated)

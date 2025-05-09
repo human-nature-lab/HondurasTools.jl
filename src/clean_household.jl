@@ -242,10 +242,9 @@ function clean_household(
     namedict[:hh_resp_name] = :respondent_master_id
 
     # filters
-
     let
         # remove columns in hh  (they are in village-level)
-        dups = [:building_latitude, :building_longitude, :village_name, :municipality, :office];
+        dups = [:village_name, :municipality, :office];
         select!(hh, Not(dups))
         # not sure how there are wave 4 variables that are all missing
     end
@@ -263,7 +262,6 @@ function clean_household(
             3 => "Not surveyed, not reported"
         );
     end
-
     return hh
 end
 

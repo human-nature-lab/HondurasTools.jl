@@ -197,6 +197,15 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
             namedict[mbpair[2]] = mbpair[1]
         end
     end
+
+    rename!(
+        mb,
+        :bfi10_extraversion => :extraversion,
+        :bfi10_agreeableness => :agreeableness,
+        :bfi10_conscientiousness => :conscientiousness,
+        :bfi10_neuroticism => :neuroticism,
+        :bfi10_openness_to_experience => :openness_to_experience,
+    )
     
     return mb
 end
