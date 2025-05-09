@@ -14,9 +14,9 @@ module HondurasTools
 
     @reexport using StatsBase, Statistics, Distributions
     @reexport using StatsModels
-    @reexport using Distributions, LinearAlgebra
+    @reexport using LinearAlgebra
 
-    @reexport using Graphs, MetaGraphs, GraphDataFrameBridge
+    @reexport using Graphs, MetaGraphs #GraphDataFrameBridge
 
     import Distances.haversine
 
