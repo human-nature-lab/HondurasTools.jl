@@ -14,9 +14,9 @@ module HondurasTools
 
     @reexport using StatsBase, Statistics, Distributions
     @reexport using StatsModels
-    @reexport using Distributions, LinearAlgebra
+    @reexport using LinearAlgebra
 
-    @reexport using Graphs, MetaGraphs, GraphDataFrameBridge
+    @reexport using Graphs, MetaGraphs #GraphDataFrameBridge
 
     import Distances.haversine
 
@@ -50,6 +50,7 @@ module HondurasTools
     include("processing.jl")
     include("household_pairs.jl")
     include("household_distances.jl")
+    include("prepare_for_bson.jl")
 
     # network utilities
     include("addsymmetric.jl")
@@ -79,6 +80,7 @@ module HondurasTools
     # household distances
     export household_distances, distance_df
     export add_building_info!, hh_distances
+    export prepare_for_bson
 
     export npath, datapath, dte
 end

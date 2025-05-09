@@ -1,6 +1,6 @@
-name = "HondurasCSS"
-uuid = "86995ca9-cb84-4024-835f-b9ba116fef75"
-authors = ["emfeltham <eric.feltham@yale.edu>"]
+name = "HondurasTools"
+uuid = "53a3418b-e4dc-4b79-9710-56922bb5ab08"
+authors = ["Eric Martin Feltham <eric.feltham@yale.edu>"]
 version = "0.1.0"
 
 [deps]
