@@ -104,6 +104,8 @@ end
         hh_distances(css, hc)
 
 Calculate and add household distances to the css data.
+
+Writes .bson file.
 """
 function hh_distances(css, hc)
 
@@ -142,6 +144,6 @@ function hh_distances(css, hc)
     leftjoin!(css, crd_a, on = [:village_code, :building_id_a1, :building_id_a2]; matchmissing = :notequal);
     css.hh_dist_pa_mean = (css.hh_dist_pa1 + css.hh_dist_pa2) .* inv(2);
 
-    BSON.bson(hc.write_path * "household_distances" * date_stamp * ".bson", prepare_for_bson(css))
+    BSON.bson(hc.write_path * "household_distances" * hc.date_stamp * ".bson", Dict(:css => prepare_for_bson(css)))
     return css
 end
