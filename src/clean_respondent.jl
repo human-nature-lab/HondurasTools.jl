@@ -10,6 +10,8 @@
 
 Clean the respondent level data. `resp` must be a vector of dataframes. Respondent data, `resp`, must be ordered by and match `waves`.
 
+Combines and processes.
+
 ARGS
 ≡≡≡≡≡≡≡≡≡≡
 
@@ -17,7 +19,6 @@ ARGS
 - waves: indicate the wave of each DataFrame in the same order as resp.
 - nokeymiss: if true, do not allow entries with missing values for [:village_code, :gender, :date_of_birth, :building_id]
 - onlycomplete: only include completed surveys
-
 """
 function clean_respondent(
     resp::Vector{DataFrame},
@@ -27,6 +28,7 @@ function clean_respondent(
     namedict = nothing
 )
 
+    # combine respondent data
     if isnothing(namedict)
         namedict = Dict{Symbol, Symbol}()
     end
@@ -89,11 +91,39 @@ function clean_respondent(
     regularizecols!(resp)
 
     rf = reduce(vcat, resp);
+
+    ## cleaning
+
+    let # correct `data_source`
+        rwds1 = rf.data_source[rf.wave .== 1];
+        rwds1n = replace(
+            rwds1,
+            1 => "Census, survey",
+            2 => "Census, no survey",
+            3 => "Alter"
+        );
     
-    ###### resp = nothing
+        rwds2 = rf.data_source[rf.wave .> 1];
+        rwds2n = replace(
+            rwds2,
+            1 => "Census, survey",
+            2 => "Census, survey",
+            3 => "Census, no survey",
+            4 => "Alter"
+        );
+    
+        rf.data_source = fill("", nrow(rf));
+        rf.data_source[rf.wave .== 1] .= rwds1n;
+        rf.data_source[rf.wave .> 1] .= rwds2n;
+    end
 
     rename!(rf, :respondent_master_id => :name);
     namedict[:name] = :respondent_master_id;
+
+    @subset!(rf, :name .∉ Ref(["#NAME?", "#REF!"]));
+    replace!(rf.building_id, "ideres Comunitarios" => "Lideres Comunitarios");
+
+    rf.complete = passmissing(ifelse).(rf.complete .== 1, true, false);
 
     if onlycomplete
         subset!(rf, :complete => x -> x .== 1; skipmissing = true)
@@ -221,7 +251,7 @@ function clean_respondent(
         end
     end;
 
-    if :religion ∈ rf_desc.variable
+    if :b0600 ∈ rf_desc.variable
         rf.protestant = passmissing(ifelse).(rf.religion .== "Protestant", true, false);
         rf.catholic = passmissing(ifelse).(rf.religion .== "Catholic", true, false);
 
@@ -232,16 +262,20 @@ function clean_respondent(
             select([:village_code, :religion_c])
             @transform(:iscatholic = :religion_c .== "Catholic")
             groupby(:village_code)
-            combine(nrow => :n, :iscatholic => sum∘skipmissing => :iscatholic)
+            combine(
+                nrow => :n,
+                :iscatholic => sum∘skipmissing => :iscatholic
+            )
             @transform(:pct_catholic = :iscatholic .* inv.(:n))
+            select!([:village_code, :pct_catholic])
         end
-        leftjoin!(rf, rcath, on = :village_code, matchmissing=:notequal)
+        leftjoin!(rf, rcath, on = :village_code, matchmissing = :notequal)
         # percentages
         rf.maj_catholic = rf.pct_catholic .>= 0.5;
     end
 
     # add cleaner religious attendance variable
-    if :relig_attend ∈ rf_desc.variable
+    if :b0530 ∈ rf_desc.variable
         rf.relig_weekly = recode(
             rf.relig_attend,
             "Never or almost never" => "<= Monthly",
@@ -435,26 +469,26 @@ function clean_respondent(
         for (oldname, newname) in zip(oldnames, newnames)
             replace!(rf[!, v], oldname => newname)
         end
-    end;
 
-    # simplified occupations
-    rf.occ_simp = recode(rf.occupation,
-        "Armed/police forces" => "Other",
-        "Care work" => "Care work",
-        "Dont_Know" => missing,
-        "Emp. service/goods co." => "Other",
-        "Farm owner" => "Other",
-        "Merchant/bus. owner" => "Other",
-        "Other" => "Other",
-        "Profession" => "Other",
-        "Retired/pensioned" => "Other",
-        "Student" => "Other",
-        "Trades" => "Other",
-        "Unemp. disabled" => "Other",
-        "Unemp. looking" => "Other",
-        "Unemp: not looking" => "Other",
-        "Work in field" => "Work in field"
-    );
+        # simplified occupations
+        rf.occ_simp = recode(rf.occupation,
+            "Armed/police forces" => "Other",
+            "Care work" => "Care work",
+            "Dont_Know" => missing,
+            "Emp. service/goods co." => "Other",
+            "Farm owner" => "Other",
+            "Merchant/bus. owner" => "Other",
+            "Other" => "Other",
+            "Profession" => "Other",
+            "Retired/pensioned" => "Other",
+            "Student" => "Other",
+            "Trades" => "Other",
+            "Unemp. disabled" => "Other",
+            "Unemp. looking" => "Other",
+            "Unemp: not looking" => "Other",
+            "Work in field" => "Work in field"
+        );
+    end;
 
     # ignore i- variables
     # select!(rf, Not([:i0200, :i0300, :i0400, :i0500, :i0600, :i0700]));
@@ -591,34 +625,6 @@ function clean_respondent(
 
     # bstrclean!(:e1100, :preg_delayavoid_now, rf, rf_desc, namedict)
     # ignore e1200 -- now version of e1000
-
-    let # correct `data_source`
-        rwds1 = rf.data_source[rf.wave .== 1];
-        rwds1n = replace(
-            rwds1,
-            1 => "Census, survey",
-            2 => "Census, no survey",
-            3 => "Alter"
-        );
-    
-        rwds2 = rf.data_source[rf.wave .> 1];
-        rwds2n = replace(
-            rwds2,
-            1 => "Census, survey",
-            2 => "Census, survey",
-            3 => "Census, no survey",
-            4 => "Alter"
-        );
-    
-        rf.data_source = fill("", nrow(rf));
-        rf.data_source[rf.wave .== 1] .= rwds1n;
-        rf.data_source[rf.wave .> 1] .= rwds2n;
-    end
-
-    @subset!(rf, :name .∉ Ref(["#NAME?", "#REF!"]));
-    replace!(rf.building_id, "ideres Comunitarios" => "Lideres Comunitarios");
-
-    rf.complete = passmissing(ifelse).(rf.complete .== 1, true, false);
 
     # at hh level
     let nosel = [:b0300, ]
