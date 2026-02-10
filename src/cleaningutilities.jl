@@ -56,11 +56,45 @@ function strip_wave!(resp, wnme, wavestring)
     end
 end
 
+"""
+    strip_and_combine_waves!(dfs, waves)
+
+For each wave DataFrame: drop columns from earlier waves, strip the current
+wave suffix, and add a `:wave` column. Then regularize column sets and vcat.
+
+Returns the combined DataFrame.
+"""
+function strip_and_combine_waves!(dfs::Vector{DataFrame}, waves)
+    for w in waves
+        widx = findfirst(waves .== w)
+        df = dfs[widx]
+        suffix = "_w$(w)"
+
+        # drop columns from earlier waves
+        for earlier in 1:(w-1)
+            esuffix = "_w$(earlier)"
+            earlier_cols = filter(n -> occursin(esuffix, n), names(df))
+            if !isempty(earlier_cols)
+                select!(df, Not(earlier_cols))
+            end
+        end
+
+        # strip current wave suffix
+        wave_cols = filter(n -> occursin(suffix, n), names(df))
+        strip_wave!(df, wave_cols, suffix)
+
+        df[!, :wave] .= w
+    end
+
+    regularizecols!(dfs)
+    return reduce(vcat, dfs)
+end
+
 function addtypes!(drs)
     for (i, e) in enumerate(drs.eltypes)
         if length(e) > 1
             for ε in e
-                tp = if Missing .∈ Ref(Base.uniontypes(ε))
+                if Missing ∈ Base.uniontypes(ε)
                     drs.type[i] = ε
                     break
                 end
@@ -74,7 +108,7 @@ end
 
 function convertspend(x)
     return if !ismissing(x)
-        if (x == "Dont_Know") | (x == "Refused") | (isnothing(x))
+        if (x == "Dont_Know") || (x == "Refused") || (isnothing(x))
             missing
         else
             parse(Int, x)
@@ -103,7 +137,7 @@ todate_split(x) = ismissing(x) ? missing : trydate(split(x)[1])
 Calculate age based on date of birth and survey date. `endyear` and `startyear` must be formatted as `Date`.
 """
 function age(endyear, startyear)
-    return if ismissing(endyear) | ismissing(startyear)
+    return if ismissing(endyear) || ismissing(startyear)
         missing
     else
         year(endyear) - year(startyear)

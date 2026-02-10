@@ -33,64 +33,7 @@ function clean_respondent(
         namedict = Dict{Symbol, Symbol}()
     end
 
-    if 1 ∈ waves
-        widx = findfirst(waves .== 1)
-        nm1 = names(resp[widx])
-
-        wnme11 = nm1[occursin.("_w1", nm1)]
-        strip_wave!(resp[widx], wnme11, "_w1")
-        resp[widx][!, :wave] .= 1;
-    end;
-
-    if 2 ∈ waves
-        widx = findfirst(waves .== 2)
-        nm2 = names(resp[widx])
-
-        wnme21 = nm2[occursin.("_w1", nm2)]
-        select!(resp[widx], Not(wnme21))
-
-        wnme22 = nm2[occursin.("_w2", nm2)]
-        strip_wave!(resp[widx], wnme22, "_w2")
-        resp[widx][!, :wave] .= 2;
-    end;
-
-    if 3 ∈ waves
-        widx = findfirst(waves .== 3)
-        nm3 = names(resp[widx])
-        
-        wnme31 = nm3[occursin.("_w1", nm3)]
-        select!(resp[widx], Not(wnme31))
-        
-        wnme32 = nm3[occursin.("_w2", nm3)]
-        select!(resp[widx], Not(wnme32))
-    
-        wnme33 = nm3[occursin.("_w3", nm3)]
-        strip_wave!(resp[widx], wnme33, "_w3")
-        resp[widx][!, :wave] .= 3;
-    end;
-
-    if 4 ∈ waves
-        widx = findfirst(waves .== 4)
-        nm4 = names(resp[widx])
-
-        wnme41 = nm4[occursin.("_w1", nm4)];
-        select!(resp[widx], Not(wnme41));
-
-        wnme42 = nm4[occursin.("_w2", nm4)];
-        select!(resp[widx], Not(wnme42));
-
-        wnme43 = nm4[occursin.("_w3", nm4)]
-        select!(resp[widx], Not(wnme43))
-
-        wnme44 = nm4[occursin.("_w4", nm4)];
-        strip_wave!(resp[widx], wnme44, "_w4")
-
-        resp[widx][!, :wave] .= 4;
-    end;
-    
-    regularizecols!(resp)
-
-    rf = reduce(vcat, resp);
+    rf = strip_and_combine_waves!(resp, waves)
 
     ## cleaning
 
