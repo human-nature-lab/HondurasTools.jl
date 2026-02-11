@@ -45,6 +45,12 @@ Internal: use codebook to classify and recode outcome columns in `df`.
 Codebook format: column 1 = variable name (with wave suffix, e.g. `bf_excl_w3`),
 column 2 = outcome_type. Outcome types "practice", "knowledge and attitudes",
 and "intervention knowledge" are recoded to `Union{Missing, Bool}`.
+
+Also handles:
+- `village_code` → CategoricalArray
+- `resp_target`, `friend_treatment`, `household_target` → Bool
+- `rep_age`, `preg` → `Union{Missing, Bool}` via `recode_outcome`
+- `age_at_survey` → `Union{Missing, Int}`
 """
 function _recode_outcomes!(df::DataFrame, codebook::DataFrame)
     cb_varname_col = names(codebook)[1]
@@ -77,9 +83,24 @@ function _recode_outcomes!(df::DataFrame, codebook::DataFrame)
     end
 
     # Boolify treatment indicators
-    for v in [:resp_target, :friend_treatment]
+    for v in [:resp_target, :friend_treatment, :household_target]
         if string(v) in names(df)
             df[!, v] = Bool.(df[!, v])
+        end
+    end
+
+    # Demographic variables with standard survey coding (0/1/2/999, "NA")
+    for v in [:rep_age, :preg]
+        if string(v) in names(df)
+            df[!, v] = recode_outcome(df[!, v])
+        end
+    end
+
+    # Numeric string columns with "NA" → Union{Missing, Int}
+    for v in [:age_at_survey]
+        if string(v) in names(df)
+            df[!, v] = [ismissing(x) || strip(string(x)) == "NA" ?
+                missing : parse(Int, strip(string(x))) for x in df[!, v]]
         end
     end
 end
