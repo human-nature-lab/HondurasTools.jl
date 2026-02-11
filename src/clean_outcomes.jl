@@ -53,11 +53,11 @@ function _recode_outcomes!(df::DataFrame, codebook::DataFrame)
     # Build lookup: strip wave suffix from codebook names → outcome_type
     outcome_type_map = Dict{String, String}()
     for row in eachrow(codebook)
-        varname = string(row[cb_varname_col])
+        varname = strip(string(row[cb_varname_col]))
         otype = row[cb_type_col]
         ismissing(otype) && continue
         base = replace(varname, r"_w\d+$" => "")
-        outcome_type_map[base] = string(otype)
+        outcome_type_map[base] = strip(string(otype))
     end
 
     # Recode outcome columns
