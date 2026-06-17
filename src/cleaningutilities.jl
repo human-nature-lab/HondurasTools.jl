@@ -38,7 +38,7 @@ Remove wave information, since we will only keep this as a separate variable, in
 """
 function strip_wave!(resp, wnme, wavestring)
     for e in wnme
-        rename!(resp, Symbol(e) => Symbol(split(e, wavestring)[1]))
+        rename!(resp, Symbol(e) => Symbol(chopsuffix(e, wavestring)))
     end
 end
 
