@@ -77,6 +77,8 @@ function outval(outcome, tple)
         tple[1]
     elseif outcome == "Sure payment"
         tple[2]
+    else
+        missing
     end
 end
 

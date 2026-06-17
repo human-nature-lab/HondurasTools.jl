@@ -89,7 +89,7 @@ end
 
 function convertspend(x)
     return if !ismissing(x)
-        if (x == "Dont_Know") || (x == "Refused") || (isnothing(x))
+        if (x == "Dont_Know") || (x == "Refused")
             missing
         else
             parse(Int, x)

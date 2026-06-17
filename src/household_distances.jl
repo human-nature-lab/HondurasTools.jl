@@ -84,7 +84,7 @@ function add_dists!(
         i = findfirst(bnames .== r[a1])
         for (ix, e) in enumerate(r[a2])
             j = findfirst(bnames.== e)
-            if !(isnothing(i) | isnothing(j))
+            if !(isnothing(i) || isnothing(j))
                 r[dst][ix] = if i > j # only lower triangle contains distances
                     vdst[vc][i,j]
                 elseif i < j
