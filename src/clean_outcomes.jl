@@ -6,16 +6,19 @@
 Clean outcome/treatment DataFrames from the Honduras CSS study.
 
 Strips wave suffixes, combines waves, and renames `respondent_master_id` → `name`.
-If a `codebook` DataFrame is provided (from the outcomes codebook CSV), also:
+If a `codebook` is provided, also:
 - Classifies outcome columns by codebook outcome_type
 - Recodes outcome columns to `Union{Missing, Bool}` via `recode_outcome`
 - Categorizes `village_code`
-- Converts `resp_target` and `friend_treatment` to `Bool`
+- Converts `resp_target`, `friend_treatment`, `household_target` → `Bool`
+
+`codebook` can be a `NamedTuple` from `load_codebook()` (preferred) or a bare
+`DataFrame` with columns `variable_id` and `outcome_type` (legacy).
 """
 function clean_outcomes(
     dfs::Vector{DataFrame},
     waves;
-    codebook::Union{Nothing, DataFrame} = nothing,
+    codebook = nothing,
     namedict = nothing
 )
 
@@ -42,9 +45,14 @@ export clean_outcomes
 
 Internal: use codebook to classify and recode outcome columns in `df`.
 
-Codebook format: column 1 = variable name (with wave suffix, e.g. `bf_excl_w3`),
-column 2 = outcome_type. Outcome types "practice", "knowledge and attitudes",
-and "intervention knowledge" are recoded to `Union{Missing, Bool}`.
+`codebook` may be:
+- A `NamedTuple` from `load_codebook()` — uses `codebook.derivations` with named
+  columns `variable_id` and `outcome_type`.
+- A bare `DataFrame` with columns `variable_id` and `outcome_type` (legacy format).
+
+Wave suffixes (`_w1`, `_w2`, etc.) are stripped from `variable_id` before matching.
+Outcome types "practice", "knowledge and attitudes", and "intervention knowledge"
+are recoded to `Union{Missing, Bool}`.
 
 Also handles:
 - `village_code` → CategoricalArray
@@ -52,15 +60,14 @@ Also handles:
 - `rep_age`, `preg` → `Union{Missing, Bool}` via `recode_outcome`
 - `age_at_survey` → `Union{Missing, Int}`
 """
-function _recode_outcomes!(df::DataFrame, codebook::DataFrame)
-    cb_varname_col = names(codebook)[1]
-    cb_type_col = names(codebook)[2]
+function _recode_outcomes!(df::DataFrame, codebook)
+    derivs = codebook isa NamedTuple ? codebook.derivations : codebook
 
-    # Build lookup: strip wave suffix from codebook names → outcome_type
+    # Build lookup: strip wave suffix from variable_ids → outcome_type
     outcome_type_map = Dict{String, String}()
-    for row in eachrow(codebook)
-        varname = strip(string(row[cb_varname_col]))
-        otype = row[cb_type_col]
+    for row in eachrow(derivs)
+        varname = strip(string(row.variable_id))
+        otype = row.outcome_type
         ismissing(otype) && continue
         base = replace(varname, r"_w\d+$" => "")
         outcome_type_map[base] = strip(string(otype))
@@ -83,9 +90,11 @@ function _recode_outcomes!(df::DataFrame, codebook::DataFrame)
     end
 
     # Boolify treatment indicators
-    for v in [:resp_target, :friend_treatment, :household_target]
-        if string(v) in names(df)
-            df[!, v] = Bool.(df[!, v])
+    # (resp_target and household_target are variable_type="outcome" in the codebook
+    # but are 0/1 columns treated as indicators here)
+    for v in ["resp_target", "friend_treatment", "household_target"]
+        if v in names(df)
+            df[!, Symbol(v)] = Bool.(df[!, Symbol(v)])
         end
     end
 

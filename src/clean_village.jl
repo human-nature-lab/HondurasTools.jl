@@ -30,6 +30,17 @@ function clean_village(vdfs, waves; namedict = nothing)
         rename!(vdfs[widx], :village_wealth_index_median_w3 => :village_wealth_index_median)
     end
 
+    if 4 ∈ waves
+        widx = findfirst(waves .== 4)
+        vdfs[widx][!, :wave] .= 4
+        # wave 4 codebook names these without a wave suffix; rename if raw data uses _w4
+        ns4 = names(vdfs[widx])
+        if "village_wealth_index_w4" ∈ ns4
+            rename!(vdfs[widx], :village_wealth_index_w4 => :village_wealth_index)
+            rename!(vdfs[widx], :village_wealth_index_median_w4 => :village_wealth_index_median)
+        end
+    end
+
     regularizecols!(vdfs)
 
     vdf = reduce(vcat, vdfs)

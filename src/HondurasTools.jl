@@ -26,6 +26,9 @@ module HondurasTools
     include("groupdescribe.jl")
     include("sortedges!.jl")
 
+    # codebook
+    include("load_codebook.jl")
+
     # data cleaning
     include("cleaningtools.jl")
     include("cleaningutilities.jl")

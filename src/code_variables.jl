@@ -1,6 +1,14 @@
 # code_variables.jl
 
-function code_variables!(df)
+"""
+    code_variables!(df; cb = nothing)
+
+Apply categorical coding to cleaned columns in `df`. Hardcoded levels reflect
+post-cleaning string values, which often differ from raw survey option labels
+in the codebook (different case, simplified wording). Use `make_ordered_categorical`
+from `cb` for new variables not yet listed here.
+"""
+function code_variables!(df; cb = nothing)
     ns = names(df)
     
     ## individuals
