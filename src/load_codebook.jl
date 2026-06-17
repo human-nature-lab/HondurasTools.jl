@@ -5,8 +5,13 @@ const _CB_PATH = joinpath(@__DIR__, "..", "codebook")
 """
     load_codebook(; path = <bundled codebook dir>)
 
-Load the three machine-readable codebook CSVs and return a NamedTuple
-`(; variables, options, derivations)` of DataFrames.
+Load the three machine-readable codebook CSVs and return a NamedTuple containing:
+- `variables`, `options`, `derivations` — raw DataFrames
+- `gvariables`, `goptions` — GroupedDataFrames keyed on `[:study, :variable_id]`
+  for O(1) per-variable lookups
+- `gvar_by_type`, `gvar_by_level` — GroupedDataFrames for type/level queries
+- `outcome_type_map` — pre-built `Dict{String,String}` mapping base variable name
+  to outcome_type (used by `_recode_outcomes!`)
 
 The bundled codebooks (at `HondurasTools/codebook/`) are the default.
 Pass `path` to override with an external directory.
@@ -23,11 +28,29 @@ function load_codebook(; path::AbstractString = _CB_PATH)
     variables   = CSV.read(joinpath(path, "variables.csv"),   DataFrame; missingstring = "")
     options     = CSV.read(joinpath(path, "options.csv"),     DataFrame; missingstring = "")
     derivations = CSV.read(joinpath(path, "derivations.csv"), DataFrame; missingstring = "")
+
     # normalize internal whitespace in outcome_type (guards against PDF-extraction artifacts)
     derivations.outcome_type = map(derivations.outcome_type) do x
         ismissing(x) ? x : replace(strip(string(x)), r"\s+" => " ")
     end
-    return (; variables, options, derivations)
+
+    # pre-index for O(1) per-variable lookups
+    gvariables    = groupby(variables, [:study, :variable_id])
+    goptions      = groupby(sort(options, :option_code), [:study, :variable_id])
+    gvar_by_type  = groupby(variables, [:study, :variable_type])
+    gvar_by_level = groupby(variables, [:study, :level])
+
+    # pre-build outcome_type_map so _recode_outcomes! doesn't rebuild on every call
+    outcome_type_map = Dict{String, String}()
+    for row in eachrow(derivations)
+        ismissing(row.outcome_type) && continue
+        base = replace(strip(string(row.variable_id)), r"_w\d+$" => "")
+        outcome_type_map[base] = strip(string(row.outcome_type))
+    end
+
+    return (; variables, options, derivations,
+              gvariables, goptions, gvar_by_type, gvar_by_level,
+              outcome_type_map)
 end
 
 export load_codebook
@@ -43,10 +66,10 @@ function variable_info(
     wave = nothing,
     study::AbstractString = "rct"
 )
-    df = cb.variables
-    mask = isequal.(df.variable_id, varname) .& isequal.(df.study, study)
-    !isnothing(wave) && (mask .&= isequal.(df.wave, wave))
-    return df[mask, :]
+    key = (study = study, variable_id = varname)
+    haskey(cb.gvariables, key) || return cb.variables[1:0, :]
+    rows = DataFrame(cb.gvariables[key])
+    isnothing(wave) ? rows : rows[isequal.(rows.wave, wave), :]
 end
 
 export variable_info
@@ -66,11 +89,10 @@ function variable_options(
     wave = nothing,
     study::AbstractString = "rct"
 )
-    df = cb.options
-    mask = isequal.(df.variable_id, varname) .& isequal.(df.study, study)
-    !isnothing(wave) && (mask .&= isequal.(df.wave, wave))
-    result = df[mask, :]
-    return sort(result, :option_code)
+    key = (study = study, variable_id = varname)
+    haskey(cb.goptions, key) || return cb.options[1:0, :]
+    rows = DataFrame(cb.goptions[key])   # already sorted by option_code at load time
+    isnothing(wave) ? rows : rows[isequal.(rows.wave, wave), :]
 end
 
 export variable_options
@@ -88,9 +110,9 @@ function variables_by_type(
     vtype::AbstractString;
     study::AbstractString = "rct"
 )
-    df = cb.variables
-    mask = isequal.(df.variable_type, vtype) .& isequal.(df.study, study)
-    return unique(df[mask, :variable_id])
+    key = (study = study, variable_type = vtype)
+    haskey(cb.gvar_by_type, key) || return String[]
+    return unique(cb.gvar_by_type[key].variable_id)
 end
 
 export variables_by_type
@@ -107,9 +129,9 @@ function variables_by_level(
     level::AbstractString;
     study::AbstractString = "rct"
 )
-    df = cb.variables
-    mask = isequal.(df.level, level) .& isequal.(df.study, study)
-    return unique(df[mask, :variable_id])
+    key = (study = study, level = level)
+    haskey(cb.gvar_by_level, key) || return String[]
+    return unique(cb.gvar_by_level[key].variable_id)
 end
 
 export variables_by_level

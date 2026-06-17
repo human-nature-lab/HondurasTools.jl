@@ -9,7 +9,10 @@
 Deduce the variable types from unit structs.
 """
 function _extractvariables!(vbls, ds)
-    vars_ = unique(reduce(vcat, unique([(collect∘keys)(v.properties) for v in values(ds)])));
+    vars_ = let ks = Set{Symbol}()
+        for v in values(ds); union!(ks, keys(v.properties)); end
+        collect(ks)
+    end
     for v_ in vars_
         vbls[v_] = Missing
         for (_, v) in ds
@@ -65,7 +68,7 @@ Add data from `ds` dictionary of `Respondent` objects, imputing with earlier wav
 `hh` only needed for variable types.
 """
 function populate_datacols!(nf, ds, noupd, unit, wv)
-    
+
     # ignore invariant variables
     vbls_ = setdiff(
         Symbol.(names(nf)),
@@ -73,35 +76,33 @@ function populate_datacols!(nf, ds, noupd, unit, wv)
     )
 
     nf[!, :impute] = [Dict{Symbol, Int}() for _ in 1:nrow(nf)];
-    
+
+    unit_ids = nf[!, unit]   # pre-extract to avoid repeated DataFrame row indexing
+
     for c in vbls_
-        _populate_datacol!(nf, c, ds, noupd, unit, wv)
+        _populate_datacol!(nf, c, ds, noupd, unit_ids, wv)
     end
 end
 
-function _populate_datacol!(nf, c, ds, noupd, unit, wv)
-    # Threads.@threads 
+function _populate_datacol!(nf, c, ds, noupd, unit_ids, wv)
+    col_type  = nonmissingtype(eltype(nf[!, c]))
+    impute_by_wave = c ∉ noupd
     for i in eachindex(nf[!, c])
-        # @show i
-        # if variable `c` is not in blacklist, impute
-        nf[i, c] = if c ∉ noupd
-            vl, w = firstval(
-                ds[nf[i, unit]].properties[c];
-                waves = keys(ds[nf[i, unit]].properties[c])
-            )
-            if !ismissing(vl)
-                if typeof(vl) != nonmissingtype(eltype(nf[!, c]))
-                    vl = passmissing(parse)(nonmissingtype(eltype(nf[!, c])), vl)
-                end
+        entity = ds[unit_ids[i]]
+        prop   = entity.properties[c]
+        nf[i, c] = if impute_by_wave
+            # use most-recent wave value (default waves=[4,3,2,1] gives correct ordering;
+            # passing keys(prop) was wrong — Dict keys are unordered)
+            vl, w = firstval(prop)
+            if !ismissing(vl) && typeof(vl) != col_type
+                vl = passmissing(parse)(col_type, vl)
             end
             if (w < wv) & (w > 0)
-                # track imputation
                 nf[i, :impute][c] = w
             end
             vl
         else
-            # otherwise, get current wave value
-            get(ds[nf[i, unit]].properties[c], wv, missing)
+            get(prop, wv, missing)
         end
     end
 end
@@ -123,8 +124,9 @@ function firstval(x; waves = [4,3,2,1])
 end
 
 function variableassign!(ds, rgnp, vs2, unit; wave = :wave)
+    vs3 = setdiff(vs2, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
     Threads.@threads for ri in eachrow(rgnp)
-        for q in setdiff(vs2, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
+        for q in vs3
             for (w, vl) in zip(ri[wave], ri[q])
                 ds[ri[unit]].properties[q][w] = vl
             end

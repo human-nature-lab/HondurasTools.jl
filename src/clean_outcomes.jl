@@ -61,16 +61,20 @@ Also handles:
 - `age_at_survey` → `Union{Missing, Int}`
 """
 function _recode_outcomes!(df::DataFrame, codebook)
-    derivs = codebook isa NamedTuple ? codebook.derivations : codebook
-
-    # Build lookup: strip wave suffix from variable_ids → outcome_type
-    outcome_type_map = Dict{String, String}()
-    for row in eachrow(derivs)
-        varname = strip(string(row.variable_id))
-        otype = row.outcome_type
-        ismissing(otype) && continue
-        base = replace(varname, r"_w\d+$" => "")
-        outcome_type_map[base] = strip(string(otype))
+    # Use pre-built map from load_codebook() when available; otherwise build it
+    outcome_type_map = if codebook isa NamedTuple
+        codebook.outcome_type_map
+    else
+        derivs = codebook
+        m = Dict{String, String}()
+        for row in eachrow(derivs)
+            varname = strip(string(row.variable_id))
+            otype = row.outcome_type
+            ismissing(otype) && continue
+            base = replace(varname, r"_w\d+$" => "")
+            m[base] = strip(string(otype))
+        end
+        m
     end
 
     # Recode outcome columns

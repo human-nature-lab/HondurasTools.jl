@@ -1,8 +1,12 @@
 # neighbors.jl
 
-function getneighbors(prc, vl, rel, nds; ids = ids, relname = :relation)
+function getneighbors(prc, vl, rel, nds; ids = ids, relname = :relation, lookup = nothing)
 
-    ix = findfirst((vl .== nds[!, ids.vc]) .& (rel .== nds[!, relname]))
+    ix = if !isnothing(lookup)
+        get(lookup, (vl, rel), nothing)
+    else
+        findfirst((vl .== nds[!, ids.vc]) .& (rel .== nds[!, relname]))
+    end
     
     return if !isnothing(ix)
         g = nds[ix, :graph]
@@ -28,10 +32,11 @@ function addneighbors(cr, ndf4, rhv4, sl; cg = cg)
     ucr = unique(cr[!, [ids.vc, cg.p, cg.r]]);
     ucr[!, :neighbors] = missings(Vector{String}, nrow(ucr));
 
-    @eachrow! ucr begin 
+    nds_lookup = Dict((r[ids.vc], r[cg.r]) => i for (i, r) in enumerate(eachrow(ndf4)))
+    @eachrow! ucr begin
         :neighbors = getneighbors(
             :perceiver, :village_code, :relation, ndf4;
-            ids = ids, relname = cg.r
+            ids = ids, relname = cg.r, lookup = nds_lookup
         )
     end;
 
@@ -102,11 +107,13 @@ function addneighbors!(
 
     df_a[!, :neighbors] = missings(Vector{String}, nrow(df));
 
-    @eachrow! df_a begin 
+    nds_lookup = Dict((r[ids.vc], r[relname]) => i for (i, r) in enumerate(eachrow(nds)))
+    @eachrow! df_a begin
         :neighbors = getneighbors(
             :name, :village_code, :relation, nds;
             ids = ids,
-            relname
+            relname,
+            lookup = nds_lookup
         )
     end;
 

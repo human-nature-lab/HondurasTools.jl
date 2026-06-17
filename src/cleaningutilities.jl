@@ -5,31 +5,11 @@
 
 Make it possible to combine the dataframes from different waves, which may have different columns. This function creates a common set of columns for merging.
 """
+_colinfo(df) = DataFrame(variable = Symbol.(names(df)), eltype = eltype.(eachcol(df)))
+
 function regularizecols!(resp)
 
-    dr1 = describe(resp[1])[!, [:variable, :eltype]]
-
-    if length(resp) > 1
-        dr2 = describe(resp[2])[!, [:variable, :eltype]]
-    end
-    
-    if length(resp) > 2
-        dr3 = describe(resp[3])[!, [:variable, :eltype]]
-    end
-
-    if length(resp) > 3
-        dr4 = describe(resp[4])[!, [:variable, :eltype]]
-    end
-
-    drs = if length(resp) > 3
-        unique(vcat(dr1, dr2, dr3, dr4))
-    elseif length(resp) > 2
-        unique(vcat(dr1, dr2, dr3))
-    elseif length(resp) > 1
-        unique(vcat(dr1, dr2))
-    else
-        unique(vcat(dr1))
-    end
+    drs = unique(reduce(vcat, [_colinfo(df) for df in resp]))
 
     drs = combine(groupby(drs, :variable), :eltype => Ref∘unique => :eltypes);
 
