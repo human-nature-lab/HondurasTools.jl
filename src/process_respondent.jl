@@ -11,7 +11,7 @@ struct Respondent
     wave::NTuple{4, Bool}
 end
 
-function respondent(name, date_of_birth, man, waves, vs2)
+function respondent(name, date_of_birth, man, waves, vs_props)
     wv = fill(false, 4)
     for i in eachindex(wv)
         if i ∈ waves
@@ -25,7 +25,7 @@ function respondent(name, date_of_birth, man, waves, vs2)
     prop = Dict{Symbol, t1}()
     chg = Dict{Symbol, t2}()
 
-    for q in setdiff(vs2, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
+    for q in vs_props
         prop[q] = t1()
         chg[q] = fill(false, 3)
     end
@@ -80,19 +80,19 @@ function respprocess(
     rgnu.date_of_birth = upck.(rgnu.date_of_birth);
     rgnu.man = upck.(rgnu.man);
 
+    vs2 = setdiff(vs, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
+
     rd = Dict{String, Respondent}();
     sizehint!(rd, nrow(rgnu));
     for (i, e) in enumerate(rgnu.name)
         ri = @views rgnu[i, :]
-        rpd = respondent(e, ri.date_of_birth, ri.man, ri.wave, vs)
+        rpd = respondent(e, ri.date_of_birth, ri.man, ri.wave, vs2)
         for (w, b, c) in zip(ri.wave, ri.building_id, ri.village_code)
             rpd.building_id[w] = b
             rpd.village_code[w] = c
         end
         rd[e] = rpd
     end
-
-    vs2 = setdiff(vs, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
 
     rgnp = @chain resp begin
         sort([:name, :wave])

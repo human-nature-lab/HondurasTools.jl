@@ -31,21 +31,24 @@ end
 
 export node_fund, g_fund
 
-function initialize_ndf(cx, cxx, node_fund, g_fund, mods)
+function initialize_ndf(cx, cxx, node_fund, g_fund, mods; gcx_names = nothing)
 
     uc2 = unique(cxx[!, [:wave, :village_code, :relationship]])
 
     uc2[!, :names] = Vector{Vector{String}}(undef, nrow(uc2))
     uc2[!, :names_all] = Vector{Vector{String}}(undef, nrow(uc2))
 
+    _gcx = isnothing(gcx_names) ? groupby(cx, [:wave, :village_code]) : gcx_names
+
     for (i, (w, vc)) in (enumerate∘zip)(uc2[!, :wave], uc2[!, :village_code])
-        # cx contains all edges in that village
-        # need this for full unique set
-        c1 = cx[!, :wave] .== w;
-        c2 = cx[!, :village_code] .== vc
-        n1 = @views cx[c1 .& c2, :ego]
-        n2 = @views cx[c1 .& c2, :alter]
-        uc2[i, :names_all] = (sort∘unique∘vcat)(n1, n2)
+        # cx contains all edges in that village; need this for full unique set
+        key = (wave = w, village_code = vc)
+        if haskey(_gcx, key)
+            sub = _gcx[key]
+            uc2[i, :names_all] = (sort∘unique∘vcat)(sub.ego, sub.alter)
+        else
+            uc2[i, :names_all] = String[]
+        end
     end
 
     for (k, _) in node_fund
@@ -124,8 +127,9 @@ function networkinfo(
     end
 
     @subset! cxf :relationship .∈ Ref(relnames)
-    
-    @time ndf = initialize_ndf(cx, cxf, node_fund, g_fund, mods);
+
+    gcx_names = groupby(cx, [:wave, :village_code])
+    @time ndf = initialize_ndf(cx, cxf, node_fund, g_fund, mods; gcx_names);
     @info "initialized"
 
     gcx = groupby(cxf, [:village_code, :relationship, :wave]);
@@ -272,21 +276,26 @@ function join_ndf_df!(df, ndf, name)
     sndf = ndf
     sdf = @views df[!, [:village_code, name, [k for k in keys(node_fund)]...]];
 
-    # one person
-    Threads.@threads for i in 1:nrow(sdf)
-        ville = sdf.village_code[i]
-        vgr = sdf[i, name]
-        # r = sdf.relation[i];
-        
-        # (sndf.relation .== r) .& 
-        rw = findfirst(sndf.village_code .== ville);
-        if !isnothing(rw)
-            srw = findfirst(sndf.names[rw] .== vgr);
+    # pre-build (village_code, name) => (row_in_sndf, position_in_names) — O(1) per lookup
+    name_lookup = Dict{Tuple{Any, Any}, Tuple{Int, Int}}()
+    vc_seen = Set{Any}()
+    for i in 1:nrow(sndf)
+        vc = sndf.village_code[i]
+        for (j, nm) in enumerate(sndf.names[i])
+            # findfirst semantics: keep first occurrence per village
+            vc ∉ vc_seen && (name_lookup[(vc, nm)] = (i, j))
+        end
+        push!(vc_seen, vc)
+    end
 
-            if !isnothing(srw)
-                for (k, _) in node_fund
-                    sdf[i, k] = sndf[rw, k][srw]
-                end
+    vc_col  = sdf.village_code
+    nm_col  = sdf[!, name]
+    Threads.@threads for i in 1:nrow(sdf)
+        res = get(name_lookup, (vc_col[i], nm_col[i]), nothing)
+        if !isnothing(res)
+            rw, srw = res
+            for (k, _) in node_fund
+                sdf[i, k] = sndf[rw, k][srw]
             end
         end
     end
@@ -312,24 +321,26 @@ function join_ndf_cr!(
         sndf = @views ndf[ndf.relation .== r, :];
         sdf = @views df[df.relation .== r, [:village_code, name, [k for k in keys(node_fund)]...]];
 
-        # one person
-        Threads.@threads for i in 1:nrow(sdf)
-            ville = sdf.village_code[i]
-            vgr = sdf[i, name]
-            # r = sdf.relation[i];
-            
-            # (sndf.relation .== r) .& 
-            rw = findfirst(sndf.village_code .== ville);
-            if !isnothing(rw)
-                srw = findfirst(sndf.names[rw] .== vgr);
+        # pre-build (village_code, name) => (row_in_sndf, position_in_names) — O(1) per lookup
+        # within a relation sndf has one row per village, so no first-occurrence concern
+        name_lookup = Dict{Tuple{Any, Any}, Tuple{Int, Int}}()
+        for i in 1:nrow(sndf)
+            vc = sndf.village_code[i]
+            for (j, nm) in enumerate(sndf.names[i])
+                name_lookup[(vc, nm)] = (i, j)
+            end
+        end
 
-                if !isnothing(srw)
-                    for (k, _) in node_fund
-                        sdf[i, k] = sndf[rw, k][srw]
-                    end
+        vc_col = sdf.village_code
+        nm_col = sdf[!, name]
+        Threads.@threads for i in 1:nrow(sdf)
+            res = get(name_lookup, (vc_col[i], nm_col[i]), nothing)
+            if !isnothing(res)
+                rw, srw = res
+                for (k, _) in node_fund
+                    sdf[i, k] = sndf[rw, k][srw]
                 end
             end
-
         end
     end
 end

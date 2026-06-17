@@ -87,7 +87,7 @@ function clean_respondent(
 
     # raw data description contains variable list and types
     # used to determine which variables are included
-    rf_desc = describe(rf);
+    rf_desc = _fast_desc(rf);
 
     if (:survey_start ∈ rf_desc.variable) & (:date_of_birth ∈ rf_desc.variable)
         rf[!, :age] = age.(rf.survey_start, rf.date_of_birth);
@@ -349,7 +349,7 @@ function clean_respondent(
     end;
 
     # occupational data
-    b0116s = ["b0116" * lt for lt in 'b':'i']; 
+    b0116s = ["b0116" * lt for lt in 'b':'i'];
     for (a, b) in zip(b0116s, string.(ext_occs))
         if Symbol(a) ∈ rf_desc.variable
             rename!(rf, a => b)
@@ -359,8 +359,9 @@ function clean_respondent(
             # but only collected in wave 4
             oldvals = copy(rf[!, Symbol(b)])
             rf[!, Symbol(b)] = missings(Bool, nrow(rf))
+            waves_col = rf.wave
             for (i, e) in enumerate(oldvals)
-                w = rf[i, :wave]
+                w = waves_col[i]
                 if ismissing(e) & (w == 4)
                     rf[i, Symbol(b)] = false
                 else (w == 4)
@@ -471,15 +472,8 @@ function clean_respondent(
         end
     end
     
-    rf[!, :leader] = fill(false, nrow(rf))
-    for c in nldrvars
-        for (i, b) in enumerate(rf[!, c])
-            if !ismissing(b)
-                if b
-                    rf[i, :leader] = true
-                end
-            end
-        end
+    let ldrcols = [rf[!, c] for c in nldrvars]
+        rf[!, :leader] = [any(coalesce(col[i], false) for col in ldrcols) for i in 1:nrow(rf)]
     end
 
     # do not allow entries with missing variables on the following:
@@ -554,8 +548,9 @@ function clean_respondent(
                 # but only collected in wave 4
                 oldvals = copy(rf[!, Symbol(b)])
                 rf[!, Symbol(b)] = missings(Bool, nrow(rf))
+                waves_col = rf.wave
                 for (i, e) in enumerate(oldvals)
-                    w = rf[i, :wave]
+                    w = waves_col[i]
                     if ismissing(e) & (w < 4)
                         rf[i, Symbol(b)] = false
                     else (w < 4)

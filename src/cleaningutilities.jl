@@ -7,6 +7,12 @@ Make it possible to combine the dataframes from different waves, which may have 
 """
 _colinfo(df) = DataFrame(variable = Symbol.(names(df)), eltype = eltype.(eachcol(df)))
 
+# Cheap replacement for describe() when only :variable and :nmissing are needed
+_fast_desc(df) = DataFrame(
+    variable = Symbol.(names(df)),
+    nmissing = Int[Missing <: eltype(df[!, c]) ? sum(ismissing, df[!, c]) : 0 for c in names(df)]
+)
+
 function regularizecols!(resp)
 
     drs = unique(reduce(vcat, [_colinfo(df) for df in resp]))

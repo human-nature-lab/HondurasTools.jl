@@ -45,7 +45,7 @@ function clean_village(vdfs, waves; namedict = nothing)
 
     vdf = reduce(vcat, vdfs)
 
-    vdf_desc = describe(vdf)
+    vdf_desc = _fast_desc(vdf)
 
     # recode variables as binary
     vbls = [
