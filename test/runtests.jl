@@ -267,6 +267,53 @@ end
     @test bob.purple_score === 4
 end
 
+@testset "getmoney parsing — tryparse returns missing (not nothing) for unrecognized strings" begin
+    # passmissing(tryparse) was the old form: returns nothing on parse failure.
+    # The fix wraps with coalesce(..., missing).
+    f = passmissing(x -> something(tryparse(Int, x), missing))
+
+    @test f("5")      === 5
+    @test ismissing(f(missing))
+    @test ismissing(f("Refused"))
+    @test ismissing(f("NA"))
+    @test ismissing(f("Dont_Know"))
+
+    # column-level: eltype must not include Nothing
+    col = [missing, "0", "Refused", "3", "NA"]
+    result = f.(col)
+    @test !(Nothing <: eltype(result))
+    @test isequal(result, [missing, 0, missing, 3, missing])
+end
+
+@testset "relig_weekly recode — unmapped attendance values become missing, not false" begin
+    attend = ["Once per week", "Never or almost never", "Rarely", missing, "More than once per week"]
+    recoded = recode(
+        attend,
+        missing,
+        "Never or almost never" => "<= Monthly",
+        "Once or twice a year"  => "<= Monthly",
+        "Once a month"          => "<= Monthly",
+        "Once per week"         => ">= Weekly",
+        "More than once per week" => ">= Weekly"
+    )
+
+    # known values map correctly
+    @test recoded[1] == ">= Weekly"
+    @test recoded[2] == "<= Monthly"
+    # unmapped non-missing → missing (not passed through, not false)
+    @test ismissing(recoded[3])
+    # already-missing → still missing
+    @test ismissing(recoded[4])
+    @test recoded[5] == ">= Weekly"
+
+    # downstream ifelse: unmapped → missing, not false
+    weekly_flag = passmissing(ifelse).(recoded .== ">= Weekly", true, false)
+    @test weekly_flag[1] === true
+    @test weekly_flag[2] === false
+    @test ismissing(weekly_flag[3])   # was incorrectly false before fix
+    @test ismissing(weekly_flag[4])
+end
+
 @testset "convertspend — missing / refusal strings → missing; valid string → Int" begin
     @test ismissing(HondurasTools.convertspend(missing))
     @test ismissing(HondurasTools.convertspend("Dont_Know"))

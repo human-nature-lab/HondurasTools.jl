@@ -221,6 +221,7 @@ function clean_respondent(
     if :b0530 ∈ rf_desc.variable
         rf.relig_weekly = recode(
             rf.relig_attend,
+            missing,
             "Never or almost never" => "<= Monthly",
             "Once or twice a year" => "<= Monthly",
             "Once a month" => "<= Monthly",

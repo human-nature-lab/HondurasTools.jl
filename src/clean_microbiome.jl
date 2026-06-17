@@ -120,7 +120,7 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
         rename!(mb, :mb_c0000 => :getmoney)
         namedict[:getmoney] = :mb_c0000
     end
-    mb[!, :getmoney] = passmissing(tryparse).(Int, mb[!, :getmoney])
+    mb[!, :getmoney] = passmissing(x -> something(tryparse(Int, x), missing)).(mb[!, :getmoney])
 
 
     # 19 villages that are in the study
