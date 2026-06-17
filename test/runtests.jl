@@ -218,4 +218,60 @@ end
     end
 end
 
+# ─── nothing / missing hygiene ───────────────────────────────────────────────
+
+@testset "outval — returns missing (not nothing) for unrecognized outcomes" begin
+    tple = (32, 31)
+
+    @test HondurasTools.outval("Flip a coin", tple)  === 32
+    @test HondurasTools.outval("Sure payment", tple)  === 31
+
+    # unrecognized value must produce missing, never nothing
+    result = HondurasTools.outval("Dont_Know", tple)
+    @test ismissing(result)
+    @test result !== nothing
+
+    result2 = HondurasTools.outval("some_unexpected_string", tple)
+    @test ismissing(result2)
+    @test result2 !== nothing
+end
+
+@testset "process_risk — unrecognized outcome yields missing risk_score, not nothing" begin
+    # Construct minimal input: one row per person, columns named <prefix>_c<state*100>
+    # State 31 (stage 5), state 29 (stage 4 / penultimate)
+    risk_input = DataFrame(
+        :name         => ["alice", "bob"],
+        :village_code => [1, 2],
+        Symbol("ch_c3100") => ["Flip a coin",          "Unrecognized_Outcome"],
+        Symbol("ch_c2900") => ["Sure payment",          "Flip a coin"],
+    )
+
+    result = HondurasTools.process_risk(risk_input)
+
+    # column eltype must not include Nothing
+    @test !(Nothing <: eltype(result.risk_score))
+    @test !(Nothing <: eltype(result.green_score))
+    @test !(Nothing <: eltype(result.purple_score))
+
+    alice = only(result[result.name .== "alice", :])
+    @test alice.risk_score   === 32
+    @test alice.green_score  === 8
+    @test alice.purple_score === 4
+
+    bob = only(result[result.name .== "bob", :])
+    # unrecognized outcome → missing risk_score (not nothing)
+    @test ismissing(bob.risk_score)
+    @test bob.risk_score !== nothing
+    # penultimate state still scored
+    @test bob.green_score  === 8
+    @test bob.purple_score === 4
+end
+
+@testset "convertspend — missing / refusal strings → missing; valid string → Int" begin
+    @test ismissing(HondurasTools.convertspend(missing))
+    @test ismissing(HondurasTools.convertspend("Dont_Know"))
+    @test ismissing(HondurasTools.convertspend("Refused"))
+    @test HondurasTools.convertspend("42") === 42
+end
+
 end  # HondurasTools.jl
