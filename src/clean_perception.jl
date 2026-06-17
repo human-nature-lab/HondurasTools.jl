@@ -478,8 +478,15 @@ function clean_perception!(resp; namedict = nothing)
             end
         end
 
+        v = :baby_skin_perc
+        replace!(resp[!, v], [rx => missing for rx in rms]...)
+        resp[!, v] = passmissing(String∘string).(resp[!, v]);
+
+        v = :baby_skin_moralperc
+        replace!(resp[!, v], [rx => missing for rx in rms]...)
+        resp[!, v] = passmissing(String∘string).(resp[!, v]);
+
         v = :baby_skin_good;
-        
 
         # N.B. assume that missing is "No"
         replace!(resp[!, v], [rx => missing for rx in rms]...)
@@ -572,6 +579,10 @@ function clean_perception!(resp; namedict = nothing)
 
         # seems like this question was asked to everyone?
         # but are there genuinely missing values?
+        v = :laxatives_perc
+        replace!(resp[!, v], [rx => missing for rx in rms]...)
+        resp[!, v] = passmissing(String∘string).(resp[!, v]);
+
         resp[!, :laxatives_good] = passmissing(String).(resp[!, :laxatives_good]);
         # resp[!, :laxatives_good] = passmissing(ifelse).(resp[!, :laxatives_good] .== "Giving a purgante", true, false);
         resp[!, :laxatives_good] = ifelse.(ismissing.(resp[!, :laxatives_good]), false, true)
@@ -719,6 +730,10 @@ function clean_perception!(resp; namedict = nothing)
         v = :father_care_sick_good
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(ifelse).(resp[!, v] .== "Yes", true, false);
+
+        v = :father_care_sick_moralperc
+        replace!(resp[!, v], [rx => missing for rx in rms]...)
+        resp[!, v] = passmissing(String∘string).(resp[!, v]);
 
     end;
 
