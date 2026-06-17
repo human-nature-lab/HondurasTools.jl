@@ -199,7 +199,7 @@ function network_info!(ndf, mods)
         end
 
         # modularity
-        if !isnothing(mods) > 0
+        if !isnothing(mods) && length(mods) > 0
             for v in mods
                 k = Symbol("modularity_" * string(v))
                 arw[k] = modularity(arw[:graph], arw[v])

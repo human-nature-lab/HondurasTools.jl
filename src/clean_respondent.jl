@@ -362,10 +362,8 @@ function clean_respondent(
             waves_col = rf.wave
             for (i, e) in enumerate(oldvals)
                 w = waves_col[i]
-                if ismissing(e) & (w == 4)
-                    rf[i, Symbol(b)] = false
-                else (w == 4)
-                    rf[i, Symbol(b)] = true
+                if w == 4
+                    rf[i, Symbol(b)] = !ismissing(e)
                 end
             end
         end
@@ -472,8 +470,10 @@ function clean_respondent(
         end
     end
     
-    let ldrcols = [rf[!, c] for c in nldrvars]
-        rf[!, :leader] = [any(coalesce(col[i], false) for col in ldrcols) for i in 1:nrow(rf)]
+    let rfcols = Set(Symbol.(names(rf)))
+        ldrcols = [rf[!, c] for c in nldrvars if c ∈ rfcols]
+        rf[!, :leader] = isempty(ldrcols) ? fill(false, nrow(rf)) :
+            [any(coalesce(col[i], false) for col in ldrcols) for i in 1:nrow(rf)]
     end
 
     # do not allow entries with missing variables on the following:
@@ -551,10 +551,8 @@ function clean_respondent(
                 waves_col = rf.wave
                 for (i, e) in enumerate(oldvals)
                     w = waves_col[i]
-                    if ismissing(e) & (w < 4)
-                        rf[i, Symbol(b)] = false
-                    else (w < 4)
-                        rf[i, Symbol(b)] = true
+                    if w < 4
+                        rf[i, Symbol(b)] = !ismissing(e)
                     end
                 end
             end

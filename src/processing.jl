@@ -116,8 +116,9 @@ Return most recent value, or missing if all are missing.
 """
 function firstval(x; waves = [4,3,2,1])
     for i in waves
-        if !ismissing(x[i])
-            return x[i], i
+        val = get(x, i, missing)
+        if !ismissing(val)
+            return val, i
         end
     end
     return missing, 0

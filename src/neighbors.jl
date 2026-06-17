@@ -73,7 +73,7 @@ function addneighbors(cr, ndf4, rhv4, sl; cg = cg)
     # enforce consistent type
     for v in sl
         tp = eltype(rhv4[!, v])
-        nv = Symbol(string(x) * "_n")
+        nv = Symbol(string(v) * "_n")
         ucrw[!, nv] = convert(
             Vector{Union{Missing, Vector{tp}}},
             ucrw[!, nv]
