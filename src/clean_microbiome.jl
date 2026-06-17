@@ -101,6 +101,13 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
         namedict[:spend] = :mb_ab0100
     end
 
+    for v in [:mb_ab0110, :mb_ab0120]
+        if v ∈ mb_desc.variable
+            irrelreplace!(mb, v)
+            mb[!, v] = categorical(mb[!, v])
+        end
+    end
+
     if :mb_ab0200 ∈ mb_desc.variable
         rename!(mb, :mb_ab0200 => :leavevillage)
         namedict[:leavevillage] = :mb_ab0200

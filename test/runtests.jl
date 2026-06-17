@@ -220,6 +220,33 @@ end
 
 # ─── nothing / missing hygiene ───────────────────────────────────────────────
 
+@testset "listen block — \"Very Much\" normalised to \"Very much\" before categorical" begin
+    using CategoricalArrays
+    col = ["Very much", "Very Much", "A little", missing, "Dont_Know"]
+    tomissing = ["Refused" => missing, "Don't remember" => missing, "Dont_Know" => missing]
+    replace!(col, tomissing...)
+    replace!(col, "Very Much" => "Very much")
+    cat = categorical(col)
+    lvls = levels(cat)
+    @test "Very Much" ∉ lvls
+    @test "Very much" ∈ lvls
+    @test sum(skipmissing(cat .== "Very much")) == 2
+end
+
+@testset "mb_ab0110/0120 — Dont_Know replaced with missing before categorical" begin
+    using CategoricalArrays
+    col = ["Very much", "Dont_Know", "A little", missing, "Refused"]
+    irrelreplace! = HondurasTools.irrelreplace!
+    df = DataFrame(:mb_ab0110 => col)
+    irrelreplace!(df, :mb_ab0110)
+    df[!, :mb_ab0110] = categorical(df[!, :mb_ab0110])
+    lvls = levels(df.mb_ab0110)
+    @test "Dont_Know" ∉ lvls
+    @test "Refused"   ∉ lvls
+    @test "Very much" ∈ lvls
+    @test sum(ismissing.(df.mb_ab0110)) == 3  # original missing + Dont_Know + Refused
+end
+
 @testset "outval — returns missing (not nothing) for unrecognized outcomes" begin
     tple = (32, 31)
 
