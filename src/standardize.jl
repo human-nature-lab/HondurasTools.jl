@@ -185,7 +185,7 @@ function reversestandard(x::AbstractVector, v, transforms)
     y = deepcopy(x)
     dt = transforms[v]
     idx = .!ismissing.(y)
-    vnm = df[idx, v]
+    vnm = x[idx]
     vnm = disallowmissing(vnm)
     y[idx] = StatsBase.reconstruct(dt, vnm)
     return y

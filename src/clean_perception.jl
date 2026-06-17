@@ -574,7 +574,7 @@ function clean_perception!(resp; namedict = nothing)
         # but are there genuinely missing values?
         resp[!, :laxatives_good] = passmissing(String).(resp[!, :laxatives_good]);
         # resp[!, :laxatives_good] = passmissing(ifelse).(resp[!, :laxatives_good] .== "Giving a purgante", true, false);
-        resp[!, :laxatives_good] = ifelse.(ismissing.(resp[!, v]), false, true)
+        resp[!, :laxatives_good] = ifelse.(ismissing.(resp[!, :laxatives_good]), false, true)
     end
 
     diar = [

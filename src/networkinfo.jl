@@ -227,11 +227,11 @@ function grouppartition!(ndf, rr, v, unitname)
     crv = unique(rr[!, [unitname, v]]; view = true)
     crv = Dict(crv[!, unitname] .=> crv[!, v])
 
-    et = eltype(rr[!, v])
-    
-    ndf[!, v] = Vector{Vector{et}}(undef, nrow(ndf));
+    nm_et = nonmissingtype(eltype(rr[!, v]))
+
+    ndf[!, v] = Vector{Vector{Union{Missing, nm_et}}}(undef, nrow(ndf))
     for (i, e) in enumerate(ndf.names)
-        ndf[i, v] = missings(Bool, length(e))
+        ndf[i, v] = missings(nm_et, length(e))
     end
     
     for r in eachrow(ndf)

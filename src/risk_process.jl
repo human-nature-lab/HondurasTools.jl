@@ -87,7 +87,7 @@ function process_risk(risk)
         value_name = :outcome, variable_name = :choice
     );
 
-    risk.choice_num = [Int(parse(Int, split(risk.choice[i], "_c")[2])*inv(100)) for i in 1:nrow(risk)]
+    risk.choice_num = [parse(Int, split(risk.choice[i], "_c")[2]) ÷ 100 for i in 1:nrow(risk)]
 
 
     sort!(risk, [:village_code, :name])

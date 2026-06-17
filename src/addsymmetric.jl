@@ -49,7 +49,10 @@ function addsymmetric!(con)
     addties!(con)
 
     # track whether relationship is symmetric/reciprocated
-    gc = groupby(con, [:tie, :relationship, :wave, :village_code, :kintype])
+    grp_cols = hasproperty(con, :kintype) ?
+        [:tie, :relationship, :wave, :village_code, :kintype] :
+        [:tie, :relationship, :wave, :village_code]
+    gc = groupby(con, grp_cols)
 
     if sort(unique(combine(gc, nrow => :count).count)) != [1, 2]
         error("problem")

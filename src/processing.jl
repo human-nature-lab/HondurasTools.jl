@@ -132,18 +132,19 @@ function variableassign!(ds, rgnp, vs2, unit; wave = :wave)
                 ds[ri[unit]].properties[q][w] = vl
             end
             
-            for j in 2:4
-                v1 = get(ds[ri[unit]].properties[q], j-1, missing)
-                v2 = get(ds[ri[unit]].properties[q], j, missing)
-                
-                ds[ri[unit]].change[q][j-1] = if ismissing(v1) & ismissing(v2)
-                        false
-                elseif ismissing(v1) | ismissing(v2) # if only one missing -> change
-                        true
-                    elseif v1 != v2
-                        true
-                    elseif v1 == v2
-                        false
+            # change[1]=1→2, change[2]=1→3, change[3]=3→4 (matches Respondent struct comment)
+            for (ci, (w1, w2)) in enumerate(((1,2), (1,3), (3,4)))
+                v1 = get(ds[ri[unit]].properties[q], w1, missing)
+                v2 = get(ds[ri[unit]].properties[q], w2, missing)
+
+                ds[ri[unit]].change[q][ci] = if ismissing(v1) & ismissing(v2)
+                    false
+                elseif ismissing(v1) | ismissing(v2)
+                    true
+                elseif v1 != v2
+                    true
+                else
+                    false
                 end
             end
         end

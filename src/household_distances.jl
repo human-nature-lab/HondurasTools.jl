@@ -87,7 +87,7 @@ function add_dists!(
             if !(isnothing(i) | isnothing(j))
                 r[dst][ix] = if i > j # only lower triangle contains distances
                     vdst[vc][i,j]
-                elseif j < i
+                elseif i < j
                     vdst[vc][j,i]
                 elseif j == i # same household
                     0

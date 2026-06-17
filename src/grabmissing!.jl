@@ -118,14 +118,16 @@ function grabmissing(cr, resp, hh, vill; rwave = 4, hhwave = 4, vwave = 3)
         x = xs[n];
         
         xstr = string(x)
-        refdf, nm_r, nm_v = if xstr ∈ names(resp)
-            resp, :name, :perceiver
+        local refdf, nm_r, nm_v
+        if xstr ∈ names(resp)
+            refdf, nm_r, nm_v = resp, :name, :perceiver
         elseif xstr ∈ names(hh)
-            hh, :building_id, :building_id
+            refdf, nm_r, nm_v = hh, :building_id, :building_id
         elseif xstr ∈ names(vill)
-            vill, :village_code, :village_code
-        else 
+            refdf, nm_r, nm_v = vill, :village_code, :village_code
+        else
             @warn "cannot find the variable " * string(x) * " in the reference datasets"
+            continue
         end
 
         csel = select(ucr, [nm_v, x])

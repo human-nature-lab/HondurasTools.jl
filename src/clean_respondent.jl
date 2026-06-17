@@ -562,14 +562,11 @@ function clean_respondent(
     # bstrclean!(:e1100, :preg_delayavoid_now, rf, rf_desc, namedict)
     # ignore e1200 -- now version of e1000
 
-    # at hh level
-    let nosel = [:b0300, ]
-        select!(rf, Not(nosel))
-    end
-
-    # irrel
-    let nosel = [:b1000]
-        select!(rf, Not(nosel))
+    # at hh level / irrel
+    let rfcols = Set(Symbol.(names(rf)))
+        for col in [:b0300, :b1000]
+            col ∈ rfcols && select!(rf, Not(col))
+        end
     end
 
     # add village population
