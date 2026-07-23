@@ -36,7 +36,7 @@ function process_edgelist!(
 
     # filter to those that received a survey
     if alter_source
-        deleteat!(edgelist, conn.alter_source .!= 1)
+        deleteat!(edgelist, edgelist.alter_source .!= 1)
     end
 
     # filter to those in the desired relationship(s)

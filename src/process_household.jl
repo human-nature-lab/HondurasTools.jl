@@ -9,7 +9,7 @@ struct Household
     wave::NTuple{4, Bool}
 end
 
-function household(building_id, waves, vs2)
+function household(building_id, waves, vs_props)
     wv = fill(false, 4)
     for i in eachindex(wv)
         if i ∈ waves
@@ -23,7 +23,7 @@ function household(building_id, waves, vs2)
     prop = Dict{Symbol, t1}()
     chg = Dict{Symbol, t2}()
 
-    for q in setdiff(vs2, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
+    for q in vs_props
         prop[q] = t1()
         chg[q] = fill(false, 3)
     end
@@ -56,11 +56,13 @@ function householdprocess(
 
     @assert nrow(unique(rgnu[!, [unit, :wave]])) == nrow(rgnu)
 
+    vs_props = setdiff(vs, [:wave, :village_code, :name, :building_id, :date_of_birth, :man])
+
     hd = Dict{String, Household}();
     sizehint!(hd, nrow(rgnu));
     for (i, e) in enumerate(rgnu[!, unit])
         ri = @views rgnu[i, :]
-        rpd = household(e, ri.wave, vs)
+        rpd = household(e, ri.wave, vs_props)
         for (w, c) in zip(ri.wave, ri.village_code)
             rpd.village_code[w] = c
         end
