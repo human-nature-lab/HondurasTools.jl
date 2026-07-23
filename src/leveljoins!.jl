@@ -2,8 +2,8 @@
 
 function leveljoins(resp, hh, vill; rwave = 4, hhwave = 4, vwave = 3)
     resp4 = @subset resp :wave .== rwave;
-    vill3 = @subset vill :wave .== hhwave;
-    hh4 = @subset hh :wave .== vwave;
+    vill3 = @subset vill :wave .== vwave;
+    hh4 = @subset hh :wave .== hhwave;
 
     dropmissing!(resp4, [:name, :building_id, :village_code])
     dropmissing!(hh4, [:building_id, :village_code])
