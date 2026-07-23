@@ -9,19 +9,25 @@ module HondurasTools
     @reexport using Skipper
 
     @reexport import CSV, JSONTables
-    @reexport using JLD2
+    # @reexport using JLD2
+    using BSON
 
     @reexport using StatsBase, Statistics, Distributions
     @reexport using StatsModels
-    @reexport using Distributions, LinearAlgebra
+    @reexport using LinearAlgebra
 
     @reexport using Graphs, MetaGraphs, GraphDataFrameBridge
+
+    import Distances.haversine
 
     # utilities
     include("utilities.jl")
     include("leveljoins!.jl")
     include("groupdescribe.jl")
     include("sortedges!.jl")
+
+    # codebook
+    include("load_codebook.jl")
 
     # data cleaning
     include("cleaningtools.jl")
@@ -45,6 +51,9 @@ module HondurasTools
     include("process_household.jl")
     include("process_village.jl")
     include("processing.jl")
+    include("household_pairs.jl")
+    include("household_distances.jl")
+    include("prepare_for_bson.jl")
 
     # network utilities
     include("addsymmetric.jl")
@@ -57,11 +66,9 @@ module HondurasTools
 
     include("neighbors.jl")
 
-    files_working = "working/" .* [
-        "variables.jl", "standardize.jl",
-        "code_variables.jl",
-    ];
-    for x in files_working; include(x) end
+    include("variables.jl")
+    include("standardize.jl")
+    include("code_variables.jl")
 
     # output paths
     npath = "new-analysis-report/objects/";
@@ -70,6 +77,11 @@ module HondurasTools
 
     # data date
     dte = "2024-02-18"
+
+    # household distances
+    export household_distances, distance_df
+    export add_building_info!, hh_distances
+    export prepare_for_bson
 
     export npath, datapath, dte
 end

@@ -15,7 +15,7 @@ using HondurasTools
 # the paths should be in the same order as waves
 waves = [1, 2, 3];
 
-basepath = "../" # "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/";
+basepath = "../";
 writepath = "clean_data/";
 
 hh_paths =  [
@@ -30,7 +30,7 @@ respondent_paths = [
     "WAVE3/v3_2021-03/honduras_respondents_WAVE3_v3.csv",
 ];
 
-mbpath = "/WORKAREA/work/HONDURAS_MICROBIOME/E_FELTHAM/";
+mbpath = "../microbiome/"; # set to your microbiome data root
 
 cohort1pth = "COHORT_1/v1/hmb_respondents_cohort1_baseline_v1_E_FELTHAM_2022-09-08.csv";
 cohort2pth = "COHORT_2/v1/hmb_respondents_cohort2_v1_E_FELTHAM_2022-09-08.csv";
