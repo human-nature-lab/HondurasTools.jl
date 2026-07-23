@@ -199,9 +199,10 @@ function clean_ihr(cop, ihr)
         for (x1, x2, y1, y2) in zip(xs1, xs2, ys1, ys2)
             replace!(ihr[!, x1], tomissing...);
             replace!(ihr[!, x2], tomissing...);
+            replace!(ihr[!, x2], "Very Much" => "Very much");
             ihr[findall(x -> coalesce(x == "No", false), ihr[!, x1]), x2] .= "No"
             ihr[!, x1] = passmissing(ifelse).(ihr[!, x1] .== "Yes", true, false)
-            
+
             ihr[!, x2] = categorical(ihr[!, x2])
             rename!(ihr, x1 => y1)
             rename!(ihr, x2 => y2)

@@ -96,7 +96,7 @@ function clean_household(
     hh = reduce(vcat, hh);
 
     # raw data description contains variable list and types
-    hh_desc = describe(hh);
+    hh_desc = _fast_desc(hh);
 
     # remove irrelevant variables
     for x in [
@@ -108,8 +108,12 @@ function clean_household(
     end
 
     # rename to avoid conflicts with other data
-    rename!(hh, :survey_start => :hh_survey_start);
-    rename!(hh, :new_building => :hh_new_building);
+    if :survey_start ∈ hh_desc.variable
+        rename!(hh, :survey_start => :hh_survey_start);
+    end
+    if :new_building ∈ hh_desc.variable
+        rename!(hh, :new_building => :hh_new_building);
+    end
 
     v = :household_wealth_index
     if v ∈ hh_desc.variable
@@ -242,10 +246,9 @@ function clean_household(
     namedict[:hh_resp_name] = :respondent_master_id
 
     # filters
-
     let
         # remove columns in hh  (they are in village-level)
-        dups = [:building_latitude, :building_longitude, :village_name, :municipality, :office];
+        dups = [:village_name, :municipality, :office];
         select!(hh, Not(dups))
         # not sure how there are wave 4 variables that are all missing
     end
@@ -263,7 +266,6 @@ function clean_household(
             3 => "Not surveyed, not reported"
         );
     end
-
     return hh
 end
 

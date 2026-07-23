@@ -28,7 +28,7 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
         mb
     end;
 
-    mb_desc = describe(mb);
+    mb_desc = _fast_desc(mb);
 
     mb.village_code = categorical(mb.village_code)
     mb.name = categorical(mb.name)
@@ -101,7 +101,14 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
         namedict[:spend] = :mb_ab0100
     end
 
-    if :mb_a0200 ∈ mb_desc.variable
+    for v in [:mb_ab0110, :mb_ab0120]
+        if v ∈ mb_desc.variable
+            irrelreplace!(mb, v)
+            mb[!, v] = categorical(mb[!, v])
+        end
+    end
+
+    if :mb_ab0200 ∈ mb_desc.variable
         rename!(mb, :mb_ab0200 => :leavevillage)
         namedict[:leavevillage] = :mb_ab0200
     end
@@ -120,7 +127,7 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
         rename!(mb, :mb_c0000 => :getmoney)
         namedict[:getmoney] = :mb_c0000
     end
-    mb[!, :getmoney] = passmissing(tryparse).(Int, mb[!, :getmoney])
+    mb[!, :getmoney] = passmissing(x -> something(tryparse(Int, x), missing)).(mb[!, :getmoney])
 
 
     # 19 villages that are in the study
@@ -184,17 +191,25 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
         :mb_ba0600 => :irritable,
         :mb_ba0700 => :afraid,
         :mb_ba0800 => :little_pleasure,
-        :bfi10_extraversion => :b5_extraversion,
-        :bfi10_agreeableness => :b5_agreeab,
-        :bfi10_conscientiousness => :b5_conscien,
-        :bfi10_neuroticism => :b5_neurot,
-        :bfi10_openness_to_experience => :b5_openness,
     )
 
     for mbpair in mbpairs
-        if mbpair ∈ mb_desc.variable
+        if first(mbpair) ∈ mb_desc.variable
             rename!(mb, mbpair)
             namedict[mbpair[2]] = mbpair[1]
+        end
+    end
+
+    for (src, dst) in (
+        :bfi10_extraversion => :extraversion,
+        :bfi10_agreeableness => :agreeableness,
+        :bfi10_conscientiousness => :conscientiousness,
+        :bfi10_neuroticism => :neuroticism,
+        :bfi10_openness_to_experience => :openness_to_experience,
+    )
+        if src ∈ mb_desc.variable
+            rename!(mb, src => dst)
+            namedict[dst] = src
         end
     end
     
