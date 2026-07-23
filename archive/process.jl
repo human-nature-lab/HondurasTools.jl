@@ -13,7 +13,7 @@ using HondurasTools
 # the paths should be in the same order
 waves = [1, 2, 3];
 
-basepath = "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/";
+basepath = "../";
 writepath = basepath * "clean_data/";
 
 hh_paths =  [

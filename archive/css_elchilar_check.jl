@@ -9,7 +9,7 @@ using HonCog
 
 include("dataprocess.jl")
 
-pth = "/WORKAREA/work/HONDURAS_GATES/E_FELTHAM/CSS/pilot_data";
+pth = "../pilot_data";
 
 files = [
     "CSS_edge_export_2022-08-23.csv",
