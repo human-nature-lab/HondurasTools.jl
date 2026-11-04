@@ -147,42 +147,7 @@ function clean_respondent(
     if :b0200 ∈ rf_desc.variable
         rename!(rf, :b0200 => v)
         namedict[v] = :b0200;
-        irrelreplace!(rf, v)
-        replace!(
-            rf[!, v],
-            "Si, Maya Chorti" => "Chorti",
-            "Yes, Maya Chorti" => "Chorti", "Yes, Lenca" => "Lenca"
-        )
-
-        rf[!, :isindigenous] = copy(rf[!, v]);
-        replace!(
-            rf[!, v],
-            "Yes, Maya Chorti" => "Yes", "Yes, Lenca" => "Yes"
-        );
-
-        replace!(rf.indigenous, "Other" => missing)
-        binarize!(rf, :isindigenous)
-
-        
-        rf.notindigenous = .!(rf.isindigenous);
-
-        v_indigenous = @chain rf begin
-            groupby([:village_code])
-            combine(
-                nrow => :n,
-                :isindigenous => sum∘skipmissing => :isindigenous_sum,
-                :notindigenous => sum∘skipmissing => :notindigenous_sum,
-            )
-            @transform(:isindigenous_pct = :isindigenous_sum .* inv.(:isindigenous_sum + :notindigenous_sum))
-            @subset :village_code .!= 0
-        end;
-
-        select!(v_indigenous, Not([:notindigenous_sum, :isindigenous_sum]))
-
-        dropmissing!(v_indigenous, :village_code);
-        leftjoin!(rf, v_indigenous, on = :village_code, matchmissing=:notequal);
-
-        rf.maj_indigenous = rf.isindigenous_pct .>= 0.5;
+        _code_indigenous!(rf)
     end;
 
     # religion
@@ -586,3 +551,50 @@ function clean_respondent(
 end
 
 export clean_respondent
+
+"""
+    _code_indigenous!(rf)
+
+Code the indigenous-community item (`b0200`, already renamed to `:indigenous`).
+
+- `indigenous`: "Chorti", "Lenca" or "No"; "Other", don't know and refused become `missing`.
+- `isindigenous`: `true` for Chorti or Lenca, `false` for "No", otherwise `missing`.
+- `notindigenous`: the negation of `isindigenous`.
+- `isindigenous_pct`, `maj_indigenous`: village share of `isindigenous` (all rows
+  pooled, `village_code != 0`) and whether it is at least one half.
+
+Earlier versions copied `isindigenous` after "Yes, Maya Chorti"/"Yes, Lenca" had been
+recoded to "Chorti"/"Lenca" and then binarized on "Yes", so every Chorti and Lenca
+respondent was coded `false` (and "Other" `false` rather than `missing`).
+"""
+function _code_indigenous!(rf)
+    v = :indigenous
+    irrelreplace!(rf, v)
+    replace!(
+        rf[!, v],
+        "Si, Maya Chorti" => "Chorti",
+        "Yes, Maya Chorti" => "Chorti", "Yes, Lenca" => "Lenca",
+        "Other" => missing
+    )
+    rf.isindigenous = passmissing(!=).(rf[!, v], "No")
+    rf.notindigenous = passmissing(!).(rf.isindigenous)
+
+    v_indigenous = @chain rf begin
+        groupby([:village_code])
+        combine(
+            nrow => :n,
+            :isindigenous => sum∘skipmissing => :isindigenous_sum,
+            :notindigenous => sum∘skipmissing => :notindigenous_sum,
+        )
+        @transform(:isindigenous_pct = :isindigenous_sum .* inv.(:isindigenous_sum + :notindigenous_sum))
+        @subset :village_code .!= 0
+    end;
+
+    select!(v_indigenous, Not([:notindigenous_sum, :isindigenous_sum]))
+
+    dropmissing!(v_indigenous, :village_code);
+    leftjoin!(rf, v_indigenous, on = :village_code, matchmissing=:notequal);
+
+    rf.maj_indigenous = rf.isindigenous_pct .>= 0.5;
+    return rf
+end
