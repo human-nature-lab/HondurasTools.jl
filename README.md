@@ -1,58 +1,119 @@
 # HondurasTools.jl
 
-Julia tools for cleaning and analyzing Honduras survey and network data. The package combines wave-specific tables, recodes survey responses, supports codebook lookups, and provides longitudinal and network utilities.
+Tools for cleaning and analyzing Honduras survey and social network data in Julia.
+
+HondurasTools combines survey waves, recodes responses, and prepares respondent, household, village, and connection tables for analysis. It also provides processed codebook lookups, longitudinal data structures, and network measures.
 
 ## Installation
 
-Requires Julia 1.10 or later within the compatibility range in `Project.toml`. Install from GitHub using credentials with access to the repository:
+Requires Julia 1.10 or later in the 1.x series. Install from GitHub with an account that has access to the repository:
 
 ```julia
 using Pkg
 Pkg.add(url="https://github.com/human-nature-lab/HondurasTools.jl")
-using HondurasTools
 ```
 
-For development, clone the repository and run `julia --project=.` followed by `using Pkg; Pkg.instantiate()`. Dependencies are declared in `Project.toml`; no separate GraphTools installation is required.
+## Quick start
 
-## Generate clean data
+The package includes machine-readable codebooks, so these lookups work without survey data or additional downloads:
 
-Raw survey data are not distributed with this package. Adapt [make_data.jl](make_data.jl) to your authorized local data delivery, specifying paths and waves in matching order. Run the adapted script from its project directory:
+```julia
+using HondurasTools
+
+cb = load_codebook()
+
+# Question metadata and response options for RCT wave 3.
+variable_info(cb, "a0200"; study="rct", wave=3)
+variable_options(cb, "a0200"; study="rct", wave=3)
+
+# Find variables by data level or type.
+variables_by_level(cb, "respondent"; study="rct")
+variables_by_type(cb, "outcome"; study="rct")
+```
+
+The codebooks distinguish the parent randomized controlled trial (`rct`), Intellectual Humility (`ih`), and Honduras Microbiome (`hmb`) studies. Always select the study explicitly when working outside the RCT. Wave numbers have study-specific meanings.
+
+## Cleaning survey data
+
+Wave-based cleaners take a vector of DataFrames and a matching vector of wave numbers. For example, this self-contained example cleans a synthetic outcome table using the bundled codebook:
+
+```julia
+using HondurasTools
+
+cb = load_codebook()
+raw = DataFrame(
+    respondent_master_id=["example-a", "example-b"],
+    dia_child_zinc_ka_w2=[1, 2],
+    resp_target_w2=[1, 0],
+)
+
+outcomes = clean_outcomes([raw], [2]; codebook=cb, study="rct")
+# Outputs include name, wave, dia_child_zinc_ka, and resp_target.
+# Outcome responses 1/2 become false/true; treatment codes 1/0 become true/false.
+```
+
+| Data | Entry point |
+| --- | --- |
+| Respondents | `clean_respondent(tables, waves)` |
+| Households | `clean_household(tables, waves)` |
+| Villages | `clean_village(tables, waves)` |
+| Connections | `clean_connections(tables, waves)` |
+| Outcomes and treatment indicators | `clean_outcomes(tables, waves; codebook=cb, study="rct")` |
+| Microbiome | `clean_microbiome(tables, administrations)` |
+| Intellectual Humility and cooperation | `clean_ihr(cooperation, ih)` |
+
+RCT cleaners accept waves 1–4. Required columns and supported optional fields vary by cleaner; codebook coverage alone does not guarantee compatibility with a particular data delivery. Wave-based cleaners may mutate their inputs. See the [processing guide](docs/src/processing.md) for input contracts, filtering defaults, missing values, and joins.
+
+### Microbiome administrations
+
+HMB administration IDs are **1: cohort 1 baseline**, **2: cohort 1 follow-up**, and **3: cohort 2**. Given the corresponding raw DataFrames:
+
+```julia
+mb = clean_microbiome([baseline, followup, cohort2], [1, 2, 3])
+```
+
+The result preserves repeated participants across administrations and retains cohort-specific columns. Its observation key is `(name, cohort, administration)`; duplicates within that key raise an error. The two-table shorthand `clean_microbiome(baseline, cohort2)` uses administrations `[1, 3]`.
+
+### Generate CSV outputs
+
+Adapt [make_data.jl](make_data.jl) to the paths and files in your local data delivery. The template processes RCT waves 1–3 and HMB baseline/cohort 2, then writes dated CSVs for each data level to `clean_data/`.
+
+From the project directory containing your adapted script:
 
 ```sh
 julia --project=. --threads=auto make_data.jl
 ```
 
-The template reads RCT waves 1–3 and two microbiome cohort files, then writes dated respondent, household, village, microbiome, and connections CSVs into `clean_data/`. It is an example for a particular delivery, not a universal importer. Remove unneeded sections and check required columns before using a different request or wave. Cleaners can mutate input DataFrames.
+The project must have HondurasTools installed. Raw participant data are not included in this repository. Review the template's sample filters and remove sections for datasets you do not have.
 
-The template keeps respondent rows labeled `"Census, survey"` and connections with raw `alter_source == 1` and `same_village == 1`. These are sample choices, not universal study inclusion rules. See the [processing guide](docs/src/processing.md) for defaults and missing-data behavior.
+## Codebook sources and reproducibility
 
-## Processed codebooks
-
-`load_codebook()` loads the bundled `variables.csv`, `options.csv`, and `derivations.csv`. To use the separately maintained processed codebook, set its repository root once:
-
-```sh
-export HONDURAS_CODEBOOK="/Users/emf/Documents/Yale/yale research/honduras/codebooks honduras"
-```
+`load_codebook()` uses the bundled `variables.csv`, `options.csv`, and `derivations.csv`. To load a separate processed codebook, pass the directory containing those three files:
 
 ```julia
-using HondurasTools
-cb = load_codebook(path=joinpath(ENV["HONDURAS_CODEBOOK"], "codebook"))
-variable_info(cb, "a0200"; study="rct", wave=3)
-variable_options(cb, "a0200"; study="rct", wave=3)
-variables_by_type(cb, "outcome"; study="rct")
+cb = load_codebook(path=joinpath("/path/to/codebook-repository", "codebook"))
 ```
 
-The external repository currently declares version `2026.5.1`. Record the exact release/commit used for an analysis. The environment variable is a convention; HondurasTools does not read it automatically. See [codebooks and provenance](docs/src/codebooks.md) before switching between bundled and external files.
+The bundled CSVs match codebook release `v2026.5.1`; [provenance.json](codebook/provenance.json) records the source commit and file checksums. Record the package revision and codebook version for each analysis. Outcome recoding matches study and wave and rejects missing classifications for observed waves of known outcomes.
 
-## Study scope
+See [codebooks and provenance](docs/src/codebooks.md) for schemas, study coverage, categorical ordering, and external codebook maintenance.
 
-The processed codebook covers RCT waves 1–4, Intellectual Humility (`ih`), and Microbiome (`hmb`). HMB wave numbers describe cohort/timepoint combinations, not RCT waves. Cooperation and Cognitive Social Structures have guide material in the external repository but no codebook rows there. Codebook coverage does not imply every cleaner supports every delivery.
+## Analysis and documentation
 
-## Documentation and development
+Beyond cleaning, the package provides respondent/household/village histories, wave-specific tables, household distances, network construction, tie strength, constraint, and neighbor summaries.
 
-- [Processing and analysis](docs/src/processing.md)
-- [Codebooks and provenance](docs/src/codebooks.md)
-- [API reference source](docs/src/api.md)
-- [Build and validation instructions](docs/src/development.md)
+- [Processing and analysis](docs/src/processing.md): data preparation, observation keys, and analysis helpers.
+- [Codebooks and provenance](docs/src/codebooks.md): metadata queries and interpretation.
+- [Documentation home](docs/src/index.md): guide navigation.
+- [Development](docs/src/development.md): build the documentation site, including the generated API reference.
 
-Run package tests with `julia --project=. -e 'using Pkg; Pkg.test()'`. Raw-data processing requires local input files and is not validated by the documentation build.
+## Development
+
+From a local clone:
+
+```sh
+julia --project=. -e 'using Pkg; Pkg.instantiate()'
+julia --project=. -e 'using Pkg; Pkg.test()'
+```
+
+Tests use synthetic data and bundled metadata. GitHub Actions is configured to test Julia 1.10, 1.11, 1.12, and the latest stable Julia 1.x release. See [LICENSE](LICENSE) for license terms.
