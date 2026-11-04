@@ -107,6 +107,7 @@ See [codebooks and provenance](docs/src/codebooks.md) for schemas, study coverag
 Beyond cleaning, the package provides respondent/household/village histories, wave-specific tables, household distances, network construction, tie strength, constraint, and neighbor summaries.
 
 - [Processing and analysis](docs/src/processing.md): data preparation, observation keys, and analysis helpers.
+- [Perception and norms](docs/src/perception.md): optional processing, question mappings, and interpretation.
 - [Codebooks and provenance](docs/src/codebooks.md): metadata queries and interpretation.
 - [Documentation home](docs/src/index.md): guide navigation.
 - [Development](docs/src/development.md): build the documentation site, including the generated API reference.

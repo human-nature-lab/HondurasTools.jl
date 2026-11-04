@@ -80,3 +80,7 @@ Wave-based cleaners require a nonempty table list, a matching vector of distinct
 | IH/cooperation | The full delivery schema; validation lists missing columns explicitly |
 
 These checks validate column availability, not every value or every conditional dependency. A present optional field can still require a companion field (for example, HMB cognitive score and cognitive status).
+
+## Optional perception and norms processing
+
+`clean_perception!` is a separate analysis transformation and is not invoked by the main cleaning template. See [Perception and norms](perception.md) for its input assumptions, measures, and reasons to keep it opt-in pending further validation.

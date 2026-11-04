@@ -173,9 +173,21 @@ function rename_perception!(resp, namedict)
 end
 
 """
-        clean_perception!(resp)
+    clean_perception!(resp; namedict=nothing)
 
-Clean the behavior/norm perception variables in the respondent data.
+Mutate a prepared respondent table to rename and recode community-behavior
+perceptions, perceived approval, and related personal attitudes and behaviors.
+This is an optional transformation, not called by `clean_respondent` or the template.
+
+Requires the historical raw question columns (without wave suffixes), prepared
+`child` and `gender`, and compatible response labels/types. Missing columns are
+not skipped. Several recodes interpret missing selections as false; review
+wave-specific eligibility and question polarity before analysis.
+
+Use a copy of the input and retain that DataFrame after the call. The current
+return value is a variable-name vector, not the DataFrame. The function is not
+idempotent. `namedict` records output-to-source renames, not derived-variable lineage.
+See the Perception and norms guide for the full crosswalk and assumptions.
 """
 function clean_perception!(resp; namedict = nothing)
 
