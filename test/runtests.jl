@@ -213,6 +213,45 @@ end
     end
 end
 
+@testset "indigenous coding — Chorti and Lenca are indigenous" begin
+    rf = DataFrame(
+        village_code = [1, 1, 1, 1, 2, 2, 2, 2, 2, 0],
+        indigenous = Union{Missing,String}[
+            "Yes, Maya Chorti", "Si, Maya Chorti", "Yes, Lenca", "No",
+            "No", "No", "Other", "Dont_Know", missing, "Yes, Maya Chorti"],
+    )
+    HondurasTools._code_indigenous!(rf)
+    @test isequal(rf.indigenous, ["Chorti", "Chorti", "Lenca", "No", "No", "No",
+                                  missing, missing, missing, "Chorti"])
+    @test isequal(rf.isindigenous, [true, true, true, false, false, false,
+                                    missing, missing, missing, true])
+    @test isequal(rf.notindigenous, [false, false, false, true, true, true,
+                                     missing, missing, missing, false])
+    # village shares over coded rows only; village 0 gets none
+    @test rf.isindigenous_pct[1:4] ≈ fill(0.75, 4)
+    @test all(==(0.0), rf.isindigenous_pct[5:9])
+    @test ismissing(rf.isindigenous_pct[10])
+    @test isequal(rf.maj_indigenous, [true, true, true, true, false, false, false, false, false, missing])
+end
+
+@testset "indigenous coding — no coded responses" begin
+    for responses in (["Other", "Other"], [missing, missing], ["Refused", "Dont_Know"])
+        rf = DataFrame(village_code = [1, 1],
+                       indigenous = Union{Missing,String}[responses...])
+        HondurasTools._code_indigenous!(rf)
+        @test all(ismissing, rf.isindigenous)
+        @test all(ismissing, rf.notindigenous)
+        @test all(ismissing, rf.isindigenous_pct)
+        @test all(ismissing, rf.maj_indigenous)
+    end
+
+    rf = DataFrame(village_code = [1, 1, 2, 2],
+                   indigenous = Union{Missing,String}["Other", "Refused", "Yes, Lenca", "No"])
+    HondurasTools._code_indigenous!(rf)
+    @test isequal(rf.isindigenous_pct, [missing, missing, 0.5, 0.5])
+    @test isequal(rf.maj_indigenous, [missing, missing, true, true])
+end
+
 @testset "addtypes!" begin
     mk(ets) = begin
         d = DataFrame(variable = [:v], eltypes = [ets])
