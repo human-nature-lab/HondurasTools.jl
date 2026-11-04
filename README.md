@@ -1,5 +1,7 @@
 # HondurasTools.jl
 
+[Documentation](https://human-nature-lab.github.io/HondurasTools.jl/)
+
 Tools for cleaning and analyzing Honduras survey and social network data in Julia.
 
 HondurasTools combines survey waves, recodes responses, and prepares respondent, household, village, and connection tables for analysis. It also provides processed codebook lookups, longitudinal data structures, and network measures.

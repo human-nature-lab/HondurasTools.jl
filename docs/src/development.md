@@ -7,7 +7,7 @@ julia --project=docs -e 'using Pkg; Pkg.develop(path=pwd()); Pkg.instantiate()'
 julia --project=docs docs/make.jl
 ```
 
-The generated site is written to `docs/build/`. Local builds do not deploy. CI uses the same environment and enables deployment only on push events, using the repository's configured documentation credentials.
+The generated site is written to `docs/build/`. Local builds do not deploy. CI builds pull requests without deploying. Pushes to `main` and manual runs on `main` upload `docs/build/` and deploy it through GitHub Pages using the workflow token. No deploy key is needed. The live site follows `main` at https://human-nature-lab.github.io/HondurasTools.jl/.
 
 Run package tests separately:
 

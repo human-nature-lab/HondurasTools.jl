@@ -5,6 +5,10 @@ makedocs(
     sitename = "HondurasTools.jl",
     modules = [HondurasTools],
     checkdocs = :exports,
+    format = Documenter.HTML(
+        canonical="https://human-nature-lab.github.io/HondurasTools.jl/",
+        prettyurls=get(ENV, "CI", "false") == "true",
+    ),
     pages = [
         "Home" => "index.md",
         "Processing and analysis" => "processing.md",
@@ -13,7 +17,3 @@ makedocs(
         "Development" => "development.md",
     ],
 )
-
-if get(ENV, "DOCS_DEPLOY", "false") == "true"
-    deploydocs(repo="github.com/human-nature-lab/HondurasTools.jl.git")
-end
