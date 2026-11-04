@@ -1,3 +1,34 @@
+# Known PDF extraction aliases, shared by bundled and legacy codebook loaders.
+function _normalize_outcome_type(x)
+    ismissing(x) && return missing
+    value = replace(strip(string(x)), r"\s+" => " ")
+    value = get(Dict("knowled ge and attitudes" => "knowledge and attitudes",
+                     "intervent ion knowled ge" => "intervention knowledge"), value, value)
+    value in ("practice", "knowledge and attitudes", "intervention knowledge") ||
+        throw(ArgumentError("Unknown outcome_type $(repr(value)); correct the codebook before recoding"))
+    return value
+end
+
+# Wave is encoded in derivation IDs; unsuffixed entries apply to all waves.
+function _outcome_index(derivs; default_study="rct")
+    _require_columns(derivs, [:variable_id, :outcome_type], "outcome codebook")
+    index = Dict{Tuple{String,String,Union{Nothing,Int}},String}()
+    for row in eachrow(derivs)
+        ismissing(row.outcome_type) && continue
+        study = "study" in names(derivs) ? string(row.study) : default_study
+        id = strip(string(row.variable_id))
+        suffix = match(r"_w(\d+)$", id)
+        wave = isnothing(suffix) ? nothing : parse(Int, suffix.captures[1])
+        base = replace(id, r"_w\d+$" => "")
+        key = (study, base, wave)
+        value = _normalize_outcome_type(row.outcome_type)
+        haskey(index, key) && index[key] != value &&
+            throw(ArgumentError("Conflicting outcome classifications for $key"))
+        index[key] = value
+    end
+    return index
+end
+
 # load_codebook.jl
 
 const _CB_PATH = joinpath(@__DIR__, "..", "codebook")
@@ -11,7 +42,9 @@ Load the three machine-readable codebook CSVs and return a NamedTuple containing
   for O(1) per-variable lookups
 - `gvar_by_type`, `gvar_by_level` — GroupedDataFrames for type/level queries
 - `outcome_type_map` — pre-built `Dict{String,String}` mapping base variable name
-  to outcome_type (used by `_recode_outcomes!`)
+  to outcome_type, for unambiguous RCT classifications (compatibility view)
+- `outcome_type_index` — classifications keyed by `(study, base variable, wave)`;
+  `nothing` denotes a wave-independent derivation
 
 The bundled codebooks (at `HondurasTools/codebook/`) are the default.
 Pass `path` to override with an external directory.
@@ -31,7 +64,7 @@ function load_codebook(; path::AbstractString = _CB_PATH)
 
     # normalize internal whitespace in outcome_type (guards against PDF-extraction artifacts)
     derivations.outcome_type = map(derivations.outcome_type) do x
-        ismissing(x) ? x : replace(strip(string(x)), r"\s+" => " ")
+        _normalize_outcome_type(x)
     end
 
     # pre-index for O(1) per-variable lookups
@@ -40,17 +73,17 @@ function load_codebook(; path::AbstractString = _CB_PATH)
     gvar_by_type  = groupby(variables, [:study, :variable_type])
     gvar_by_level = groupby(variables, [:study, :level])
 
-    # pre-build outcome_type_map so _recode_outcomes! doesn't rebuild on every call
-    outcome_type_map = Dict{String, String}()
-    for row in eachrow(derivations)
-        ismissing(row.outcome_type) && continue
-        base = replace(strip(string(row.variable_id)), r"_w\d+$" => "")
-        outcome_type_map[base] = strip(string(row.outcome_type))
+    outcome_type_index = _outcome_index(derivations)
+    # Compatibility view: retain only unambiguous RCT classifications.
+    outcome_type_map = Dict{String,String}()
+    for base in unique([k[2] for k in keys(outcome_type_index) if k[1] == "rct"])
+        types = unique([v for (k, v) in outcome_type_index if k[1] == "rct" && k[2] == base])
+        length(types) == 1 && (outcome_type_map[base] = only(types))
     end
 
     return (; variables, options, derivations,
               gvariables, goptions, gvar_by_type, gvar_by_level,
-              outcome_type_map)
+              outcome_type_map, outcome_type_index)
 end
 
 export load_codebook
@@ -140,7 +173,8 @@ export variables_by_level
     make_ordered_categorical(cb, variable_id, data_col; wave = nothing, study = "rct")
 
 Build an ordered `CategoricalArray` for `data_col` using option labels from `cb.options`,
-sorted by `option_code`.
+sorted by `option_code`. With `wave=nothing`, every wave must have identical
+labels and ordering; otherwise specify a wave explicitly.
 
 Intended for new variables not yet in `code_variables!`. For existing cleaned variables,
 verify that option labels match the cleaned values (raw labels may differ in case or
@@ -155,7 +189,12 @@ function make_ordered_categorical(
 )
     opts = variable_options(cb, variable_id; wave, study)
     isempty(opts) && error("No options found for variable_id=$(variable_id), study=$(study)")
-    lvls = collect(opts.label_en)
+    orders = [collect(g.label_en) for g in groupby(opts, :wave)]
+    any(labels -> any(ismissing, labels) || !allunique(labels), orders) &&
+        throw(ArgumentError("Option labels must be nonmissing and unique within each wave"))
+    all(labels -> isequal(labels, first(orders)), orders) ||
+        throw(ArgumentError("Option labels/order differ across waves; specify wave explicitly"))
+    lvls = first(orders)
     return categorical(data_col; levels = lvls, ordered = true)
 end
 

@@ -393,7 +393,7 @@ end
 
 @testset "clean_outcomes — codebook recode" begin
     cb = load_codebook()
-    practice_vars = [k for (k, v) in cb.outcome_type_map if v == "practice"]
+    practice_vars = [k[2] for (k, v) in cb.outcome_type_index if v == "practice" && k[1] == "rct" && k[3] == 1]
     if !isempty(practice_vars)
         v = first(practice_vars)
         df = DataFrame(
@@ -538,3 +538,124 @@ end
 end
 
 end  # HondurasTools.jl
+
+@testset "Codebook review regressions" begin
+    mbrow(id) = DataFrame(respondent_master_id=[id], village_code=[5],
+                         lives_in_village=[1], works_in_village=[1])
+    a, b = mbrow("a"), mbrow("b")
+    b.mb_ab0110 = ["Yes"]
+    combined = clean_microbiome(a, b)
+    @test "mb_ab0110" in names(combined)
+    @test ismissing(combined.mb_ab0110[1])
+    @test combined.mb_ab0110[2] == "Yes"
+    @test combined.cohort == [1, 2]
+    @test !("getmoney" in names(combined))
+    for value in (500, 500.0, "500", missing, "Refused")
+        a, b = mbrow("a"), mbrow("b")
+        a.mb_c0000 = [value]
+        result = clean_microbiome(a, b)
+        @test isequal(result.getmoney[1], value === missing || value == "Refused" ? missing : 500)
+        @test ismissing(result.getmoney[2])
+    end
+    a, b = mbrow("a"), mbrow("b")
+    a.mb_c0000 = [1.5]
+    @test_throws ArgumentError clean_microbiome(a, b)
+
+    cb = load_codebook()
+    mktempdir() do dir
+        CSV.write(joinpath(dir, "variables.csv"), cb.variables)
+        CSV.write(joinpath(dir, "options.csv"), cb.options)
+        derivs = copy(cb.derivations)
+        derivs.outcome_type = replace(derivs.outcome_type,
+            "knowledge and attitudes" => "knowled ge and attitudes",
+            "intervention knowledge" => "intervent ion knowled ge")
+        CSV.write(joinpath(dir, "derivations.csv"), derivs)
+        external = load_codebook(path=dir)
+        @test external.outcome_type_map == cb.outcome_type_map
+        raw = DataFrame(respondent_master_id=["a", "b"], dia_child_zinc_ka_w2=[1, 2])
+        result = clean_outcomes([raw], [2]; codebook=external)
+        @test isequal(result.dia_child_zinc_ka, HondurasTools.recode_outcome([1, 2]))
+        derivs.outcome_type[findfirst(!ismissing, derivs.outcome_type)] = "unknown"
+        CSV.write(joinpath(dir, "derivations.csv"), derivs)
+        @test_throws ArgumentError load_codebook(path=dir)
+    end
+    for v in (:resp_target_w1, :friend_treatment_w1, :household_target_w1)
+        raw = DataFrame(respondent_master_id=["a", "b", "c"])
+        raw[!, v] = [missing, 0, 1]
+        result = clean_outcomes([raw], [1]; codebook=cb)
+        @test isequal(result[!, Symbol(replace(string(v), "_w1"=>""))], [missing, false, true])
+        raw = DataFrame(respondent_master_id=["a"])
+        raw[!, v] = [2]
+        @test_throws ArgumentError clean_outcomes([raw], [1]; codebook=cb)
+    end
+    options = DataFrame(study=fill("rct", 4), variable_id=fill("test", 4),
+                        wave=[1, 1, 2, 2], option_code=[1, 2, 1, 2],
+                        label_en=["No", "Yes", "No", "Yes"])
+    fake = (; options, goptions=groupby(sort(options, :option_code), [:study, :variable_id]))
+    @test levels(make_ordered_categorical(fake, "test", ["Yes"])) == ["No", "Yes"]
+    options.label_en[3:4] = ["Yes", "No"]
+    fake = (; options, goptions=groupby(sort(options, :option_code), [:study, :variable_id]))
+    @test_throws ArgumentError make_ordered_categorical(fake, "test", ["Yes"])
+    @test levels(make_ordered_categorical(fake, "test", ["Yes"]; wave=2)) == ["Yes", "No"]
+    risk = DataFrame(name=["a"], village_code=[5], mb_c3100=["Flip a coin"])
+    result = HondurasTools.process_risk(risk)
+    @test result.risk_score == [32]
+    @test ismissing(result.green_score[1])
+    @test ismissing(result.purple_score[1])
+    risk.mb_c3000 = ["Sure payment"] # also terminal: missing predecessor still safe
+    @test nrow(HondurasTools.process_risk(risk)) == 1
+end
+
+@testset "Study, wave, and administration identity" begin
+    derivs = DataFrame(study=["rct", "rct", "ih"], variable_id=["x_w1", "x_w2", "other_w1"],
+                      outcome_type=fill("practice", 3))
+    wave1 = DataFrame(respondent_master_id=["a", "b"], x_w1=[1, 2], resp_target_w1=[1, 0])
+    wave2 = DataFrame(respondent_master_id=["a"], x_w2=[2])
+    result = clean_outcomes(deepcopy([wave1, wave2]), [1, 2]; codebook=derivs)
+    @test isequal(result.x, [false, true, true])
+    @test isequal(result.resp_target, [true, false, missing])
+    ih = clean_outcomes([deepcopy(wave1)], [1]; codebook=derivs, study="ih")
+    @test ih.x == [1, 2]
+    uncovered = DataFrame(respondent_master_id=["a"], x_w3=[1])
+    @test_throws ArgumentError clean_outcomes([uncovered], [3]; codebook=derivs)
+    conflict = vcat(derivs, DataFrame(study=["rct"], variable_id=["x_w1"], outcome_type=["intervention knowledge"]))
+    @test_throws ArgumentError clean_outcomes([deepcopy(wave1)], [1]; codebook=conflict)
+    @test_throws ArgumentError clean_outcomes([deepcopy(wave1)], [1, 2])
+    @test_throws ArgumentError clean_outcomes([deepcopy(wave1), deepcopy(wave1)], [1, 1])
+    @test_throws ArgumentError clean_outcomes([DataFrame(x=[1])], [1])
+
+    function administration(id, answer)
+        df = DataFrame(respondent_master_id=[id], village_code=[5],
+                       lives_in_village=[1], works_in_village=[1])
+        for i in 1:31
+            df[!, Symbol("mb_c", lpad(i, 2, '0'), "00")] = Union{Missing,String}[missing]
+        end
+        df.mb_c3100[1] = answer
+        df
+    end
+    baseline = administration("a", "Flip a coin")
+    followup = administration("a", "Sure payment")
+    cohort2 = administration("b", "Flip a coin")
+    followup.followup_only = [42]
+    result = clean_microbiome([baseline, followup, cohort2], [1, 2, 3])
+    @test nrow(result) == 3
+    @test result.administration == [1, 2, 3]
+    @test result.cohort == [1, 1, 2]
+    @test result.risk_score == [32, 31, 32]
+    @test isequal(result.followup_only, [missing, 42, missing])
+    @test !("administration" in names(baseline)) # no mutation on either API
+    @test_throws ArgumentError clean_microbiome([vcat(baseline, baseline)], [1])
+    unknown = administration(missing, "Flip a coin")
+    @test nrow(clean_microbiome([unknown], [1])) == 0
+    kept = clean_microbiome([unknown], [1]; nokeymiss=false)
+    @test nrow(kept) == 1
+    @test ismissing(kept.risk_score[1])
+    @test_throws ArgumentError clean_microbiome([DataFrame(x=[1])], [1])
+    @test_throws ArgumentError clean_microbiome([baseline], [4])
+    risk = DataFrame(name=["a", "a"], village_code=[5, 5], mb_c3100=["Flip a coin", "Sure payment"])
+    @test_throws ArgumentError HondurasTools.process_risk(risk)
+    for cleaner in (clean_respondent, clean_household, clean_connections, clean_village)
+        @test_throws ArgumentError cleaner([DataFrame(x=[1])], [1])
+    end
+    @test_throws ArgumentError clean_ihr(DataFrame(x=[1]), DataFrame(x=[1]))
+end

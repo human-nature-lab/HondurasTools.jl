@@ -3,7 +3,9 @@
 """
         clean_microbiome(mb1, mb2)
         
-Clean the microbiome data.
+Clean the microbiome data, retaining the union of cohort columns and filling
+absent values with missing. Adds `cohort` (1 or 2); this is not an HMB wave ID.
+Donation amounts accept integers or integer strings; absent donation columns are allowed.
 
 ARGS
 ≡≡≡≡≡≡≡≡≡≡
@@ -12,21 +14,41 @@ ARGS
 - mb2: cohort 2 raw data
 
 """
-function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
+function clean_microbiome(mb1, mb2; kwargs...)
+    clean_microbiome([mb1, mb2], [1, 3]; kwargs...)
+end
 
-    if isnothing(namedict)
-        namedict = Dict{Symbol, Symbol}()
+"""
+    clean_microbiome(tables::Vector{DataFrame}, administrations::AbstractVector;
+                     nokeymiss=true, namedict=nothing)
+
+Clean HMB administrations: 1 = cohort 1 baseline, 2 = cohort 1 follow-up,
+3 = cohort 2. Preserves one row per `(name, cohort, administration)` and rejects
+duplicate observations. Missing person/village IDs are dropped only when
+`nokeymiss=true`. The two-table method maps to administrations `[1, 3]`.
+"""
+function clean_microbiome(tables::Vector{DataFrame}, administrations::AbstractVector;
+                          nokeymiss=true, namedict=nothing)
+    !isempty(tables) && length(tables) == length(administrations) ||
+        throw(ArgumentError("Supply one HMB administration per nonempty table list"))
+    allunique(administrations) && all(a -> a isa Integer && a in 1:3, administrations) ||
+        throw(ArgumentError("HMB administrations must be distinct integers in 1:3"))
+    for (table, administration) in zip(tables, administrations)
+        _require_columns(table, [:respondent_master_id, :village_code,
+            :lives_in_village, :works_in_village], "clean_microbiome administration $administration")
     end
-
-    mb = let
-        mb1[!, :cohort] .= 1;
-        mb2[!, :cohort] .= 2;
-        
-        commonnames = intersect(names(mb1), names(mb2))
-        mb = vcat(mb1[!, commonnames], mb2[!, commonnames]);
-        rename!(mb, :respondent_master_id => :name)
-        mb
-    end;
+    namedict = isnothing(namedict) ? Dict{Symbol,Symbol}() : namedict
+    tables = deepcopy(tables)
+    for (table, administration) in zip(tables, administrations)
+        table[!, :cohort] = fill(administration == 3 ? 2 : 1, nrow(table))
+        table[!, :administration] = fill(administration, nrow(table))
+    end
+    mb = vcat(tables...; cols=:union)
+    rename!(mb, :respondent_master_id => :name)
+    nokeymiss && dropmissing!(mb, [:village_code, :name])
+    keys = [:name, :cohort, :administration]
+    known = dropmissing(mb, :name)
+    any(nonunique(known, keys)) && throw(ArgumentError("Duplicate HMB person/administration observations"))
 
     mb_desc = _fast_desc(mb);
 
@@ -43,12 +65,14 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
             mb,
             :name,
             :village_code,
+            :cohort,
+            :administration,
             risk_vars...
         );
 
-        risk = process_risk(risk)
+        risk = process_risk(risk; keys=keys)
 
-        mb = leftjoin(mb, risk, on = :name)
+        mb = leftjoin(mb, risk; on=keys, validate=(false, true), matchmissing=:notequal)
     end
     
     if :cognitive_status ∈ mb_desc.variable
@@ -126,8 +150,15 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
     if :mb_c0000 ∈ mb_desc.variable
         rename!(mb, :mb_c0000 => :getmoney)
         namedict[:getmoney] = :mb_c0000
+        mb[!, :getmoney] = map(mb.getmoney) do x
+            ismissing(x) && return missing
+            if x isa Real
+                isfinite(x) && isinteger(x) || throw(ArgumentError("Donation must be an integer amount: $x"))
+                return Int(x)
+            end
+            return something(tryparse(Int, strip(string(x))), missing)
+        end
     end
-    mb[!, :getmoney] = passmissing(x -> something(tryparse(Int, x), missing)).(mb[!, :getmoney])
 
 
     # 19 villages that are in the study
@@ -153,14 +184,6 @@ function clean_microbiome(mb1, mb2; nokeymiss = true, namedict = nothing)
         174
     ];
     mb[!, :mbset] = mb.village_code .∈ Ref(microbiome_villages)
-
-    if nokeymiss
-        dropmissing!(mb, [:village_code, :name]);
-
-        # drop non-unique names
-        nu_names_loc = nonunique(mb[!, [:name]]);
-        deleteat!(mb, nu_names_loc)
-    end
 
     # rename to avoid conflicts with other data
     rename!(

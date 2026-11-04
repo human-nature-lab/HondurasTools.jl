@@ -1,16 +1,16 @@
 # clean_outcomes.jl
 
 """
-    clean_outcomes(dfs, waves; codebook = nothing, namedict = nothing)
+    clean_outcomes(dfs, waves; codebook = nothing, namedict = nothing, study = "rct")
 
-Clean outcome/treatment DataFrames from the Honduras RCT.
+Clean outcome/treatment DataFrames for the selected `study` (default `"rct"`).
 
 Strips wave suffixes, combines waves, and renames `respondent_master_id` → `name`.
 If a `codebook` is provided, also:
 - Classifies outcome columns by codebook outcome_type
 - Recodes outcome columns to `Union{Missing, Bool}` via `recode_outcome`
 - Categorizes `village_code`
-- Converts `resp_target`, `friend_treatment`, `household_target` → `Bool`
+- Converts `resp_target`, `friend_treatment`, `household_target` → `Union{Missing, Bool}`
 
 `codebook` can be a `NamedTuple` from `load_codebook()` (preferred) or a bare
 `DataFrame` with columns `variable_id` and `outcome_type` (legacy).
@@ -19,20 +19,22 @@ function clean_outcomes(
     dfs::Vector{DataFrame},
     waves;
     codebook = nothing,
-    namedict = nothing
+    namedict = nothing,
+    study::AbstractString = "rct"
 )
 
     if isnothing(namedict)
         namedict = Dict{Symbol, Symbol}()
     end
 
+    _validate_waves(dfs, waves, "clean_outcomes"; required=[:respondent_master_id])
     df = strip_and_combine_waves!(dfs, waves)
 
     rename!(df, :respondent_master_id => :name);
     namedict[:name] = :respondent_master_id;
 
     if !isnothing(codebook)
-        _recode_outcomes!(df, codebook)
+        _recode_outcomes!(df, codebook; study)
     end
 
     return df
@@ -50,43 +52,29 @@ Internal: use codebook to classify and recode outcome columns in `df`.
   columns `variable_id` and `outcome_type`.
 - A bare `DataFrame` with columns `variable_id` and `outcome_type` (legacy format).
 
-Wave suffixes (`_w1`, `_w2`, etc.) are stripped from `variable_id` before matching.
+Classifications match study and row wave; unsuffixed derivations apply to all waves.
+Missing classification for an observed wave of a known outcome raises an error.
 Outcome types "practice", "knowledge and attitudes", and "intervention knowledge"
 are recoded to `Union{Missing, Bool}`.
 
 Also handles:
 - `village_code` → CategoricalArray
-- `resp_target`, `friend_treatment`, `household_target` → Bool
+- `resp_target`, `friend_treatment`, `household_target` → Union{Missing, Bool}
 - `rep_age`, `preg` → `Union{Missing, Bool}` via `recode_outcome`
 - `age_at_survey` → `Union{Missing, Int}`
 """
-function _recode_outcomes!(df::DataFrame, codebook)
-    # Use pre-built map from load_codebook() when available; otherwise build it
-    outcome_type_map = if codebook isa NamedTuple
-        codebook.outcome_type_map
-    else
-        derivs = codebook
-        m = Dict{String, String}()
-        for row in eachrow(derivs)
-            varname = strip(string(row.variable_id))
-            otype = row.outcome_type
-            ismissing(otype) && continue
-            base = replace(varname, r"_w\d+$" => "")
-            m[base] = strip(string(otype))
-        end
-        m
-    end
-
-    # Recode outcome columns
-    outcome_types = Set(["practice", "knowledge and attitudes", "intervention knowledge"])
-    n = 0
+function _recode_outcomes!(df::DataFrame, codebook; study::AbstractString="rct")
+    index = codebook isa NamedTuple ? codebook.outcome_type_index :
+        _outcome_index(codebook; default_study=study)
+    _require_columns(df, [:wave], "outcome recoding")
     for col in names(df)
-        if haskey(outcome_type_map, col) && outcome_type_map[col] in outcome_types
-            df[!, col] = recode_outcome(df[!, col])
-            n += 1
-        end
+        any(k -> k[1] == study && k[2] == col, keys(index)) || continue
+        covered = [haskey(index, (study, col, Int(w))) ||
+                   haskey(index, (study, col, nothing)) for w in df.wave]
+        any(i -> !covered[i] && !ismissing(df[i, col]), eachindex(covered)) &&
+            throw(ArgumentError("No $study codebook classification for some observed waves of $col"))
+        df[!, col] = recode_outcome(df[!, col])
     end
-    println("Recoded $n outcome columns to Bool")
 
     # Categorize village_code
     if "village_code" in names(df)
@@ -98,7 +86,11 @@ function _recode_outcomes!(df::DataFrame, codebook)
     # but are 0/1 columns treated as indicators here)
     for v in ["resp_target", "friend_treatment", "household_target"]
         if v in names(df)
-            df[!, Symbol(v)] = Bool.(df[!, Symbol(v)])
+            df[!, Symbol(v)] = map(df[!, Symbol(v)]) do x
+                ismissing(x) && return missing
+                x in (0, 1) || throw(ArgumentError("$v must contain only 0, 1, or missing; got $x"))
+                return Bool(x)
+            end
         end
     end
 

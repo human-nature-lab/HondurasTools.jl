@@ -2,6 +2,7 @@
 
 function clean_village(vdfs, waves; namedict = nothing)
 
+    _validate_waves(vdfs, waves, "clean_village"; required=[:village_code, :village_wealth_index, :village_wealth_index_median])
     if isnothing(namedict)
         namedict = Dict{Symbol, Symbol}()
     end
@@ -46,6 +47,10 @@ function clean_village(vdfs, waves; namedict = nothing)
     vdf = reduce(vcat, vdfs)
 
     vdf_desc = _fast_desc(vdf)
+
+    _require_columns(vdf, [:private_cementery, :public_cementery, :electricity, :ave_age, :pct_female, :num_resp, :pct_male], "clean_village combined delivery")
+    any(c -> c in names(vdf), ["cementary_location_village_code", "cemetary_location_village_code"]) ||
+        throw(ArgumentError("clean_village requires cementary_location_village_code (or cemetary_location_village_code)"))
 
     # recode variables as binary
     vbls = [

@@ -27,6 +27,26 @@ NOT adjusted for datasets with a limited set of requested variables.
 """
 function clean_ihr(cop, ihr)
 
+    _require_columns(cop, [:respondent_master_id, :event_date], "clean_ihr cooperation table")
+    _require_columns(ihr, [
+        :ce_a0010, :ce_a0100, :ce_a0200, :ce_a0300, :ce_a0400, :ce_a0500,
+        :ce_a0600, :ce_a0700, :ce_a0900, :ce_a1000, :ce_a1100, :ce_a1200,
+        :ce_a1300, :ce_a1400, :ce_a1500, :ce_a1600, :ce_a1700, :ce_a1800,
+        :ce_a1900, :ce_a2000, :ce_a2100, :ce_a2200, :ce_a2300, :ce_a2400,
+        :ce_a2500, :ce_a2600, :ce_a2700, :ce_a2800, :ce_a2900, :ce_a3000,
+        :ce_a3100, :ce_a3200, :ce_a3300, :ce_a3400, :ce_a3500, :ce_a3600,
+        :ce_a3700, :ce_a3800, :ce_a3900, :ce_a4000, :ce_a4100, :ce_a4200,
+        :ce_a4300, :ce_a4400, :ce_a4500, :ce_a4600, :ce_a4700, :ce_a4800,
+        :ce_a4900, :ce_a5000, :ce_a5100, :ce_a5200, :ce_a5300, :ce_a5400,
+        :ce_a5500, :ce_a5600, :ce_a5700, :ce_a5800, :ce_a9990, :ce_a9991,
+        :ce_a9992, :ce_a9993, :ce_a9994, :ce_a9995, :ce_a9996, :ce_a9997,
+        :ce_a9998, :ce_a9999, :ce_b0100, :ce_b0200, :ce_b0900_a, :ce_b0900_b,
+        :ce_b0900_c, :ce_b0900_d, :ce_b0900_e, :ce_b0900_f, :ce_b0900_g, :ce_b0900_h,
+        :ce_b0900_i, :ce_b9990, :ce_b9991, :respondent_master_id, :building_id_ih, :village_code_ih,
+        :marital_name, :created_at, :complete, :village_name_ih, :municipality_ih, :office_ih,
+        :building_latitude_ih, :building_longitude_ih, :gender, :date_of_birth, :completed_at, :surveyor_id,
+    ], "clean_ihr IH table")
+
     # clean cop
 
     rename!(cop, :respondent_master_id => :name)

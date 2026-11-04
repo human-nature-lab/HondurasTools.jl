@@ -19,6 +19,8 @@ function clean_connections(
     removemissing = true
 )
 
+    _validate_waves(conns, waves, "clean_connections"; required=[:village_code, :ego, :alter, :question, :relationship, :alter_source, :same_building, :same_village, :a2701, :a2702])
+
     # remove wave from village name variables, since they are going to be
     # combined into a single DataFrame with consistent naming
     village_vars = Dict(

@@ -10,7 +10,7 @@ _colinfo(df) = DataFrame(variable = Symbol.(names(df)), eltype = eltype.(eachcol
 # Cheap replacement for describe() when only :variable and :nmissing are needed
 _fast_desc(df) = DataFrame(
     variable = Symbol.(names(df)),
-    nmissing = Int[Missing <: eltype(df[!, c]) ? sum(ismissing, df[!, c]) : 0 for c in names(df)]
+    nmissing = Int[Missing <: eltype(df[!, c]) ? count(ismissing, df[!, c]) : 0 for c in names(df)]
 )
 
 function regularizecols!(resp)
@@ -51,6 +51,7 @@ wave suffix, and add a `:wave` column. Then regularize column sets and vcat.
 Returns the combined DataFrame.
 """
 function strip_and_combine_waves!(dfs::Vector{DataFrame}, waves)
+    _validate_waves(dfs, waves, "wave combination")
     for w in waves
         widx = findfirst(waves .== w)
         df = dfs[widx]
@@ -59,14 +60,14 @@ function strip_and_combine_waves!(dfs::Vector{DataFrame}, waves)
         # drop columns from earlier waves
         for earlier in 1:(w-1)
             esuffix = "_w$(earlier)"
-            earlier_cols = filter(n -> occursin(esuffix, n), names(df))
+            earlier_cols = filter(n -> endswith(n, esuffix), names(df))
             if !isempty(earlier_cols)
                 select!(df, Not(earlier_cols))
             end
         end
 
         # strip current wave suffix
-        wave_cols = filter(n -> occursin(suffix, n), names(df))
+        wave_cols = filter(n -> endswith(n, suffix), names(df))
         strip_wave!(df, wave_cols, suffix)
 
         df[!, :wave] .= w
@@ -122,5 +123,24 @@ function age(endyear, startyear)
         missing
     else
         year(endyear) - year(startyear)
+    end
+end
+
+function _require_columns(df, required, context)
+    absent = setdiff(Symbol.(required), Symbol.(names(df)))
+    isempty(absent) || throw(ArgumentError("$context requires columns: $(join(absent, ", "))"))
+    return nothing
+end
+
+function _validate_waves(dfs, waves, context; required=Symbol[])
+    !isempty(dfs) && length(dfs) == length(waves) ||
+        throw(ArgumentError("$context requires nonempty tables and one wave per table"))
+    allunique(waves) || throw(ArgumentError("$context requires distinct waves"))
+    all(w -> w isa Integer && w in 1:4, waves) ||
+        throw(ArgumentError("$context supports integer RCT waves 1–4"))
+    for (df, w) in zip(dfs, waves)
+        normalized = Symbol.(chopsuffix.(names(df), "_w$w"))
+        absent = setdiff(required, normalized)
+        isempty(absent) || throw(ArgumentError("$context wave $w requires columns: $(join(absent, ", "))"))
     end
 end

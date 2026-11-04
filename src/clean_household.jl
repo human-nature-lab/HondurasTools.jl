@@ -44,6 +44,7 @@ ARGS
 function clean_household(
     hh::Vector{DataFrame}, waves; nokeymiss = true, namedict = nothing)
 
+    _validate_waves(hh, waves, "clean_household"; required=[:respondent_master_id, :village_code, :building_id])
     if isnothing(namedict)
         namedict = Dict{Symbol, Symbol}()
     end
@@ -94,6 +95,8 @@ function clean_household(
 
     # combine waves
     hh = reduce(vcat, hh);
+
+    _require_columns(hh, [:l0400, :l0500, :l1000, :l1100, :l1500, :l1600, :village_name, :municipality, :office], "clean_household combined delivery")
 
     # raw data description contains variable list and types
     hh_desc = _fast_desc(hh);

@@ -42,7 +42,7 @@ variable_options(cb, "a0200"; study="rct", wave=3)
 variables_by_type(cb, "outcome"; study="rct")
 ```
 
-The external repository currently declares version `2026.5.0`. Record the exact release/commit used for an analysis. The environment variable is a convention; HondurasTools does not read it automatically. See [codebooks and provenance](docs/src/codebooks.md) before switching between bundled and external files.
+The external repository currently declares version `2026.5.1`. Record the exact release/commit used for an analysis. The environment variable is a convention; HondurasTools does not read it automatically. See [codebooks and provenance](docs/src/codebooks.md) before switching between bundled and external files.
 
 ## Study scope
 

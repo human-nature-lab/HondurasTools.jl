@@ -82,10 +82,14 @@ function outval(outcome, tple)
     end
 end
 
-function process_risk(risk)
+function process_risk(risk; keys=[:name])
+    _require_columns(risk, union(keys, [:village_code]), "process_risk")
+    known = dropmissing(risk, keys)
+    any(nonunique(known, keys)) && throw(ArgumentError("Risk rows must be unique by $keys; supply administration keys for repeated people"))
+    risk = known
 
     risk = DataFrames.stack(
-        risk, Not([:name, :village_code]);
+        risk, Not(union(keys, [:village_code]));
         value_name = :outcome, variable_name = :choice
     );
 
@@ -97,23 +101,15 @@ function process_risk(risk)
     dropmissing!(risk, :outcome)
 
     riskflat = combine(
-        groupby(risk, :name),
+        groupby(risk, keys),
         :choice_num => Ref => :choice_nums,
         :outcome => Ref => :outcomes,
     );
 
-    ln = length(unique(risk.name))
-    risks = DataFrame(
-        :name => unique(risk.name),
-        :risk_score => Vector{Union{Missing, Int}}(missing, ln),
-        :green_score => Vector{Union{Int, Missing}}(missing, ln),
-        :purple_score => Vector{Union{Int, Missing}}(missing, ln)
-    );
-
-    sort!(riskflat, :name)
-    sort!(risks, :name)
-    if riskflat.name != risks.name
-        error("names not aligned")
+    ln = nrow(riskflat)
+    risks = select(riskflat, keys)
+    for score in [:risk_score, :green_score, :purple_score]
+        risks[!, score] = Vector{Union{Missing,Int}}(missing, ln)
     end
 
     for i in 1:nrow(riskflat)
@@ -127,7 +123,7 @@ function process_risk(risk)
             (risks.risk_score[i], risks.green_score[i], risks.purple_score[i]) = if mx == 5
                 score = outval(outcomes[idx], statescore[chx[idx]])
                 idxnxt = findfirst(crnk .== mx-1)
-                green, purple = statescore[chx[idxnxt]]
+                green, purple = isnothing(idxnxt) ? (missing, missing) : statescore[chx[idxnxt]]
                 (score, green, purple)
             elseif mx == 4
                 green, purple = statescore[chx[idx]]

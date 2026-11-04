@@ -1,0 +1,21 @@
+{
+  "verified_on": "2026-11-04",
+  "canonical_version": "2026.5.1",
+  "canonical_base_commit": "fae8bfbe2ef72e2d2747313ac6a722248af01f92",
+  "canonical_state": "Local tagged release v2026.5.1; not pushed",
+  "files": {
+    "variables.csv": {
+      "sha256": "615c6797e9e267e04d67f94cd5a847e68d054da64a780809fc1dc63ef50b2ad9",
+      "identical_to_canonical": true
+    },
+    "options.csv": {
+      "sha256": "56b41cc445cd2172cc77c7217a5540d9f35da220ddeac714079dafd6b35571e8",
+      "identical_to_canonical": true
+    },
+    "derivations.csv": {
+      "sha256": "b7514706cdf252ba35bb942370475f5c448217b3380a365748e80dd133799753",
+      "identical_to_canonical": true
+    }
+  },
+  "canonical_release_commit": "e407e549ec7f37bb9673fe9c782642076b78e5eb"
+}

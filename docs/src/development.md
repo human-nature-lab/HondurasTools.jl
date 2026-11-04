@@ -16,3 +16,5 @@ julia --project=. -e 'using Pkg; Pkg.test()'
 ```
 
 Documentation builds validate docstring references and page generation, not raw-data cleaning against a particular delivery. Review required columns, row counts, identifiers, missingness, and category levels when adapting the template. Keep raw participant data and generated analysis datasets outside version control.
+
+Package-test CI runs on Julia 1.10, 1.11, 1.12, and the latest stable 1.x release. Synthetic regression tests cover multi-wave outcomes, study isolation, repeated HMB administrations, missing IDs, and risk-score joins; no participant data are needed.

@@ -29,6 +29,8 @@ function clean_respondent(
     namedict = nothing
 )
 
+    _validate_waves(resp, waves, "clean_respondent"; required=[:respondent_master_id, :data_source, :building_id, :complete, :survey_start, :date_of_birth, :gender, :village_code])
+
     # combine respondent data
     if isnothing(namedict)
         namedict = Dict{Symbol, Symbol}()
