@@ -1,3 +1,5 @@
+# RETIRED: wealth/wealth-mca.jl produces both within-wave and reference scores.
+stop("This R pipeline is retired. Use julia --project=. wealth/wealth-mca.jl CONFIG.jl; see docs/src/wealth.md.")
 # Multiple Correspondence Analysis (MCA) for Honduras Wealth Index
 # Wave 1 Reference Approach for Comparable Wealth Measures Across Waves
 # Based on https://dhsprogram.com/topics/wealth-index/Wealth-Index-Construction.cfm

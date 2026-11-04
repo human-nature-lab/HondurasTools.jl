@@ -3,6 +3,8 @@ using HondurasTools
 using DataFrames
 using Dates
 
+include("wealth.jl")
+
 # helpers for the "wave fill" testset
 
 # A dict whose `keys`/iteration order is whatever we say, so a test can show

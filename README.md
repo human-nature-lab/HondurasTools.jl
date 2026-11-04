@@ -39,6 +39,11 @@ The codebooks distinguish the parent randomized controlled trial (`rct`), Intell
 
 ## Cleaning survey data
 
+For household wealth calculation, use the native Julia pipeline described in
+[Wealth indices](docs/src/wealth.md). It replaces the R scripts with
+`julia --project=. wealth/wealth-mca.jl CONFIG.jl`, producing both wave-specific
+and comparable reference-wave scores while preserving the legacy CSV filenames.
+
 Wave-based cleaners take a vector of DataFrames and a matching vector of wave numbers. For example, this self-contained example cleans a synthetic outcome table using the bundled codebook:
 
 ```julia

@@ -53,6 +53,7 @@ module HondurasTools
     include("processing.jl")
     include("household_pairs.jl")
     include("household_distances.jl")
+    include("wealth.jl")
     include("prepare_for_bson.jl")
 
     # network utilities

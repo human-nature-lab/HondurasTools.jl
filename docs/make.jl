@@ -12,6 +12,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Processing and analysis" => "processing.md",
+        "Wealth indices" => "wealth.md",
         "Perception and norms" => "perception.md",
         "Codebooks and provenance" => "codebooks.md",
         "API reference" => "api.md",

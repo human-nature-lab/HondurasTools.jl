@@ -1,3 +1,5 @@
+# RETIRED: run wealth/wealth-mca.jl with a configuration file instead.
+stop("This R pipeline is retired. Use julia --project=. wealth/wealth-mca.jl CONFIG.jl; see docs/src/wealth.md.")
 # Multiple Correspondence Analysis (MCA) for Honduras Wealth Index
 # Performs MCA on household wealth indicators from julia script output
 # Based on work by Selena Lee
