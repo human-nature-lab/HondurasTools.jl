@@ -4,7 +4,7 @@
 
 `clean_perception!` is an optional respondent-level transformation for RCT perceptions of community behavior and social approval, together with related personal attitudes and reported behavior. It is loaded and exported by HondurasTools, but neither `clean_respondent` nor `make_data.jl` calls it. This guide documents the current implementation; it does not establish that every recode is appropriate for every wave or analysis.
 
-Keep this step explicit. The function assumes a broad historical delivery schema, mutates its input, and makes decisions about denominators and missing responses that need to be checked against the questionnaire. It has not received the end-to-end validation of the newer outcome and HMB workflows. Integration into the main pipeline should wait for wave-specific input contracts and regression tests for these decisions.
+Keep this step explicit. The function assumes a broad historical delivery schema, mutates its input, and makes decisions about denominators and missing responses that need to be checked against the questionnaire. Synthetic end-to-end regression tests cover refusal handling, numeric inputs, missing gender, and categorical coding, but do not validate every substantive recode or real delivery. Integration into the main pipeline should wait for wave-specific input contracts and regression tests for these decisions.
 
 These are perceptions of community practices and approval. They are distinct from Cognitive Social Structures reports about who is connected to whom.
 
@@ -39,9 +39,9 @@ Companion I-, E-, F-, and C-section questions can have different eligibility rul
 
 ## Inputs and invocation
 
-The intended input has wave suffixes removed, the raw question IDs listed below still present, and the respondent fields `child` and `gender` prepared. The implementation expects `child` to contain `"Yes"`/other labels and uses `gender` values `"man"` and `"woman"` when resolving birth-decision responses.
+The intended input has wave suffixes removed, the raw question IDs listed below still present, and the respondent fields `child` and `gender` prepared. The implementation expects `child` to contain `"Yes"`/other labels and uses `gender` values `"man"` and `"woman"` when resolving birth-decision responses. Missing or unrecognized gender leaves `"Partner"`/`"Respondent"` resolutions missing.
 
-The function unconditionally renames the crosswalk columns. It also reads `f5100a`–`f5100i`, `i2500a`–`i2500k`, `f6000m`, `c0900a`, and `c0700d`. Missing columns cause errors; inserting all-missing columns is not a safe substitute because several recodes interpret missing as false. Some fields are parsed as numeric strings, so already numeric inputs may need adaptation. Unexpected response labels also need review.
+The function unconditionally renames the crosswalk columns. It also reads `f5100a`–`f5100i`, `i2500a`–`i2500k`, `f6000m`, `c0900a`, and `c0700d`. Missing columns cause errors; inserting all-missing columns is not a safe substitute because several recodes interpret missing as false. Numeric fields accept numbers or numeric strings; fields requiring integers reject fractional values. Unexpected response labels also need review.
 
 `clean_respondent` performs general respondent preparation, but its output is not a guaranteed ready-to-use input for this optional cleaner. Inspect retained question IDs, types, response labels, and wave eligibility first. In particular, a failed perception-cleaning call may leave a partially renamed table.
 
@@ -68,8 +68,9 @@ The implementation generally replaces `"Don't know"`, `"Don't Know"`, `"Dont_Kno
 | Partnership/childbearing approval age | Derives `*_good` as age `< 18` |
 | Prenatal and postnatal timing | Derives care indicators from months `<= 3` and days `<= 7` |
 | Immediate bathing | Derives `baby_bath_1dy` from elapsed days `< 1` |
-| Selected approval/knowledge items | Nonmissing selection becomes true and missing becomes false, including `postnatal_good`, `baby_skin_good`, `fajero_good_1`, `fajero_good_2`, and `laxatives_good` |
-| Skin-to-skin behavior | All component selections missing stays missing; a sole `"No"` is false; other observed combinations are true |
+| Selected approval/knowledge items | Nonmissing selection becomes true and missing becomes false, including `postnatal_good`, `baby_skin_good`, `fajero_good_1`, and `fajero_good_2` |
+| Skin-to-skin behavior and chupon approval | All components missing or sentinel-only stays missing. An observed positive selection is true. Negative-only (`"No"` or `"Never"`) is false; negative plus a refusal/unknown sentinel stays missing. |
+| Laxative approval | Explicit refusal/unknown sentinels stay missing; raw missing retains the historical unchecked-box interpretation of false; observed selections are true. |
 | Laxative behavior | For respondents identified as having children, missing `f6000m` becomes `"No"`; the field is then converted to Boolean |
 | Diarrhea treatment | For respondents reporting recent diarrhea, missing treatment and perceived-treatment selections become `"No"`; this eligibility restriction is also applied to perception items |
 | Handwashing/smoke knowledge items | Selection presence is treated as true and missing as false |
@@ -77,7 +78,7 @@ The implementation generally replaces `"Don't know"`, `"Don't Know"`, `"Dont_Kno
 
 Retain original responses and compare distributions by wave and eligibility group. In particular, distinguish a structurally unasked question, an unselected checkbox, a refusal, and an observed negative response before adopting these results.
 
-`code_variables!` applies `Never < Rarely < Sometimes < Always` to selected perception columns and `Bad < Neither < Good` to selected approval columns. It does not cover every output, reverse negative-polarity items, or build composite norm scores. The `cb` keyword does not make these hardcoded perception orderings wave-specific.
+`code_variables!` applies `Never < Rarely < Sometimes < Always` to frequency-perception columns and `Bad < Neither < Good` to approval-perception columns, including skin-to-skin, laxative frequency, chupon approval, and fathers' care of sick children approval. Boolean and nominal outputs keep their distinct representations. It does not reverse negative-polarity items or build composite norm scores. The `cb` keyword does not make these hardcoded perception orderings wave-specific.
 
 The exported `percvars` list is a convenience list, not an exhaustive output schema: it omits the diarrhea-treatment block and some derived indicators. Inspect `names(perception)` when selecting outputs.
 

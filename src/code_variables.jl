@@ -315,158 +315,35 @@ function code_variables!(df; cb = nothing)
         levels!(df.trash, ["None", "A little", "Some", "A lot"], allowmissing=true);
     end
 
-    ## perceptions (in respondent-level data)
-
-    # code perception variables
-    freqscale = ["Never", "Rarely", "Sometimes", "Always"];
-    goodness = ["Bad", "Neither", "Good"];
-
-    v = :girl_partner_moralperc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true)
-        # assign levels to scale
-        levels!(df[!, v], goodness)
+    ## Perceptions: only frequency and approval items use ordered scales.
+    # Boolean selections and nominal birth-decision responses are kept separate.
+    freqscale = ["Never", "Rarely", "Sometimes", "Always"]
+    goodness = ["Bad", "Neither", "Good"]
+    frequency_vars = [
+        :avoid_preg_perc, :folic_perc, :prenatal_care_perc, :homebirth_perc,
+        :postnatal_care_perc, :baby_bath_perc, :baby_skin_perc, :fajero_perc,
+        :chupon_perc, :laxatives_perc, :father_check_perc, :father_wait_perc,
+        :father_care_sick_perc, :men_hit_perc,
+    ]
+    approval_vars = [
+        :girl_partner_moralperc, :girl_baby_moralperc, :avoid_preg_moralperc,
+        :prenatal_care_moralperc, :homebirth_moralperc, :baby_bath_moralperc,
+        :baby_skin_moralperc, :chupon_moralperc, :father_check_moralperc,
+        :father_wait_moralperc, :father_care_sick_moralperc, :men_hit_moralperc,
+    ]
+    for (vars, scale) in ((frequency_vars, freqscale), (approval_vars, goodness))
+        for v in vars
+            if string(v) in ns
+                df[!, v] = categorical(df[!, v]; ordered=true)
+                levels!(df[!, v], scale)
+            end
+        end
     end
-
-    v = :girl_baby_moralperc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true)
-        levels!(df[!, v], goodness)
+    for v in [:folic_good_when, :birth_good_where, :birthdecision_perc, :birthdecision]
+        if string(v) in ns
+            df[!, v] = categorical(df[!, v]; ordered=false)
+        end
     end
-
-    v = :avoid_preg_perc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :avoid_preg_moralperc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], goodness);
-    end
-
-    v = :folic_perc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true)
-        levels!(df[!, v], freqscale)
-    end
-
-    v = :folic_good_when
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = false)
-    end
-
-    v = :prenatal_care_perc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :prenatal_care_moralperc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], goodness);
-    end
-
-    v = :homebirth_perc;
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :homebirth_moralperc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], goodness);
-    end
-
-    v = :birth_good_where
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = false);
-    end
-
-    v = :birthdecision_perc;
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = false);
-    end
-
-    v = :birthdecision;
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = false);
-    end
-
-    v = :postnatal_care_perc;
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :baby_bath_perc;
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :baby_bath_moralperc;
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], goodness);
-    end
-
-    v = :fajero_perc;
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :chupon_perc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :father_check_perc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :father_check_moralperc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], goodness);
-    end
-
-    v = :father_wait_perc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :father_wait_moralperc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], goodness);
-    end
-
-    v = :father_care_sick_perc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :men_hit_perc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], freqscale);
-    end
-
-    v = :men_hit_moralperc
-    if string(v) ∈ ns
-        df[!, v] = categorical(df[!, v]; ordered = true);
-        levels!(df[!, v], goodness);
-    end
-end;
+end
 
 export code_variables!

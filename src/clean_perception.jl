@@ -1,5 +1,20 @@
 # clean_perception.jl
 
+_perception_response(x) = ismissing(x) || x in rms ? missing : x
+
+function _perception_number(::Type{T}, x) where {T<:Real}
+    x = _perception_response(x)
+    ismissing(x) && return missing
+    return x isa Real ? convert(T, x) : parse(T, strip(string(x)))
+end
+
+function _perception_selection(values, negative)
+    observed = collect(skipmissing(_perception_response(x) for x in values))
+    any(x -> x != negative, observed) && return true
+    any(x -> !ismissing(x) && ismissing(_perception_response(x)), values) && return missing
+    return isempty(observed) ? missing : false
+end
+
 function renametrack!(df, namedict, rns)
     rename!(df, rns...)
     for (a,b) in rns
@@ -217,7 +232,7 @@ function clean_perception!(resp; namedict = nothing)
     let
         v = :girl_partner_good_age
         replace!(resp[!, v], [rx => missing for rx in rms]...)
-        resp[!, v] = passmissing(parse).(Int, resp[!, v]);
+        resp[!, v] = _perception_number.(Int, resp[!, v]);
 
         resp[!, :girl_partner_good] = resp[!, v] .< 18;
     end;
@@ -232,7 +247,7 @@ function clean_perception!(resp; namedict = nothing)
         v = :girl_baby_good_age
 
         replace!(resp[!, v], [rx => missing for rx in rms]...);
-        resp[!, v] = passmissing(parse).(Int, resp[!, v]);
+        resp[!, v] = _perception_number.(Int, resp[!, v]);
 
         resp[!, :girl_baby_good] = resp[!, v] .< 18;
     end
@@ -288,7 +303,7 @@ function clean_perception!(resp; namedict = nothing)
         end
 
         resp[!, v1] = passmissing(ifelse).(resp[!, v1] .== "Yes", true, false)    
-        resp[!, v2] = passmissing(parse).(Int, resp[!, v2]);
+        resp[!, v2] = _perception_number.(Int, resp[!, v2]);
 
         resp[!, :folic] = resp[!, v1] .| (resp[!, v2] .> 0);
     end;
@@ -307,7 +322,7 @@ function clean_perception!(resp; namedict = nothing)
         v2 = :prenatal_care_when
 
         replace!(resp[!, v2], [rx => missing for rx in rms]...)
-        resp[!, v2] = passmissing(parse).(Int, resp[!, v2]);
+        resp[!, v2] = _perception_number.(Int, resp[!, v2]);
 
         resp[!, :prenatal_care] = resp[!, v2] .<= 3;
         
@@ -328,7 +343,7 @@ function clean_perception!(resp; namedict = nothing)
 
         v = :prenatal_care_good_when
         replace!(resp[!, v], [rx => missing for rx in rms]...)
-        resp[!, v] = passmissing(parse).(Int, resp[!, v]);
+        resp[!, v] = _perception_number.(Int, resp[!, v]);
         resp[!, :prenatal_care_good] = resp[!, v] .<= 3;
         resp[!, :prenatal_care_good_any] = .!ismissing.(resp[!, v]);
     end
@@ -371,19 +386,15 @@ function clean_perception!(resp; namedict = nothing)
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
 
-        pidx = resp[!, :birthdecision] .== "Partner";
-        pidx = coalesce.(pidx, false);
-        resp[pidx, :birthdecision] .= ifelse.(
-            resp[pidx, :gender] .== "man",
-            "Wife/companion", "Husband/companion"
-        );
-
-        pidx = resp[!, :birthdecision] .== "Respondent";
-        pidx = coalesce.(pidx, false);
-        resp[pidx, :birthdecision] .= ifelse.(
-            resp[pidx, :gender] .== "woman",
-            "Wife/companion", "Husband/companion"
-        );
+        # These labels require observed, recognized gender to resolve the actor.
+        resp[!, :birthdecision] = map(resp.birthdecision, resp.gender) do decision, gender
+            ismissing(decision) && return missing
+            decision in ("Partner", "Respondent") || return decision
+            ismissing(gender) && return missing
+            gender in ("man", "woman") || return missing
+            wife = decision == "Partner" ? gender == "man" : gender == "woman"
+            return wife ? "Wife/companion" : "Husband/companion"
+        end
 
         # decision
         birthdec_dict = Dict(
@@ -429,8 +440,7 @@ function clean_perception!(resp; namedict = nothing)
         
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
-        resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = passmissing(parse).(Int, resp[!, v]);
+        resp[!, v] = _perception_number.(Int, resp[!, v]);
 
         resp[!, :postnatal_care] = resp[!, v] .<= 7
 
@@ -463,7 +473,7 @@ function clean_perception!(resp; namedict = nothing)
 
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
-        resp[!, v] = passmissing(parse).(Float64, resp[!, v]);
+        resp[!, v] = _perception_number.(Float64, resp[!, v]);
 
         resp[!, :baby_bath_1dy] = resp[!, v] .< 1
     end;
@@ -472,23 +482,9 @@ function clean_perception!(resp; namedict = nothing)
         # Do people in this community hold their babies skin to skin during their first month of life?
 
         f5100_vrs = Symbol.("f5100" .* string.(collect('a':'i')))
-        mt = Matrix(resp[!, f5100_vrs]); # a-i
-        mt = [mt[r, :] for r in 1:size(mt, 1)]
-        mt = [(unique∘collect∘skipmissing)(m) for m in mt]
-
-        # there are cases where more than one option was selected
-        # unique(length.(mt))
-        # unique(mt)
-
-        resp[!, :baby_skin] = missings(Bool, nrow(resp));
-        for (i, x) in enumerate(mt)
-            resp[i, :baby_skin] = if length(x) == 0
-                missing
-            elseif (length(x) == 1) & (x[1] == "No")
-                false
-            else true
-            end
-        end
+        resp[!, :baby_skin] = Union{Missing,Bool}[
+            _perception_selection(row, "No") for row in eachrow(select(resp, f5100_vrs))
+        ]
 
         v = :baby_skin_perc
         replace!(resp[!, v], [rx => missing for rx in rms]...)
@@ -556,25 +552,9 @@ function clean_perception!(resp; namedict = nothing)
         resp[!, v] = passmissing(ifelse).(resp[!, v] .== "Yes", true, false);
 
         i2500_vrs = Symbol.("i2500" .* string.(collect('a':'k')))
-        mt = Matrix(resp[!, i2500_vrs]); # a-k
-        mt = [mt[r, :] for r in 1:size(mt, 1)]
-        mt = [(unique∘collect∘skipmissing)(m) for m in mt]
-
-        # there are cases where more than one option was selected
-        # unique(length.(mt))
-        # unique(mt)
-
-        # this could be turned into levels based on knowledge of the chupon
-        # right now, it is "good in any case"
-        resp[!, :chupon_good] = missings(Bool, nrow(resp));
-        for (i, x) in enumerate(mt)
-            resp[i, :chupon_good] = if length(x) == 0
-                missing
-            elseif (length(x) == 1) & (x[1] == "Never")
-                false
-            else true
-            end
-        end
+        resp[!, :chupon_good] = Union{Missing,Bool}[
+            _perception_selection(row, "Never") for row in eachrow(select(resp, i2500_vrs))
+        ]
     end;
 
     let
@@ -595,9 +575,13 @@ function clean_perception!(resp; namedict = nothing)
         replace!(resp[!, v], [rx => missing for rx in rms]...)
         resp[!, v] = passmissing(String∘string).(resp[!, v]);
 
-        resp[!, :laxatives_good] = passmissing(String).(resp[!, :laxatives_good]);
-        # resp[!, :laxatives_good] = passmissing(ifelse).(resp[!, :laxatives_good] .== "Giving a purgante", true, false);
-        resp[!, :laxatives_good] = ifelse.(ismissing.(resp[!, :laxatives_good]), false, true)
+        # Retain the historical unselected-checkbox convention, but distinguish
+        # explicit refusals/unknown responses from an unselected (missing) box.
+        resp[!, :laxatives_good] = map(resp.laxatives_good) do x
+            ismissing(x) && return false
+            ismissing(_perception_response(x)) && return missing
+            return true
+        end
     end
 
     diar = [

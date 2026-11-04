@@ -659,3 +659,110 @@ end
     end
     @test_throws ArgumentError clean_ihr(DataFrame(x=[1]), DataFrame(x=[1]))
 end
+
+# Full historical perception delivery, with unselected component fields missing.
+function perception_fixture(n=1)
+    fields = [
+        :j0100, :i0800, :j0200, :i1000, :j0300, :e0900,
+        :e1100, :j0400, :j0500, :e1400, :e1500, :i1200,
+        :j0600, :f1900r01, :f2000, :j0700, :i1300, :j0800,
+        :f2700r01, :i1500, :j0900, :j1000, :f2800, :j1100,
+        :f3600, :f3700, :i1900d, :j1200, :j1300, :f4800p1,
+        :j1400, :j1500, :i1900a, :j1600, :f5000, :i1900c,
+        :i2200g, :j1700, :j1800, :f7000, :j1900, :i1900b,
+        :c0500, :j2000a, :j2000b, :j2000c, :j2000d, :j2000e,
+        :j2000f, :j2000g, :j2000h, :j2000i, :j2000j, :j2000k,
+        :j2000l, :j2000m, :j2000n, :j2000o, :j2000r, :c0900b,
+        :c0900c, :c0700a, :c0900d, :c0900f, :c0900g, :c0900e,
+        :c0900h, :c0900i, :c0900j, :c0900k, :c0900m, :c0700b,
+        :c0700c, :c0900n, :j2100, :i2900b, :j2200, :i2900d,
+        :j2300, :f2600, :j2400, :i3200, :j2500, :f2900,
+        :j2600, :i3300, :j2700, :j2800, :i3400, :j2900,
+        :j3000, :i0300, :i0400, :i0500, :i0600, :i0700,
+
+    ]
+    append!(fields, Symbol.("f5100" .* string.(collect('a':'i'))))
+    append!(fields, Symbol.("i2500" .* string.(collect('a':'k'))))
+    append!(fields, [:f6000m, :c0900a, :c0700d])
+    df = DataFrame([v => Vector{Union{Missing,String}}(missing, n) for v in unique(fields)])
+    df.child = fill("No", n)
+    df.gender = fill("man", n)
+    df
+end
+
+@testset "Perception end-to-end regression checks" begin
+    # Refusals are unknown, not evidence of behavior or approval.
+    df = perception_fixture(7)
+    df.f5100a = ["Refused", "No", "Respondent", missing, "No", "Respondent", "Dont_Know"]
+    df.f5100b = [missing, missing, missing, missing, "Refused", "Refused", missing]
+    df.i2500a = ["Refused", "Never", "When they are crying a lot", missing, "Never", "When they are crying a lot", "Dont_Know"]
+    df.i2500b = [missing, missing, missing, missing, "Refused", "Refused", missing]
+    df.i1900b = ["Refused", missing, "Giving a purgante", "Dont_Know", "Removed", "Don't know", "Don't Know"]
+    clean_perception!(df)
+    expected = [missing, false, true, missing, missing, true, missing]
+    @test isequal(df.baby_skin, expected)
+    @test isequal(df.chupon_good, expected)
+    @test isequal(df.laxatives_good, [missing, false, true, missing, missing, missing, missing])
+
+    # Already parsed numeric CSV columns and numeric strings yield the same results.
+    for numeric in (:string, :integer, :float)
+        df = perception_fixture()
+        for (v, value) in [(:i0800, 17), (:i1000, 19), (:e1500, 1),
+                            (:f2000, 2), (:i1300, 3), (:f3700, 5)]
+            df[!, v] = numeric == :string ? [string(value)] : numeric == :float ? [Float64(value)] : [value]
+        end
+        df.f4800p1 = numeric == :string ? ["0.5"] : [0.5]
+        clean_perception!(df)
+        @test df.girl_partner_good == [true]
+        @test df.girl_baby_good == [false]
+        @test df.folic == [true]
+        @test df.prenatal_care == [true]
+        @test df.prenatal_care_good == [true]
+        @test df.postnatal_care == [true]
+        @test df.baby_bath_1dy == [true]
+    end
+    df = perception_fixture()
+    df.i0800 = [17.5]
+    @test_throws InexactError clean_perception!(df)
+
+    df = perception_fixture(7)
+    df.gender = [missing, "unknown", "man", "woman", "man", "woman", missing]
+    df.f2800 = ["Partner", "Respondent", "Partner", "Partner", "Respondent", "Respondent", "Doctor"]
+    clean_perception!(df)
+    @test isequal(df.birthdecision, [missing, missing, "Wife/companion", "Husband/companion", "Husband/companion", "Wife/companion", "Healthcare personnel "])
+
+    # Apply the public categorical step to actual cleaner output.
+    df = perception_fixture(3)
+    freq = [:j0300, :j0500, :j0600, :j0800, :j1100, :j1200, :j1400,
+            :j1600, :j1700, :j1900, :j2300, :j2500, :j2700, :j2900]
+    moral = [:j0100, :j0200, :j0400, :j0700, :j0900, :j1300,
+             :j1500, :j1800, :j2400, :j2600, :j2800, :j3000]
+    for v in freq
+        df[!, v] = ["Sometimes", "Never", missing]
+    end
+    for v in moral
+        df[!, v] = ["Good", "Bad", missing]
+    end
+    df.j2100 = ["Yes", "No", missing]
+    df.j2200 = ["No", "Yes", missing]
+    name_map = Dict{Symbol,Symbol}()
+    clean_perception!(df; namedict=name_map)
+    code_variables!(df)
+    reverse_map = Dict(raw => output for (output, raw) in name_map)
+    for v in freq
+        col = df[!, reverse_map[v]]
+        @test levels(col) == ["Never", "Rarely", "Sometimes", "Always"]
+        @test isordered(col)
+        @test ismissing(col[3])
+    end
+    for v in moral
+        col = df[!, reverse_map[v]]
+        @test levels(col) == ["Bad", "Neither", "Good"]
+        @test isordered(col)
+        @test ismissing(col[3])
+    end
+    @test isequal(df.wash_perc, [true, false, missing])
+    @test isequal(df.avoid_smoke_perc, [false, true, missing])
+    @test eltype(df.wash_perc) == Union{Missing,Bool}
+    @test eltype(df.avoid_smoke_perc) == Union{Missing,Bool}
+end
