@@ -1,6 +1,8 @@
 # HondurasTools.jl
 
-[Documentation](https://human-nature-lab.github.io/HondurasTools.jl/)
+[![Documentation](https://img.shields.io/badge/docs-main-blue.svg)](https://human-nature-lab.github.io/HondurasTools.jl/)
+[![Documentation build](https://github.com/human-nature-lab/HondurasTools.jl/actions/workflows/Documentation.yaml/badge.svg?branch=main)](https://github.com/human-nature-lab/HondurasTools.jl/actions/workflows/Documentation.yaml)
+[![Tests](https://github.com/human-nature-lab/HondurasTools.jl/actions/workflows/Tests.yaml/badge.svg?branch=main)](https://github.com/human-nature-lab/HondurasTools.jl/actions/workflows/Tests.yaml)
 
 Tools for cleaning and analyzing Honduras survey and social network data in Julia.
 
