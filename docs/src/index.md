@@ -1,58 +1,7 @@
 # HondurasTools.jl
-*Tools for cleaning, analyzing the Honduras data.*
 
-## Package Features
+HondurasTools cleans and combines Honduras survey deliveries and provides codebook, longitudinal, and network analysis helpers.
 
-## Function Documentation
+Start with [Processing and analysis](processing.md) for the data workflow, [Codebooks and provenance](codebooks.md) for metadata, and [API reference](api.md) for function documentation. Installation and a runnable template are described in the repository README.
 
-```@docs
-clean_respondent
-```
-
-```@docs
-clean_microbiome
-```
-
-```@docs
-clean_connections
-```
-
-```@docs
-process_edgelist
-```
-
-```@docs
-process_edgelist!
-```
-
-```@docs
-mk_graph
-```
-
-```@docs
-egoreducts
-```
-
-```@docs
-unilen
-```
-
-```@docs
-interlen
-```
-
-```@docs
-tuplevec
-```
-
-```@docs
-replace_withold!
-```
-
-```@docs
-sortedges!
-```
-
-```@docs
-egoreducts
-```
+The package does not distribute raw participant data. Examples requiring survey tables must be adapted to your local delivery. Cleaner input tables may be mutated; use `deepcopy` when the original tables must be retained.

@@ -1,2 +1,6 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+HondurasTools = "53a3418b-e4dc-4b79-9710-56922bb5ab08"
+
+[compat]
+Documenter = "1"

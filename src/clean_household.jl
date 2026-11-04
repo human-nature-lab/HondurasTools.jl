@@ -31,12 +31,12 @@ end
 """
         clean_household(hh, waves; nokeymiss = true)
 
-Clean the household level data. `hh` must be a vector of dataframes. Data must Must be ordered by and match `waves`.
+Clean the household level data. `hh` must be a vector of dataframes. Data must be ordered by and match `waves`.
 
 ARGS
 ≡≡≡≡≡≡≡≡≡≡
 
-- resp: a vector of DataFrames, with entries for each wave of the data.
+- hh: a vector of DataFrames, with entries for each wave of the data.
 - waves: indicate the wave of each DataFrame in the same order as resp.
 - nokeymiss = true : whether to filter to not missing on key variables: village code and building id
 

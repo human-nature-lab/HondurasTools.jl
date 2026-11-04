@@ -23,7 +23,7 @@ newnames(x, rnge) = [newname(x, i) for i in rnge]
 Clean the Intellectual Humility Project and the cooperation experiment data.
 Possibly subject to change when the data is updated.
 
-NOT adjusted for dataselts with a limited set of requested variables.
+NOT adjusted for datasets with a limited set of requested variables.
 """
 function clean_ihr(cop, ihr)
 

@@ -1,103 +1,58 @@
 # HondurasTools.jl
 
-Tools for cleaning, analyzing, and understanding the Honduras data.
+Julia tools for cleaning and analyzing Honduras survey and network data. The package combines wave-specific tables, recodes survey responses, supports codebook lookups, and provides longitudinal and network utilities.
 
 ## Installation
 
-This is a private repository, so you will need to use GitHub credentials with access to this repository, to install the package. You will need these every time you want to reinstall or update the package.
+Requires Julia 1.10 or later within the compatibility range in `Project.toml`. Install from GitHub using credentials with access to the repository:
 
-### Dependencies
-
-- [GraphTools.jl](https://github.com/emfeltham/GraphTools.jl) (public repository)
-
-## Generate the clean data
-
-This data is too large and too protected to be tracked on GitHub. Consequently, it must be generated locally.
-
-1. You should create a new file based on the existing `make_data.jl` template file with the directories and files appropriate to your specific data request. E.g., the types of raw data files and filenames will be specific to your request.
-
-2. From your top directory (e.g., for a Quarto project):
-
-```bash
-julia --threads=20 make_data.jl
+```julia
+using Pkg
+Pkg.add(url="https://github.com/human-nature-lab/HondurasTools.jl")
+using HondurasTools
 ```
 
-This yields one CSV at each level of the data, with all (selected) waves concatenated together. Additionally, the data has been filtered by `alter_source` (connections data) and `data_source` for the respondent level data.
+For development, clone the repository and run `julia --project=.` followed by `using Pkg; Pkg.instantiate()`. Dependencies are declared in `Project.toml`; no separate GraphTools installation is required.
 
-Cf. the codebook directory for a codebook that matches the data in this format.
+## Generate clean data
 
-## Explanations & FAQ
+Raw survey data are not distributed with this package. Adapt [make_data.jl](make_data.jl) to your authorized local data delivery, specifying paths and waves in matching order. Run the adapted script from its project directory:
 
-(more explanations to be written)
+```sh
+julia --project=. --threads=auto make_data.jl
+```
 
-1. Will this processing code work with the data that I have requested?
-   1. Not clear, the code needs to be checked for flexibility (e.g., are operations "if some var present, do clean it or rely on it somehow")
-2. How many datasets and files are there?
-   1. There are 3 (eventually 4) waves of data, for the respondent-level, household-level, and connections data.
-   2. Plus there is the microbiome data at W3', and the CSS data at W4'.
-   3. Each type and wave has a separate file.
-   4. One major purpose of this repository is to clean the data such that there is one data table for each type of data, including each wave. (the microbiome is currently separate). The general strategy is to take all possible variables, and leave missing where they are not collected. So, check whether some variable really ought to exist at that wave (in the reformatted codebook, which also combines across waves.)
-3. How do we extract the appropriate set of isolates? (given that the edgelist doesn't have them?)
-4. What is `household_id`? How do I index households?
-   1. it has been deprecated in favor of `building_id`
-5. Which are the microbiome villages?
-   1. cf. `codebook/microbiome_villages.csv`
-   2. Other villages appear in the data, because the team surveyed those from other villages who happened to be present a village while it was being surveyed.
-6. How do I interpret the `survey` variable in the codebooks?
-   1. For each row of the reformatted codebook, there should be an entry corresponding to each wave of the data (in which the data is present; compare to `wave`.)
-   2. "baseline" => the survey was only done if a prior measurement did not exist
-   3. "wx" (where x is a wave number) => implies that it was the standard survey given to everyone in that wave
-   4. "all" => both "baseline" and "wx" were carried out -- [THIS DOESN'T MAKE SENSE? Why would the surveys overlap?]
-   5. The set of questions in "baseline" varies across the waves; hence, it is denoted "baseline wx"
-   6. [EXPLAIN: how connected to respondent variable indicating a new subject at wave x?]
-   7. What do we do about variables that were only collected say, at W1?
-   8. Case-by-case; but N.B., whether some variable is plausibly static.
-7. What about people who are in a different village from W3 to W3'?
-   1. (where W3' is when the microbiome data was collected)
-   2. There are around 13 cases. It is currently not clear whether these were permanent moves, or not. (lives in village, works in village are both `missing` in each of the 13 cases)
+The template reads RCT waves 1–3 and two microbiome cohort files, then writes dated respondent, household, village, microbiome, and connections CSVs into `clean_data/`. It is an example for a particular delivery, not a universal importer. Remove unneeded sections and check required columns before using a different request or wave. Cleaners can mutate input DataFrames.
 
-## Codebook issues
+The template keeps respondent rows labeled `"Census, survey"` and connections with raw `alter_source == 1` and `same_village == 1`. These are sample choices, not universal study inclusion rules. See the [processing guide](docs/src/processing.md) for defaults and missing-data behavior.
 
-1. `survey` variable is not clear
-2. At least in the microbiome dataset, there are some variables not yet referenced.
-   1. e.g., `other_resp`, `data_source`
-3. Some variables are not coded consistently
-   1. e.g., gender is coded as "male" vs. "female" or sometimes "man" vs. "woman"?
-   2. It is worth checking for consistency (the processing code here *should* resolve for gender, but not in the underlying data)
-4. (a few other things were cleaned up and fixed from the stated versions, so check the version history; e.g., variable `p1600`)
+## Processed codebooks
 
-## Summary of processing steps (fill out further and update)
+`load_codebook()` loads the bundled `variables.csv`, `options.csv`, and `derivations.csv`. To use the separately maintained processed codebook, set its repository root once:
 
-See `make_data.jl` for a template to process the raw data into clean CSV files.
+```sh
+export HONDURAS_CODEBOOK="/Users/emf/Documents/Yale/yale research/honduras/codebooks honduras"
+```
 
-- N.B. the relative paths.
-- The processing functions should be agnostic to the specific variables requested, meaning that they should work whether you requested some, many, or all variables.
+```julia
+using HondurasTools
+cb = load_codebook(path=joinpath(ENV["HONDURAS_CODEBOOK"], "codebook"))
+variable_info(cb, "a0200"; study="rct", wave=3)
+variable_options(cb, "a0200"; study="rct", wave=3)
+variables_by_type(cb, "outcome"; study="rct")
+```
 
-### connections data
+The external repository currently declares version `2026.5.0`. Record the exact release/commit used for an analysis. The environment variable is a convention; HondurasTools does not read it automatically. See [codebooks and provenance](docs/src/codebooks.md) before switching between bundled and external files.
 
-1. take requested connections data (W3 data as the closest to W3' MB data)
-2. filter to `alter_source = 1`, `same_village = 1`
-3. drop any rows with missing entries
+## Study scope
 
-### respondent data
+The processed codebook covers RCT waves 1–4, Intellectual Humility (`ih`), and Microbiome (`hmb`). HMB wave numbers describe cohort/timepoint combinations, not RCT waves. Cooperation and Cognitive Social Structures have guide material in the external repository but no codebook rows there. Codebook coverage does not imply every cleaner supports every delivery.
 
-1. take the requested respondent data (W3 data)
-2. filter any rows with missing entries for [`village_code`, `gender`, `date_of_birth`, `building_id`]
-3. filter to `data_source = 1`
+## Documentation and development
 
-### household data
+- [Processing and analysis](docs/src/processing.md)
+- [Codebooks and provenance](docs/src/codebooks.md)
+- [API reference source](docs/src/api.md)
+- [Build and validation instructions](docs/src/development.md)
 
-1. take requested HH data
-2. drop all rows with missing village codes, building ids (manual)
-3. prefix overlapping variables wiht `hh_`
-
-### microbiome data
-
-1. take the requested MB data
-2. drop all rows with missing village codes (manual)
-3. drop all rows s.t. `data_source != 1` (manual)
-4. prefix overlapping variables with `mb_`
-5. left-join the individual level data  to the MB data on resp. id *and* village code (manual)
-   1. Depending on how we want to handle people who have a different village code for W3 and W3', we may want to adjust this.
-
-- Depending on the analysis (read: most of the time), we want to remove everyone that is not in one of the 19 microbiome villages (`codebook/microbiome_villages.csv`)
+Run package tests with `julia --project=. -e 'using Pkg; Pkg.test()'`. Raw-data processing requires local input files and is not validated by the documentation build.

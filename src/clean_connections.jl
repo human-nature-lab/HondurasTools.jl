@@ -1,11 +1,15 @@
 # clean_connections.jl
 
 """
-        clean_connections(con_paths)
+    clean_connections(conns::Vector{DataFrame}, waves;
+                      alter_source=false, same_village=true, removemissing=true)
 
-Process the raw network data (on the server) for waves 1, 2, 3. Creates a DataFrame that contains each wave of data.
-
-Filters to `alter_source = 1`, and `same_village =1`
+Combine and clean connection tables in the same order as `waves`. Mutates inputs.
+`alter_source=true` keeps raw source code 1; `same_village=true` drops missing
+same-village indicators and keeps code 1. Source codes are then converted to labels.
+`removemissing=true` rejects remaining missing values in ego, alter, question,
+alter source, and relationship using `disallowmissing!`; it does not drop those rows.
+Required delivery columns must be present.
 """
 function clean_connections(
     conns::Vector{DataFrame},

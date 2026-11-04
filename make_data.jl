@@ -1,6 +1,6 @@
 # make_data.jl
 # example script for cleaning, processing, and writing the raw Honduras data
-# These functions are agnostic to the specific variables requested from the specific datasets.
+# Adapt this delivery-specific example and check required columns before running.
 # If running in REPL, should open the REPL from top level of project directory
 
 import Pkg;
@@ -93,11 +93,11 @@ conns = [CSV.read(
 );
 
 #= filter to relevant data desired
-- filter data_source to 1
+- keep the cleaned Census, survey source label
 - remove alter_source since it is already filtered to 1
 =#
 
-@subset!(resp, :data_source .== 1);
+@subset!(resp, :data_source .== "Census, survey");
 select!(resp, Not(:data_source));
 select!(con, Not(:alter_source));
 

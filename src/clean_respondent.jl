@@ -2,10 +2,11 @@
 
 """
         clean_respondent(
-            resp::Vector{DataFrame};
-            waves,
+            resp::Vector{DataFrame},
+            waves;
             nokeymiss = false,
-            onlycomplete = true
+            onlycomplete = false,
+            namedict = nothing
         )
 
 Clean the respondent level data. `resp` must be a vector of dataframes. Respondent data, `resp`, must be ordered by and match `waves`.

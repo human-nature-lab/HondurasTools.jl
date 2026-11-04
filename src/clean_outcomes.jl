@@ -3,7 +3,7 @@
 """
     clean_outcomes(dfs, waves; codebook = nothing, namedict = nothing)
 
-Clean outcome/treatment DataFrames from the Honduras CSS study.
+Clean outcome/treatment DataFrames from the Honduras RCT.
 
 Strips wave suffixes, combines waves, and renames `respondent_master_id` → `name`.
 If a `codebook` is provided, also:
