@@ -3,6 +3,42 @@ using HondurasTools
 using DataFrames
 using Dates
 
+# helpers for the "wave fill" testset
+
+# A dict whose `keys`/iteration order is whatever we say, so a test can show
+# the fill does not depend on Dict iteration (hash) order.
+struct OrderedWaves <: AbstractDict{Int, Any}
+    d::Dict{Int, Any}
+    order::Vector{Int}
+end
+Base.length(p::OrderedWaves) = length(p.order)
+Base.get(p::OrderedWaves, k, default) = get(p.d, k, default)
+Base.getindex(p::OrderedWaves, k) = p.d[k]
+Base.haskey(p::OrderedWaves, k) = haskey(p.d, k)
+function Base.iterate(p::OrderedWaves, s = 1)
+    s > length(p.order) && return nothing
+    k = p.order[s]
+    return (k => p.d[k]), s + 1
+end
+
+permutations_of(v) = length(v) <= 1 ? [copy(v)] :
+    [vcat(v[i], q) for i in eachindex(v) for q in permutations_of(deleteat!(copy(v), i))]
+
+"""
+Fill one column `:x` for rows at wave `wv`, one row per entry of `props`
+(each a wave => value dict). Returns `(values, impute)`.
+"""
+function fill_x(props, wv; noupd = Symbol[], T = String)
+    ds = Dict(string(i) => (properties = Dict(:x => p),) for (i, p) in enumerate(props))
+    ks = [string(i) for i in eachindex(props)]
+    nf = DataFrame(name = ks, x = Vector{Union{Missing, T}}(missing, length(ks)))
+    nf[!, :impute] = [Dict{Symbol, Int}() for _ in 1:nrow(nf)]
+    HondurasTools._populate_datacol!(nf, :x, ds, noupd, nf.name, wv)
+    return nf.x, nf.impute
+end
+fill1(p, wv; kw...) = ((v, imp) = fill_x([p], wv; kw...); (v[1], imp[1]))
+
+
 @testset "HondurasTools.jl" begin
 
 # ─── pure utility functions ───────────────────────────────────────────────────
@@ -22,6 +58,159 @@ using Dates
 
     # wave 4 missing, wave 3 present
     @test HondurasTools.firstval(Dict(1 => "a", 3 => "b", 4 => missing)) == ("b", 3)
+end
+
+# ─── cross-wave fill (`_populate_datacol!`) ───────────────────────────────────
+#
+# Rule: a row for wave `wv` takes its own wave's value; if that is missing, the
+# latest earlier wave (wv-1, …, 1); never a later wave. Every value taken from
+# another wave is recorded in `impute` with its source wave.
+
+@testset "wave fill" begin
+    @test HondurasTools.fillorder(4) == [4, 3, 2, 1]
+    @test HondurasTools.fillorder(3) == [3, 2, 1]
+    @test HondurasTools.fillorder(1) == [1]
+
+    full = Dict{Int, Any}(1 => "a", 2 => "b", 3 => "c", 4 => "d")
+
+    @testset "own value present → kept, not flagged" begin
+        for wv in 1:4
+            v, imp = fill1(full, wv)
+            @test v == ["a", "b", "c", "d"][wv]
+            @test isempty(imp)
+        end
+    end
+
+    @testset "only later values → missing, not filled" begin
+        v, imp = fill1(Dict{Int, Any}(4 => "d"), 1)
+        @test ismissing(v) && isempty(imp)
+        v, imp = fill1(Dict{Int, Any}(2 => "b", 3 => "c", 4 => "d"), 1)
+        @test ismissing(v) && isempty(imp)
+        v, imp = fill1(Dict{Int, Any}(1 => missing, 4 => "d"), 3)
+        @test ismissing(v) && isempty(imp)
+    end
+
+    @testset "only earlier values → latest earlier one, flagged" begin
+        v, imp = fill1(Dict{Int, Any}(1 => "a", 2 => "b"), 4)
+        @test v == "b" && imp == Dict(:x => 2)
+        v, imp = fill1(Dict{Int, Any}(1 => "a"), 3)
+        @test v == "a" && imp == Dict(:x => 1)
+        # own wave present as an explicit `missing`
+        v, imp = fill1(Dict{Int, Any}(1 => "a", 3 => missing), 3)
+        @test v == "a" && imp == Dict(:x => 1)
+    end
+
+    @testset "mixed waves" begin
+        # earlier and later both present, own missing → earlier, never later
+        p = Dict{Int, Any}(1 => "a", 2 => missing, 3 => missing, 4 => "d")
+        @test fill1(p, 1) == ("a", Dict{Symbol, Int}())
+        @test fill1(p, 2) == ("a", Dict(:x => 1))
+        @test fill1(p, 3) == ("a", Dict(:x => 1))
+        @test fill1(p, 4) == ("d", Dict{Symbol, Int}())
+
+        # the audit's examples: Dict(1=>a, 3=>c, 4=>d)
+        p = Dict{Int, Any}(1 => "a", 3 => "c", 4 => "d")
+        @test first(fill1(p, 1)) == "a"   # was "d" (4,2,3,1) or "c" (3,2,1,4)
+        @test first(fill1(p, 3)) == "c"   # was "d" under 4,2,3,1
+        @test first(fill1(p, 4)) == "d"   # was "c" under 3,2,1,4
+        p = Dict{Int, Any}(1 => "a", 2 => "b", 3 => missing, 4 => "d")
+        @test fill1(p, 3) == ("b", Dict(:x => 2))   # W2, not W4; flagged
+        @test fill1(p, 4) == ("d", Dict{Symbol, Int}())
+
+        # several rows in one column, each row independent
+        props = [
+            Dict{Int, Any}(1 => "a", 4 => "d"),             # own (W3) missing, W1 earlier
+            Dict{Int, Any}(3 => "c", 4 => "d"),             # own
+            Dict{Int, Any}(4 => "d"),                       # later only
+            Dict{Int, Any}(1 => "a", 2 => "b", 4 => "d"),   # latest earlier = W2
+            Dict{Int, Any}(),                               # nothing
+        ]
+        v, imp = fill_x(props, 3)
+        @test isequal(v, ["a", "c", missing, "b", missing])
+        @test imp == [Dict(:x => 1), Dict{Symbol, Int}(), Dict{Symbol, Int}(),
+                      Dict(:x => 2), Dict{Symbol, Int}()]
+    end
+
+    @testset "noupd variables: own wave only" begin
+        p = Dict{Int, Any}(1 => "a", 4 => "d")
+        @test fill1(p, 1; noupd = [:x]) == ("a", Dict{Symbol, Int}())
+        v, imp = fill1(p, 3; noupd = [:x])
+        @test ismissing(v) && isempty(imp)
+    end
+
+    @testset "type parse of filled string values" begin
+        v, imp = fill1(Dict{Int, Any}(1 => "7", 4 => "9"), 2; T = Int)
+        @test v === 7 && imp == Dict(:x => 1)
+    end
+
+    @testset "independent of Dict insertion and iteration order" begin
+        cases = [
+            Dict{Int, Any}(1 => "a", 2 => "b", 3 => "c", 4 => "d"),
+            Dict{Int, Any}(1 => "a", 2 => missing, 3 => "c", 4 => "d"),
+            Dict{Int, Any}(1 => "a", 2 => "b", 3 => missing, 4 => "d"),
+            Dict{Int, Any}(1 => "a", 3 => missing, 4 => "d"),
+            Dict{Int, Any}(1 => missing, 2 => "b", 4 => "d"),
+            Dict{Int, Any}(3 => "c", 4 => "d"),
+            Dict{Int, Any}(4 => "d"),
+        ]
+        for base in cases, wv in 1:4
+            ref = fill1(base, wv)
+            ks = sort(collect(keys(base)))
+            for order in permutations_of(ks)
+                # every iteration order of the keys
+                @test isequal(fill1(OrderedWaves(base, order), wv), ref)
+                # real Dicts built in every insertion order, with a perturbed
+                # slot layout (filler keys inserted, then deleted)
+                d = Dict{Int, Any}()
+                for k in 5:40; d[k] = nothing; end
+                for k in order; d[k] = base[k]; end
+                for k in 5:40; delete!(d, k); end
+                @test isequal(fill1(d, wv), ref)
+            end
+        end
+        # sanity: the old call, `firstval(prop; waves = keys(prop))`, does
+        # depend on iteration order, so the test above can detect the bug
+        p = Dict{Int, Any}(1 => "a", 2 => "b", 3 => "c", 4 => "d")
+        old = [HondurasTools.firstval(OrderedWaves(p, o); waves = o)
+               for o in permutations_of([1, 2, 3, 4])]
+        @test length(unique(old)) == 4
+    end
+
+    @testset "respwave end-to-end" begin
+        mkr(name, waves, x) = begin
+            r = respondent(name, Date(1990, 1, 1), true, waves, [:x, :survey_start, :invillage_yrs])
+            for w in waves
+                r.village_code[w] = 1
+                r.building_id[w] = "b_" * name
+                r.properties[:survey_start][w] = Date(2015 + w, 6, 1)
+                r.properties[:invillage_yrs][w] = 10.0
+            end
+            for (w, v) in x; r.properties[:x][w] = v; end
+            r
+        end
+        rd = Dict(
+            "p1" => mkr("p1", [1, 3, 4], Dict(1 => "a", 3 => "c", 4 => "d")),
+            "p2" => mkr("p2", [1, 3, 4], Dict(1 => "a", 3 => missing, 4 => "d")),
+            "p3" => mkr("p3", [1, 4],    Dict(1 => missing, 4 => "d")),
+        )
+        noupd = [:survey_start]
+        get_row(df, n) = only(df[df.name .== n, :])
+
+        r1 = respwave(rd, noupd; wave = 1)
+        @test get_row(r1, "p1").x == "a" && isempty(get_row(r1, "p1").impute)
+        @test get_row(r1, "p2").x == "a"
+        @test ismissing(get_row(r1, "p3").x)            # W4 answer not pulled back
+        @test isempty(get_row(r1, "p3").impute)
+
+        r3 = respwave(rd, noupd; wave = 3)
+        @test sort(r3.name) == ["p1", "p2"]
+        @test get_row(r3, "p1").x == "c" && isempty(get_row(r3, "p1").impute)
+        @test get_row(r3, "p2").x == "a" && get_row(r3, "p2").impute == Dict(:x => 1)
+
+        r4 = respwave(rd, noupd; wave = 4)
+        @test all(==("d"), r4.x)
+        @test all(isempty, r4.impute)
+    end
 end
 
 @testset "addtypes!" begin
