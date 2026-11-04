@@ -561,7 +561,8 @@ Code the indigenous-community item (`b0200`, already renamed to `:indigenous`).
 - `isindigenous`: `true` for Chorti or Lenca, `false` for "No", otherwise `missing`.
 - `notindigenous`: the negation of `isindigenous`.
 - `isindigenous_pct`, `maj_indigenous`: village share of `isindigenous` (all rows
-  pooled, `village_code != 0`) and whether it is at least one half.
+  pooled, `village_code != 0`) and whether it is at least one half. Both are
+  missing when a village has no coded responses.
 
 Earlier versions copied `isindigenous` after "Yes, Maya Chorti"/"Yes, Lenca" had been
 recoded to "Chorti"/"Lenca" and then binarized on "Yes", so every Chorti and Lenca
@@ -583,10 +584,11 @@ function _code_indigenous!(rf)
         groupby([:village_code])
         combine(
             nrow => :n,
-            :isindigenous => sum∘skipmissing => :isindigenous_sum,
-            :notindigenous => sum∘skipmissing => :notindigenous_sum,
+            :isindigenous => (x -> sum(skipmissing(x); init=0)) => :isindigenous_sum,
+            :notindigenous => (x -> sum(skipmissing(x); init=0)) => :notindigenous_sum,
         )
-        @transform(:isindigenous_pct = :isindigenous_sum .* inv.(:isindigenous_sum + :notindigenous_sum))
+        @rtransform(:isindigenous_pct = (:isindigenous_sum + :notindigenous_sum == 0) ?
+            missing : :isindigenous_sum / (:isindigenous_sum + :notindigenous_sum))
         @subset :village_code .!= 0
     end;
 

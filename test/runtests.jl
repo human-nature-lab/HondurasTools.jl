@@ -234,6 +234,24 @@ end
     @test isequal(rf.maj_indigenous, [true, true, true, true, false, false, false, false, false, missing])
 end
 
+@testset "indigenous coding — no coded responses" begin
+    for responses in (["Other", "Other"], [missing, missing], ["Refused", "Dont_Know"])
+        rf = DataFrame(village_code = [1, 1],
+                       indigenous = Union{Missing,String}[responses...])
+        HondurasTools._code_indigenous!(rf)
+        @test all(ismissing, rf.isindigenous)
+        @test all(ismissing, rf.notindigenous)
+        @test all(ismissing, rf.isindigenous_pct)
+        @test all(ismissing, rf.maj_indigenous)
+    end
+
+    rf = DataFrame(village_code = [1, 1, 2, 2],
+                   indigenous = Union{Missing,String}["Other", "Refused", "Yes, Lenca", "No"])
+    HondurasTools._code_indigenous!(rf)
+    @test isequal(rf.isindigenous_pct, [missing, missing, 0.5, 0.5])
+    @test isequal(rf.maj_indigenous, [missing, missing, true, true])
+end
+
 @testset "addtypes!" begin
     mk(ets) = begin
         d = DataFrame(variable = [:v], eltypes = [ets])
