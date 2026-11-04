@@ -84,20 +84,48 @@ function populate_datacols!(nf, ds, noupd, unit, wv)
     end
 end
 
+"""
+        fillorder(wv)
+
+## Description
+
+Waves searched, in order, when filling a row for wave `wv`: the row's own
+wave first, then earlier waves, latest first (`wv, wv-1, …, 1`). Never a
+later wave: a row for wave `wv` must not contain answers given after `wv`.
+"""
+fillorder(wv::Integer) = collect(wv:-1:1)
+
+"""
+        _populate_datacol!(nf, c, ds, noupd, unit_ids, wv)
+
+## Description
+
+Fill column `c` of `nf` (rows for wave `wv`) from `ds[unit].properties[c]`,
+a `Dict{Int, Any}` keyed by wave.
+
+- `c ∈ noupd`: own-wave value, or missing.
+- otherwise: own-wave value if non-missing, else the latest non-missing
+  earlier wave (see `fillorder`). Later waves are never used. Every value
+  taken from another wave is recorded as `nf[i, :impute][c] = w`.
+
+The search order is an explicit sorted vector, never `keys(prop)`: `Dict`
+iteration follows hash order, which differs by Julia version (`4,2,3,1` on
+1.10–1.12, `3,2,1,4` on 1.13).
+"""
 function _populate_datacol!(nf, c, ds, noupd, unit_ids, wv)
     col_type  = nonmissingtype(eltype(nf[!, c]))
     impute_by_wave = c ∉ noupd
+    order = fillorder(wv)
     for i in eachindex(nf[!, c])
         entity = ds[unit_ids[i]]
         prop   = entity.properties[c]
         nf[i, c] = if impute_by_wave
-            # use most-recent wave value (default waves=[4,3,2,1] gives correct ordering;
-            # passing keys(prop) was wrong — Dict keys are unordered)
-            vl, w = firstval(prop)
+            vl, w = firstval(prop; waves = order)
             if !ismissing(vl) && typeof(vl) != col_type
                 vl = passmissing(parse)(col_type, vl)
             end
-            if (w < wv) & (w > 0)
+            if (w > 0) && (w != wv)
+                # filled from an earlier wave (w < wv, by `order`)
                 nf[i, :impute][c] = w
             end
             vl
@@ -112,7 +140,14 @@ end
 
 ## Description
 
-Return most recent value, or missing if all are missing.
+Return `(value, wave)` for the first non-missing value of `x` (a `Dict` keyed
+by wave) in the order given by `waves`, or `(missing, 0)` if all are missing.
+
+`waves` is searched in the order given, so pass an explicitly ordered
+vector (e.g. `fillorder(wv)`), never `keys(x)`: `Dict` key order is hash
+order and varies across Julia versions. The default searches all four
+waves, latest first, and so may return a value from *after* a given row's
+wave; the row builders use `fillorder(wv)` instead.
 """
 function firstval(x; waves = [4,3,2,1])
     for i in waves
